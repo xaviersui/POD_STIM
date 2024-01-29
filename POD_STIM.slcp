@@ -1,0 +1,42 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: POD_STIM
+label: POD_STIM
+description: |
+  This example project shows an empty configuration that can be used as a starting point to add components and functionality.
+category: Example|Platform
+filter:
+- name: Device Type
+  value: [SoC]
+- name: MCU
+  value: [32-bit MCU]
+- name: Project Difficulty
+  value: [Beginner]
+package: platform
+quality: production
+readme:
+- {path: readme.md}
+source:
+- {path: app.c}
+- {path: main.c}
+include:
+- path: ''
+  file_list:
+  - {path: app.h}
+sdk: {id: gecko_sdk, version: 4.4.0}
+toolchain_settings: []
+component:
+- {id: emlib_i2c}
+- {id: emlib_iadc}
+- {id: sl_system}
+- instance: [CAN_BIO_SPI]
+  id: spidrv_usart
+- {id: device_init}
+- {id: EFM32PG23B310F512IM48}
+- instance: [COM_RF_UART]
+  id: uartdrv_eusart
+define:
+- {name: DEBUG_EFM}
+ui_hints:
+  highlight:
+  - {path: readme.md, focus: true}
+
