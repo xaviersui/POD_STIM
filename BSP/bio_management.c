@@ -192,21 +192,22 @@ void BioManagementGpioInit(void)
 ************************************************************************************/
 void BioManagementTimerInit(void)
 {
-  CMU_ClockEnable(cmuClock_TIMER0,true);
-  TIMER_Init_TypeDef TimBio = TIMER_INIT_DEFAULT;
-  TimBio.enable = false;
-  uint32_t TimClk = CMU_ClockFreqGet(cmuClock_TIMER0);
-  TIMER_Init(TIMER0,&TimBio);
+	TIMER_Init_TypeDef BioTimerConf = TIMER_INIT_DEFAULT;
+	uint32_t BioTimerClk = CMU_ClockFreqGet(BIO_TIMER_CLK);
+	uint32_t BioTimerCnt = (1000000/BIO_SAMPLING_FREQUENCY) - 1; // To generate interrupt at 2500 Hz = 400 µs
 
-  uint32_t TimCnt = TimClk/5860;//5700
-  TIMER_TopSet(TIMER0,TimCnt);
+	BioTimerConf.enable  = false;
+	BioTimerConf.oneShot = false;
+	BioTimerConf.prescale = (BioTimerClk/BIO_TIMER_FREQ) - 1; // To achieve 1 MHz counting frequency
+	CMU_ClockEnable(BIO_TIMER_CLK,true);
 
-  TIMER_IntEnable(TIMER0,TIMER_IF_OF);
+	TIMER_Init(BIO_TIMER,&BioTimerConf);
+	TIMER_TopSet(BIO_TIMER,BioTimerCnt);
+	TIMER_IntEnable(BIO_TIMER,TIMER_IF_OF);
 
-  NVIC_ClearPendingIRQ(TIMER0_IRQn);
-  NVIC_EnableIRQ(TIMER0_IRQn);
-
-  BIO_SAMPLING_STOP;
+	NVIC_ClearPendingIRQ(BIO_TIMER_IRQ);
+	NVIC_EnableIRQ(BIO_TIMER_IRQ);
+	BIO_SAMPLING_STOP;
 }
 
 /**********************************************************************************
@@ -395,91 +396,91 @@ End of function
 * @param  .
 * @return .
 ************************************************************************************/
-//void TIMER0_IRQHandler(void)
-//{
-//  BIO_SAMPLING_STOP;
-//
-//  uint8_t j = 0;
-//  uint8_t rxBuff[2] = {0};
-//  uint16_t tmp = 0;
-//  uint16_t res = 0;
-//  int8_t cmd[2] = {0};
-//
-//
-//#ifdef TEST_MODE_01
-//  #define INTVAL0 -4000
-//  #define INTVAL1 4000
-//  #define INTVAL  1000
-//  static int16_t intVal = INTVAL0;
-//  static int16_t cnt = 0;
-//#endif
-//
-//  #ifdef PIN_TEST_MODE_0
-//  p4_5 = 1; // pin test
-//#endif
-//
-//  if(gBioSampl_t.nAvailableMeas < BIO_MEAS_BUFF_SIZE_MAX)
-//  {
-//#ifdef TEST_MODE_01
-//    /*intVal = intVal + 1;
-//    if(intVal > INTVAL1)
-//      intVal = INTVAL0; */
-//    if(cnt<7958/2)
-//      intVal = INTVAL/*50*/;
-//    else
-//    {
-//      if(cnt<7958)
-//        intVal = 0;
-//      else
-//      {
-//        intVal = INTVAL/*50*/;
-//        cnt = -1;
-//      }
-//    }
-//    cnt++;
-//
-//#endif
-//
-//    for(j=0;j<gBioSampl_t.nBio+1;j++)
-//    {
-//      tmp = CONVERT_SELECTED_CHANNEL(gBioSampl_t.inputId[j % gBioSampl_t.nBio]);
-//      cmd[0] = MSB(tmp);
-//      cmd[1] = LSB(tmp);
-//#if 1
-//      SPIDRV_MTransferB(sl_spidrv_usart_CAN_BIO_SPI_handle, cmd,rxBuff,2);
-//#else
-//      SPIDRV_MTransmitB(sl_spidrv_usart_CAN_BIO_SPI_handle,cmd,1);
-//      SPIDRV_MReceiveB(sl_spidrv_usart_CAN_BIO_SPI_handle,rxBuff,1);
-//
-//      SPIDRV_MTransmitB(sl_spidrv_usart_CAN_BIO_SPI_handle,cmd + 1,1);
-//      SPIDRV_MReceiveB(sl_spidrv_usart_CAN_BIO_SPI_handle,rxBuff + 1,1);
-//#endif
-//      if(j > 0)
-//      {
-//          res = ( ((uint16_t)rxBuff[0] << 8) | rxBuff[1] );   /**< DAC Data */
-//#ifdef TEST_MODE_01
-//        gBioSampl_t.measBuff[gBioSampl_t.inputId[j-1]][gBioSampl_t.writeIdx] = intVal;
-//#else
-//        gBioSampl_t.measBuff[gBioSampl_t.inputId[j-1]][gBioSampl_t.writeIdx] = (int16_t)((((res & 0x1fff)*10000)/0x1fff) - 5000);
-//#endif
-//      }
-//    }
-//
-//#ifdef TEST_MODE
-//    if(gBioSampl_t.writeIdx == BIO_MEAS_BUFF_SIZE_MAX-1)
-//      gBioSampl_t.writeIdx++;
-//#endif
-//    gBioSampl_t.writeIdx = (gBioSampl_t.writeIdx + 1) % BIO_MEAS_BUFF_SIZE_MAX;
-//    gBioSampl_t.nAvailableMeas++;
-//    gBioSampl_t.bAvailableMeas = TRUE;
-//  }
-//
-//#ifdef PIN_TEST_MODE_0
-//  p4_5 = 0; // pin test
-//#endif
-//  TIMER_IntClear(TIMER0,TIMER_IF_OF);
-//  BIO_SAMPLING_START;
-//}
+void TIMER2_IRQHandler(void)
+{
+  BIO_SAMPLING_STOP;
+
+  uint8_t j = 0;
+  uint8_t rxBuff[2] = {0};
+  uint16_t tmp = 0;
+  uint16_t res = 0;
+  int8_t cmd[2] = {0};
+
+
+#ifdef TEST_MODE_01
+  #define INTVAL0 -4000
+  #define INTVAL1 4000
+  #define INTVAL  1000
+  static int16_t intVal = INTVAL0;
+  static int16_t cnt = 0;
+#endif
+
+  #ifdef PIN_TEST_MODE_0
+  p4_5 = 1; // pin test
+#endif
+
+  if(gBioSampl_t.nAvailableMeas < BIO_MEAS_BUFF_SIZE_MAX)
+  {
+#ifdef TEST_MODE_01
+    /*intVal = intVal + 1;
+    if(intVal > INTVAL1)
+      intVal = INTVAL0; */
+    if(cnt<7958/2)
+      intVal = INTVAL/*50*/;
+    else
+    {
+      if(cnt<7958)
+        intVal = 0;
+      else
+      {
+        intVal = INTVAL/*50*/;
+        cnt = -1;
+      }
+    }
+    cnt++;
+
+#endif
+
+    for(j=0;j<gBioSampl_t.nBio+1;j++)
+    {
+      tmp = CONVERT_SELECTED_CHANNEL(gBioSampl_t.inputId[j % gBioSampl_t.nBio]);
+      cmd[0] = MSB(tmp);
+      cmd[1] = LSB(tmp);
+#if 1
+      SPIDRV_MTransferB(sl_spidrv_usart_CAN_BIO_SPI_handle, cmd,rxBuff,2);
+#else
+      SPIDRV_MTransmitB(sl_spidrv_usart_CAN_BIO_SPI_handle,cmd,1);
+      SPIDRV_MReceiveB(sl_spidrv_usart_CAN_BIO_SPI_handle,rxBuff,1);
+
+      SPIDRV_MTransmitB(sl_spidrv_usart_CAN_BIO_SPI_handle,cmd + 1,1);
+      SPIDRV_MReceiveB(sl_spidrv_usart_CAN_BIO_SPI_handle,rxBuff + 1,1);
+#endif
+      if(j > 0)
+      {
+          res = ( ((uint16_t)rxBuff[0] << 8) | rxBuff[1] );   /**< DAC Data */
+#ifdef TEST_MODE_01
+        gBioSampl_t.measBuff[gBioSampl_t.inputId[j-1]][gBioSampl_t.writeIdx] = intVal;
+#else
+        gBioSampl_t.measBuff[gBioSampl_t.inputId[j-1]][gBioSampl_t.writeIdx] = (int16_t)((((res & 0x1fff)*10000)/0x1fff) - 5000);
+#endif
+      }
+    }
+
+#ifdef TEST_MODE
+    if(gBioSampl_t.writeIdx == BIO_MEAS_BUFF_SIZE_MAX-1)
+      gBioSampl_t.writeIdx++;
+#endif
+    gBioSampl_t.writeIdx = (gBioSampl_t.writeIdx + 1) % BIO_MEAS_BUFF_SIZE_MAX;
+    gBioSampl_t.nAvailableMeas++;
+    gBioSampl_t.bAvailableMeas = TRUE;
+  }
+
+#ifdef PIN_TEST_MODE_0
+  p4_5 = 0; // pin test
+#endif
+  TIMER_IntClear(BIO_TIMER,TIMER_IF_OF);
+  BIO_SAMPLING_START;
+}
 
 /**********************************************************************************
 End of function

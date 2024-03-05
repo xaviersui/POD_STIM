@@ -71,9 +71,6 @@ User Includes
 //#include "stim_management.h"
 #include "bio_management.h"
 
-
-//#define SET_CMD_PIN_DIR(mask, portDir)  GPIO_SET_PORT0_DIR(mask, portDir)
-
 /************************************************************************************
 *************************************************************************************
 * Private macros
@@ -115,12 +112,6 @@ int main(void)
   // this call.
   sl_system_init();
 
-  /*StimErr_t stimErr0, stimErr1;
-    StimGenErr_t stimGenErr;
-    StimConfigData_t stimConfigData_t;
-    StimulationConfiguration_t  tStimConfig;*/
-
-
 #ifdef TEST_MODE_2
     struct
     {
@@ -148,10 +139,6 @@ int main(void)
     tStimConfig.tPattern[gStimOut1_c].width = 100;        // in �s
     tStimConfig.tPattern[gStimOut1_c].amplitude = 600;      // in A*(10^-4)
 #endif
-
-  // Initialize the application. For example, create periodic timer(s) or
-  // task(s) if the kernel is present.
-  //app_init();
 
   BspInit();
   ApplicationInit();
@@ -292,25 +279,9 @@ int main(void)
 
 #endif
 
-// #if defined(SL_CATALOG_KERNEL_PRESENT)
-//   // Start the kernel. Task(s) created in app_init() will start running.
-//   sl_system_kernel_start();
-// #else // SL_CATALOG_KERNEL_PRESENT
   FsmRun();
-//    while (1) {
-// //     // Do not remove this call: Silicon Labs components process action routine
-// //     // must be called from the super loop.
-// //     sl_system_process_action();
+  while(1); // Should never be here
 
-// //     // Application process.
-//      app_process_action();
-
-// // #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
-// //     // Let the CPU go to sleep if the system allows it.
-// //     sl_power_manager_sleep();
-// // #endif
-// }
-// #endif // SL_CATALOG_KERNEL_PRESENT
 }
 
 
