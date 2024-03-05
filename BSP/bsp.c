@@ -82,7 +82,8 @@ Return value:   none
 ***********************************************************************************/
 void BoardInit(void)
 {
-  ///////////////////// Configure en GPIO en sortie //////////////////////
+	///////////////////// Configure en GPIO en sortie //////////////////////
+	/// Pin used for stimulation
     CMU_ClockEnable(cmuClock_GPIO, true);
     GPIO_PinModeSet(SW_DETECT_PORT, SW_DETECT_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_AOP_PORT,CMD_AOP_PIN, gpioModeWiredOrPullDown, 0);
@@ -94,6 +95,12 @@ void BoardInit(void)
     GPIO_PinModeSet(CMD_H2_PORT, CMD_H2_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_H1_PORT, CMD_H1_PIN, gpioModeWiredOrPullDown, 0);
 
+    /// Pin used for biofeedback
+    GPIO_PinModeSet(CMD_G2_CH1_PORT,CMD_G2_CH1_PIN,gpioModePushPull,0);
+    GPIO_PinModeSet(CMD_G2_CH2_PORT,CMD_G2_CH2_PIN,gpioModePushPull,0);
+    GPIO_PinModeSet(CMD_G3_CH1_PORT,CMD_G3_CH1_PIN,gpioModePushPull,0);
+    GPIO_PinModeSet(CMD_G3_CH2_PORT,CMD_G3_CH2_PIN,gpioModePushPull,0);
+
     ////////////// Enable GPIO pins PA5 (SDA) and PA6 (SCL) ///////////////
     CMU_ClockEnable(cmuClock_I2C0, true);
     GPIO_PinModeSet(I2C0_SCL_PORT, I2C0_SCL_PIN, gpioModeWiredAndPullUpFilter, 1);
@@ -101,30 +108,32 @@ void BoardInit(void)
 
     GPIO_PinModeSet(IO_RF_STOP_PORT, IO_RF_STOP_PIN, gpioModeInput, 0);
 
+    // Spi is initialised in function "sl_driver_init" locate in s"l_event_handler.h"
     initIADC();
-      init_I2C();
-      initTIMER();
+    init_I2C();
+    initTIMER();
 
-      /** - Callback functions declaration. */
-        pStimGenCallback[gStimPatternBiphasic_c] = MeSS_GestionCourantBiphasiquePositif;
-        pStimGenCallback[gStimPatternMonophasic_c] = ImpulsMonophas;
-        //pStimGenCallback[gStimPatternGalvanic_c] = Galvanic;
-        pStimGenCallback[gStimPatternBiphasicAltern_c] = MeSS_GestionCourantBiphasiqueAlterne;
-        //pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
-        //pStimGenCallback[gStimPatternNeuro_c] = NeuroMonophas;
-        pStimGenCallback[gStimPatternBiphasicNegative_c] = MeSS_GestionCourantBiphasiqueNegatif;
+    /** - Callback functions declaration. */
+    pStimGenCallback[gStimPatternBiphasic_c] = MeSS_GestionCourantBiphasiquePositif;
+    pStimGenCallback[gStimPatternMonophasic_c] = ImpulsMonophas;
+    //pStimGenCallback[gStimPatternGalvanic_c] = Galvanic;
+    pStimGenCallback[gStimPatternBiphasicAltern_c] = MeSS_GestionCourantBiphasiqueAlterne;
+    //pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
+    //pStimGenCallback[gStimPatternNeuro_c] = NeuroMonophas;
+    pStimGenCallback[gStimPatternBiphasicNegative_c] = MeSS_GestionCourantBiphasiqueNegatif;
 
-        /** - Number of alternance per signal. */
-        gNPulse_c[gStimPatternBiphasic_c] = 2;
-        gNPulse_c[gStimPatternMonophasic_c] = 2;
-        gNPulse_c[gStimPatternBiphasicAltern_c] = 2;
-        gNPulse_c[gStimPatternVeineuxBiphasic_c] = 52;
-        gNPulse_c[gStimPatternBiphasicNegative_c] = 2;
-  while(EFM32_STOP_IS_EN);
-  SrlCommManagmntInit();
-  //StimManagementHacheurInit();
-  //BioManagementInit();
-  //error = flash_Init(BLOCK_DEF);
+    /** - Number of alternance per signal. */
+    gNPulse_c[gStimPatternBiphasic_c] = 2;
+    gNPulse_c[gStimPatternMonophasic_c] = 2;
+    gNPulse_c[gStimPatternBiphasicAltern_c] = 2;
+    gNPulse_c[gStimPatternVeineuxBiphasic_c] = 52;
+    gNPulse_c[gStimPatternBiphasicNegative_c] = 2;
+
+    while(EFM32_STOP_IS_EN);
+    SrlCommManagmntInit();
+    //StimManagementHacheurInit();
+    BioManagementInit();
+    //error = flash_Init(BLOCK_DEF);
 }
 
 /**********************************************************************************

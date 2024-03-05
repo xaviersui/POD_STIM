@@ -8,26 +8,25 @@
 
 #include "i2c.h"
 #include "stddef.h"
+
 void init_I2C()
 {
-	//    CMU_ClockEnable(cmuClock_I2C0, true);
-	//    CMU_ClockEnable(cmuClock_GPIO, true);
+	CMU_ClockEnable(cmuClock_I2C0, true);
+	CMU_ClockEnable(cmuClock_GPIO, true);
 
-	    // Use default settings
-	    I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
+	// Use default settings
+	I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
 
+	// Route I2C pins to GPIO
+	GPIO->I2CROUTE[0].SDAROUTE = (GPIO->I2CROUTE[0].SDAROUTE & ~_GPIO_I2C_SDAROUTE_MASK) | (I2C0_SDA_PORT << _GPIO_I2C_SDAROUTE_PORT_SHIFT | (I2C0_SDA_PIN << _GPIO_I2C_SDAROUTE_PIN_SHIFT));
+	GPIO->I2CROUTE[0].SCLROUTE = (GPIO->I2CROUTE[0].SCLROUTE & ~_GPIO_I2C_SCLROUTE_MASK) | (I2C0_SCL_PORT << _GPIO_I2C_SCLROUTE_PORT_SHIFT | (I2C0_SCL_PIN << _GPIO_I2C_SCLROUTE_PIN_SHIFT));
+	GPIO->I2CROUTE[0].ROUTEEN = GPIO_I2C_ROUTEEN_SDAPEN | GPIO_I2C_ROUTEEN_SCLPEN;
 
+	// Initialize the I2C
+	I2C_Init(I2C0, &i2cInit);
 
-	    // Route I2C pins to GPIO
-	    GPIO->I2CROUTE[0].SDAROUTE = (GPIO->I2CROUTE[0].SDAROUTE & ~_GPIO_I2C_SDAROUTE_MASK) | (I2C0_SDA_PORT << _GPIO_I2C_SDAROUTE_PORT_SHIFT | (I2C0_SDA_PIN << _GPIO_I2C_SDAROUTE_PIN_SHIFT));
-	    GPIO->I2CROUTE[0].SCLROUTE = (GPIO->I2CROUTE[0].SCLROUTE & ~_GPIO_I2C_SCLROUTE_MASK) | (I2C0_SCL_PORT << _GPIO_I2C_SCLROUTE_PORT_SHIFT | (I2C0_SCL_PIN << _GPIO_I2C_SCLROUTE_PIN_SHIFT));
-	    GPIO->I2CROUTE[0].ROUTEEN = GPIO_I2C_ROUTEEN_SDAPEN | GPIO_I2C_ROUTEEN_SCLPEN;
-
-	    // Initialize the I2C
-	    I2C_Init(I2C0, &i2cInit);
-
-	    // Enable automatic STOP on NACK
-	    I2C0->CTRL = I2C_CTRL_AUTOSN;
+	// Enable automatic STOP on NACK
+	I2C0->CTRL = I2C_CTRL_AUTOSN;
 }
 
 void I2C_LeaderRead(uint16_t followerAddress, uint8_t targetAddress, uint8_t *rxBuff, uint8_t numBytes)

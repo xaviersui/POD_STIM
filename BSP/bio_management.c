@@ -56,9 +56,6 @@ User Includes
 #define CONFIG_BIO_ADC_SPI        { SET_BIO_ADC_SPI_CLK_PHASE;  \
                       SET_BIO_ADC_SPI_CLK_POLARITY; }
 
-#define AD7322
-
-#ifdef  AD7322
 #define AD7322_WRITE_ON       BIT15
 
 #define AD7322_RANGE_REG      BIT13
@@ -75,49 +72,6 @@ User Includes
 
 #define SET_ANALOG_INPUT_CHANNEL(chan)  (chan * BIT10)
 #define CONVERT_SELECTED_CHANNEL(val) AD7322_WRITE_ON | AD7322_CTRL_REG | AD7322_CODING_STRAIGHT | AD7322_REF | AD7322_MODE | AD7322_PM | AD7322_SEQUENCER | SET_ANALOG_INPUT_CHANNEL(val)
-
-#else
-#define WRITE_ON            BIT15
-
-#define CONTROL_REGISTER        0
-#define RANGE_REGISTER          BIT13
-#define SEQUENCE_REGISTER       BIT14 | BIT13
-
-#define ANALOG_INPUT_CHANNEL0     0
-#define ANALOG_INPUT_CHANNEL1     BIT10
-#define ANALOG_INPUT_CHANNEL2     BIT11
-#define ANALOG_INPUT_CHANNEL3     BIT11 | BIT10
-
-#define SET_ANALOG_INPUT_CHANNEL(chan)  (chan * BIT10)
-
-#define DEFAULT_MODE          0     /**< 4 Single-Ended I/Ps. */
-
-#define POWER_MODE_FULL_SHUTDOWN    BIT7 | BIT6
-#define POWER_MODE_AUTO_SHUTDOWN    BIT7
-#define POWER_MODE_AUTO_STANDBY     BIT6
-#define POWER_MODE_NORMAL       0
-
-#define CODING_TWO_COMPLEMENT     0
-#define CODING_STRAIGHT_BINARY      BIT5
-
-#define REFERENCE_INTERNAL        BIT4
-#define REFERENCE_EXTERNAL        0
-
-#define SEQUENCE_NONE         0
-#define SEQUENCE_SELECTED_CHANNEL   BIT2
-#define SEQUENCE_CONSECUTIVE_CHANNEL  BIT3
-
-#define SEQUENCE_SELECTED_CHANNEL0    BIT12
-#define SEQUENCE_SELECTED_CHANNEL1    BIT11
-#define SEQUENCE_SELECTED_CHANNEL2    BIT10
-#define SEQUENCE_SELECTED_CHANNEL3    BIT9
-
-#define DEFAULT_RANGE         BIT11 | BIT9 | BIT7 | BIT5    /**< Selects the +/-5 V input range on VIN0, VIN1, VIN2, VIN3. */
-
-#define CONVERT_SELECTED_CHANNEL(val) 0x8030 | SET_ANALOG_INPUT_CHANNEL(val)    // WRITE_ON | CONTROL_REGISTER | SET_ANALOG_INPUT_CHANNEL(val) | DEFAULT_MODE | /*CODING_TWO_COMPLEMENT*/CODING_STRAIGHT_BINARY | REFERENCE_INTERNAL | SEQUENCE_NONE;
-#define SIGN_BIT            BIT12
-#endif
-//#define BIO_SAMPLING_RELOAD_COUNT   tremin = /*250*/ 125 - 1
 
 #define BIO_MEAS_BUFF_SIZE_MAX      /*100*/50
 
@@ -181,7 +135,6 @@ uint8_t nTest = 0;
 ************************************************************************************/
 void BioManagementGpioInit(void)
 {
-  //GPIO_PinModeSet(COM_CAN_BIO_SPI_CS_PORT,COM_CAN_BIO_SPI_CS_PIN,gpioModePushPull, 1);
 }
 
 /************************************************************************************
@@ -227,11 +180,8 @@ void BioManagementADCInit(void)
   uint8_t dummyrx[2] = {0};
 
   /** Write to range register to select the �5V input range for each analog input channel. */
-#ifdef AD7322
   tmp = AD7322_WRITE_ON | AD7322_RANGE_REG | AD7322_DEFAULT_RANGE;
-#else
-  tmp = WRITE_ON | RANGE_REGISTER | DEFAULT_RANGE;
-#endif
+
 
   cmd[0] = MSB(tmp);
   cmd[1] = LSB(tmp);
