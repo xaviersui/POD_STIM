@@ -123,10 +123,10 @@ User Includes
 #define STIM_GEN_AMPLITUDE_MAX    1000      // in A*(10^-4)
 
 
-#define CMD_M_SET_POSITIVE_PULSE  SIUE1316_Gpio_SetElectrostimulation(eETAPE3) // Set Haut L2-H1  CLR L1 /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
-#define CMD_M_SET_NEGATIVE_PULSE  SIUE1316_Gpio_SetElectrostimulation(eETAPE8)//set Bas H2-L1  CLR L2 /*CMD_M_PORT = NEGATIVE_PULSE_CMD*/
-#define CMD_M_SET_NO_PULSE     SIUE1316_Gpio_SetElectrostimulation(eETAPE2) //Set L1-L2     /*CMD_M_PORT = NO_PULSE_CMD*/
-#define CMD_M_DISCONNECT     SIUE1316_Gpio_SetElectrostimulation(eETAPE1)   //CLR L1-L2-H1-H2     /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
+#define CMD_M_SET_POSITIVE_PULSE  Gpio_SetElectrostimulation(eETAPE3) // Set Haut L2-H1  CLR L1 /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
+#define CMD_M_SET_NEGATIVE_PULSE  Gpio_SetElectrostimulation(eETAPE8)//set Bas H2-L1  CLR L2 /*CMD_M_PORT = NEGATIVE_PULSE_CMD*/
+#define CMD_M_SET_NO_PULSE     Gpio_SetElectrostimulation(eETAPE2) //Set L1-L2     /*CMD_M_PORT = NO_PULSE_CMD*/
+#define CMD_M_DISCONNECT     Gpio_SetElectrostimulation(eETAPE1)   //CLR L1-L2-H1-H2     /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
 
 
 
@@ -140,7 +140,7 @@ User Includes
 #define SWITCH_STOP        {TIMER_Enable(TIMER0,false);/*TIMER_CounterSet(TIMER0,0);*/}
 
 #define STIM_GEN_RELOAD_COUNT(val)      trcgra_addr = (uint16_t)(val - 1)
-#define STIM_GEN_RELOAD_NEXT_COUNT(val)   SIUE1316_Timer_SetMft1Timming(val)
+#define STIM_GEN_RELOAD_NEXT_COUNT(val)   Timer_SetMft1Timming(val)
 #define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER0,0)   // Timer RB counter
 
 

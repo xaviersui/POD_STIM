@@ -104,7 +104,7 @@ StimErr_t StimulationStart(void)
 			gflag[0] = TRUE;
 
 		//STIM_SUPERVIS_START;
-		//STIM_GEN_START;
+		STIM_GEN_START;
 	}
 
 	return gStimErrNoError_c;
@@ -134,9 +134,9 @@ StimErr_t StimulationStop(void)
 		// CMD_GALV_SEL_NONE;
 	}
   // Application AOP -> OFF
-  SIUE1316_Gpio_ClrAop();
+  Gpio_ClrAop();
 
-  (void)SIUE1316_Ad5691r_SetIntensiteStimulation(0); //exprimer en uV
+  (void)Ad5691r_SetIntensiteStimulation(0); //exprimer en uV
 
 	for (i = 0; i < gStimOutMax_c; i++)
 	{

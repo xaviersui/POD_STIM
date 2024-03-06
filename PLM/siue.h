@@ -178,17 +178,17 @@ typedef enum
 #define STIM_GEN_TRM_PERIOD_MAX   32768     // in �s*10^(-1)  //( ((uint32_t)(TMR_RC_COUNTER_MAX + 1)*DEF_TIME_NBR_uS_PER_SEC)/STIM_GEN_TRM_CLK_SOURCE )
 
 
-int32_t SIUE1316_Ad5691r_SetIntensiteStimulation(uint32_t v/*uint32_t ui32Intensite*/);
-void SIUE1316_Gpio_SetElectrostimulation(eCdeElectrostimulation_Type eCdeElectrostimulation);
+int32_t Ad5691r_SetIntensiteStimulation(uint32_t v/*uint32_t ui32Intensite*/);
+void Gpio_SetElectrostimulation(eCdeElectrostimulation_Type eCdeElectrostimulation);
 void MeSS_GestionCourantBiphasiquePositif(void);
 void  MeSS_GestionCourantMonophasiquePositif(void);
 void MeSS_GestionCourantBiphasiqueNegatif(void);
 void MeSS_GestionCourantMonophasiqueNegatif(void);
 void MeSS_GestionCourantBiphasiqueAlterne(void);
 void ImpulsMonophas(void);
-void SIUE1316_Gpio_SetAop();
-void SIUE1316_Gpio_ClrAop();
-void SIUE1316_Timer_SetMft1Timming(uint16_t ui16Time);
+void Gpio_SetAop();
+void Gpio_ClrAop();
+void Timer_SetMft1Timming(uint16_t ui16Time);
 
 void VeineuxBiphas(void);
 void ImportTrameDAL(void);
