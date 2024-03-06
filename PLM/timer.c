@@ -83,7 +83,7 @@ extern Stimulation_t gStim_t;    /**< */
  *****************************************************************************/
 void initTIMER(void)
 {
-  volatile uint32_t clk = 0;
+
   CMU_ClockEnable(cmuClock_TIMER0, true);
   CMU_ClockEnable(cmuClock_TIMER1, true);
   // Do not start counter upon initialization
@@ -91,13 +91,12 @@ void initTIMER(void)
 
   // Run in one-shot mode and toggle the pin on each compare match
   timerInit.oneShot = true;
-  clk = CMU_ClockFreqGet(cmuClock_TIMER0);
   timerInit.prescale = (CMU_ClockFreqGet(cmuClock_TIMER0)/FREQ_TIM0_CNT) - 1;
   TIMER_Init(TIMER0, &timerInit);
 
   TIMER_IntEnable(TIMER0,TIMER_IF_OF);
 
-  clk = CMU_ClockFreqGet(cmuClock_TIMER1);
+
   timerInit.prescale = (CMU_ClockFreqGet(cmuClock_TIMER1)/FREQ_TIM1_CNT) - 1;
   // Run in one-shot mode and toggle the pin on each compare match
     timerInit.oneShot = false;

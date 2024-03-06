@@ -87,7 +87,6 @@ StimGenErr_t StimManagementConfigPulse(StimulationConfiguration_t* pStimConfig_t
   {
     temp += pStimConfig_t->tPattern[i].width * gNPulse_c[pStimConfig_t->patternId];
   }
-
   /** T = N * STIM_GEN_TRM_PERIOD_MAX + Tr */
   nStimTimerloop  = pStimConfig_t->frequency / STIM_GEN_TRM_PERIOD_MAX;
   trStim      = (pStimConfig_t->frequency) % STIM_GEN_TRM_PERIOD_MAX;
@@ -520,7 +519,7 @@ void ImpulsBiphas(void)
 {
   static uint16_t i = 0, Nloop = 0;
   uint16_t tmp = 0;
-  uint8_t j,k;
+  //uint8_t j,k;
 
 
   /** Biphasic pulse states */
@@ -543,15 +542,18 @@ void ImpulsBiphas(void)
   switch(tBiphasState)
   {
 
-        case gBiPhasInit1_c:
+     case gBiPhasInit1_c:
+
         // Configuration du timming prochaine étape
         STIM_GEN_RELOAD_NEXT_COUNT(iSS_TIMMING_COURT);
-        CMD_M_DISCONNECT;       /**< Desactive CMD */
-                tBiphasState = gBiPhasInit2_c;
+        /**< Desactive CMD */
+        CMD_M_DISCONNECT;
+        tBiphasState = gBiPhasInit2_c;
         break;
 
-        case gBiPhasInit2_c:
-              // Configuration du timming prochaine étape
+    case gBiPhasInit2_c:
+
+        // Configuration du timming prochaine étape
         STIM_GEN_RELOAD_NEXT_COUNT(500);
        /** Sets Next Step Time */
         CMD_M_SET_NO_PULSE;    //L1-L2
@@ -561,235 +563,170 @@ void ImpulsBiphas(void)
          PETIT_DELAI_NOP;
          /** Sets Level */
         (void)Ad5691r_SetIntensiteStimulation(gStimGen_t.tPulse[i].digitalAmplitude); //exprimer en uV gStimGen_t.tPulse[i].digitalAmplitude
-
         tBiphasState = gBiphasStatePos_c;
         break;
 
         /** Positive Pulse */
     case gBiphasStatePos_c  :
 
-          Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiERREUR_TIMER_MFT1);
-           /** Sets Commands */
-            GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);// STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]);  a modif    /**< Active Pulse Output */
+         Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiERREUR_TIMER_MFT1);
+        /** Sets Commands */
+        GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);// STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]);  a modif    /**< Active Pulse Output */
+        /**< Enables Positive pulse CMD */
+        CMD_M_SET_POSITIVE_PULSE;
+        //  SWITCH_START;             /**< Enables switching */
+        tBiphasState = gBiphasStatePos_c1;
+        break;
 
-      CMD_M_SET_POSITIVE_PULSE;       /**< Enables Positive pulse CMD */
-    //  SWITCH_START;             /**< Enables switching */
-
-      tBiphasState = gBiphasStatePos_c1;
-
-      break;
-
-    case gBiphasStatePos_c1  :
-
-            //CMD_M_DISCONNECT;       /**< Desactive CMD */
-              /** Sets Next Step Time */
-            STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+200); /// DUREE DE L'IMPULSION
-
-            /** Current Measurement */
-            (void)Adc_TraitementAcquisitionCourantRelecture();
-           // gStimGen_t.tPulse[i].digitalMeasAmplitude = ( MAKE_UINT(msb,lsb) & 0x0FFC ) >> 2 ; à modifier Stocker valeur
-            gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
-            tBiphasState = gBiphasStatePalier_c;
-
-         break;
-
-
-         case gBiphasStatePalier_c  :
+     case gBiphasStatePos_c1  :
 
          //CMD_M_DISCONNECT;       /**< Desactive CMD */
-
-
-                 /**< Disable Negatif pulse CMD */
-                Gpio_SetElectrostimulation(eETAPE4);
-
-         Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1);
-         tBiphasState = gBiphasStateNeg_c;
-
+         /** Sets Next Step Time */
+         STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+200); /// DUREE DE L'IMPULSION
+         /** Current Measurement */
+         gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
+         gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+         tBiphasState = gBiphasStatePalier_c;
          break;
 
 
-    /** Negative Pulse */
-    case gBiphasStateNeg_c  :
+      case gBiphasStatePalier_c  :
 
-      /** Current Measurement */
-      SPI_CLOCK_RATE(F1_BY_8);
-      CONFIG_MEAS_SPI;
-      SPI_CONFIG_RECEIVE;
-      MEAS_CS_EN;
+         //CMD_M_DISCONNECT;       /**< Desactive CMD */
+         /**< Disable  pulse CMD */
+         Gpio_SetElectrostimulation(eETAPE4);
+         /**Negatif Pulse*/
+         Gpio_SetElectrostimulation(eETAPE6);
+         Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1);
+         tBiphasState = gBiphasStateNeg_c;
+         break;
 
-      SPI_RECEIVE_DATA(&msb);   /* read a dummy data to stard reading operation */
 
-      while (orer_sssr != 1 && rdrf_sssr != 1);
-
-      /* test overrun occurs */
-      if(orer_sssr == 1)
-        msb = 0;
-      else
-        SPI_RECEIVE_DATA(&msb);
-
-      rsstp_sscrh = 1;        /* Completes receive operation after receive 1 byte */
-
-      while (orer_sssr != 1 && rdrf_sssr != 1);
-
-      /* test overrun occurs */
-      if(orer_sssr != 1)
-      {
-        rsstp_sscrh = 0;
-
-        SPI_DISABLE_CONFIG;
-
-        SPI_RECEIVE_DATA(&lsb);
-        MEAS_CS_DIS;
-      }
-      else
-        lsb=0;
-      gStimGen_t.tPulse[i].digitalMeasAmplitude = ( MAKE_UINT(msb,lsb) & 0x0FFC ) >> 2 ;
-      gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
-      gflag[i]=TRUE;
-      SPI_CLOCK_RATE(SPI_DEFAULT_CLK);
-
-      CMD_M_SET_NO_PULSE;             /**< Disables pulse CMD */
-
-      /** Sets Commands */
-      CMD_M_SET_NEGATIVE_PULSE;       /**< Enables Negative pulse CMD */
-
+          /** Negative Pulse */
+      case gBiphasStateNeg_c  :
+         /** Sets Next Step Time */
+         STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+200); /// DUREE DE L'IMPULSION
+         /** Current Measurement */
+         gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
+         gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+         gflag[i]=TRUE;
+         //  CMD_M_SET_NO_PULSE;             /**< Disables pulse CMD */
+         /** Sets Commands */
+         //  CMD_M_SET_NEGATIVE_PULSE;       /**< Enables Negative pulse CMD */
       /** Sets Next Step Time */
-      switch(gStimGen_t.FreqDiff)
-      {
-        case 1 :
+         switch(gStimGen_t.FreqDiff)
+           {
+           case 1 :
 
-          if(cptFreqDiff<gStimGen_t.Ratio)
-          {
-            cptFreqDiff++;
-            if(i==1)
-              STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr-(11172+2*gStimGen_t.tPulse[i].cntWidth));
-            else
-              STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
-            i = 0;
-            tBiphasState = gBiphasStateNull_c;
-          }
-          else
-          {
-            cptFreqDiff=0;
-            if(++i < gStimGen_t.nPulse)       /**< Next Pulse */
-            {
-              STIM_GEN_RELOAD_NEXT_COUNT(/*gStimGen_t.tPulse[i].cntWidth*/11172);   //!!!!!
-              tBiphasState = /*gBiphasStatePos_c*/gBiphasStateInter_c;
-            }
-            else                  /**< No Pulse */
-            {
-              STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
-              i = 0;
-              tBiphasState = gBiphasStateNull_c;
-            }
-          }
-          break;
+               if(cptFreqDiff<gStimGen_t.Ratio)
+                   {
+                     cptFreqDiff++;
+                       if(i==1)
+                           STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr-(11172+2*gStimGen_t.tPulse[i].cntWidth));
+                         else
+                             STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
+                         i = 0;
+                           tBiphasState = gBiphasStateNull_c;
+                     }
+                 else
+                     {
+                       cptFreqDiff=0;
+                         if(++i < gStimGen_t.nPulse)       /**< Next Pulse */
+                             {
+                               STIM_GEN_RELOAD_NEXT_COUNT(/*gStimGen_t.tPulse[i].cntWidth*/11172);   //!!!!!
+                                 tBiphasState = /*gBiphasStatePos_c*/gBiphasStateInter_c;
+                               }
+                           else                  /**< No Pulse */
+                               {
+                                 STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
+                                   i = 0;
+                                     tBiphasState = gBiphasStateNull_c;
+                                 }
+                       }
+              break;
 
-        case 0 :
+             case 0 :
 
-          if(++i < gStimGen_t.nPulse)       /**< Next Pulse */
-          {
-            STIM_GEN_RELOAD_NEXT_COUNT(/*gStimGen_t.tPulse[i].cntWidth*/11172);   //!!!!!
-            tBiphasState = /*gBiphasStatePos_c*/gBiphasStateInter_c;
-          }
-          else                  /**< No Pulse */
-          {
-            STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
-            i = 0;
-            tBiphasState = gBiphasStateNull_c;
-          }
-          break;
+                 if(++i < gStimGen_t.nPulse)       /**< Next Pulse */
+                     {
+                       STIM_GEN_RELOAD_NEXT_COUNT(/*gStimGen_t.tPulse[i].cntWidth*/11172);   //!!!!!
+                         tBiphasState = /*gBiphasStatePos_c*/gBiphasStateInter_c;
+                       }
+                   else                  /**< No Pulse */
+                       {
+                         STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
+                           i = 0;
+                             tBiphasState = gBiphasStateNull_c;
+                         }
+              break;
 
-        case -1 :
+             case -1 :
 
-          if(i==0)
-          {
-            i=1;
-            cptFreqDiff++;
-            STIM_GEN_RELOAD_NEXT_COUNT(/*gStimGen_t.tPulse[i].cntWidth*/11172);   //!!!!!
-            tBiphasState = /*gBiphasStatePos_c*/gBiphasStateInter_c;
-          }
-          else
-          {
-            if(cptFreqDiff < gStimGen_t.Ratio)
-            {
-              cptFreqDiff++;
-              i=1;
-              STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
-              tBiphasState = gBiphasStateNull_c;
-            }
-            else
-            {
-              cptFreqDiff = 0;
-              STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr-(11172+2*gStimGen_t.tPulse[i].cntWidth));
-              i = 0;
-              tBiphasState = gBiphasStateNull_c;
-            }
-          }
+                 if(i==0)
+                     {
+                       i=1;
+                         cptFreqDiff++;
+                           STIM_GEN_RELOAD_NEXT_COUNT(/*gStimGen_t.tPulse[i].cntWidth*/11172);   //!!!!!
+                             tBiphasState = /*gBiphasStatePos_c*/gBiphasStateInter_c;
+                       }
+                   else
+                       {
+                         if(cptFreqDiff < gStimGen_t.Ratio)
+                             {
+                               cptFreqDiff++;
+                                 i=1;
+                                   STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
+                                     tBiphasState = gBiphasStateNull_c;
+                               }
+                           else
+                               {
+                                 cptFreqDiff = 0;
+                                   STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr-(11172+2*gStimGen_t.tPulse[i].cntWidth));
+                                   i = 0;
+                                     tBiphasState = gBiphasStateNull_c;
+                                 }
+                         }
 
-          break;
-      }
+              break;
+             }
 
-      break;
+         break;
 
 
     /** Inter Pulse */
     case gBiphasStateInter_c  :
 
-      /** Sets Commands */
-      SWITCH_STOP;              /**< Disables switching */
-      CMD_DEMAG_DIS;              /**< Disables Pulse */
-      CMD_M_DISCONNECT;             /**< Disables pulse CMD */
-      STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
-
-      /** Sets Level */
-      CONFIG_DAC_SPI;
-      SPI_CONFIG_TRANSMIT;
-      DAC_CS_EN;
-      tmp = NORMAL_MODE;
-      SPI_TRANSMIT_DATA(MSB(tmp));
-      SPI_TRANSMIT_DATA(LSB(tmp));
-
-      while( tend_sssr != 1 );        /* wait transmission end */
-
-      DAC_CS_DIS;
-      SPI_DISABLE_CONFIG;
-
+        /** Sets Commands */
+        SWITCH_STOP;              /**< Disables switching */
+       //  CMD_DEMAG_DIS;              /**< Disables Pulse */
+       CMD_M_DISCONNECT;             /**< Disables pulse CMD */
+       STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
+       /** Sets Level */
+       tmp = NORMAL_MODE;
+       (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV gStimGen_t.tPulse[i].digitalAmplitude
+       //  Application AOP -> OFF
+       Gpio_ClrAop();
       /** Sets pause cmd */
-      CMD_M_SET_NO_PULSE;
-
+      // CMD_M_SET_NO_PULSE;
       /** Sets Next Step Time */
       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+229);
       tBiphasState = gBiphasStatePos_c;
-
       break;
-
 
     /** Null Pulse */
     case gBiphasStateNull_c :
 
       /** Sets Commands */
       SWITCH_STOP;              /**< Disables switching */
-      CMD_DEMAG_DIS;              /**< Disables Pulse */
       CMD_M_DISCONNECT;             /**< Disables pulse CMD */
       STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
-
       /** Sets Level */
-      CONFIG_DAC_SPI;
-      SPI_CONFIG_TRANSMIT;
-      DAC_CS_EN;
       tmp = NORMAL_MODE;
-      SPI_TRANSMIT_DATA(MSB(tmp));
-      SPI_TRANSMIT_DATA(LSB(tmp));
-
-      while( tend_sssr != 1 );        /* wait transmission end */
-
-      DAC_CS_DIS;
-      SPI_DISABLE_CONFIG;
-
+      (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV gStimGen_t.tPulse[i].digitalAmplitude
+      //  Application AOP -> OFF
+      Gpio_ClrAop();
       /** Sets pause cmd */
-  //    CMD_M_SET_NO_PULSE;
-
+      //    CMD_M_SET_NO_PULSE;
       /** Sets Next Step Time */
       if (gStimGen_t.nTimerLoop > 0)      /**< Next Loop */
       {
@@ -800,9 +737,8 @@ void ImpulsBiphas(void)
       else                  /**< First Pulse */
       {
         STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+229);
-        tBiphasState = gBiphasStatePos_c;
+        tBiphasState = gBiPhasInit1_c;
       }
-
       break;
 
     case gBiphasStateNullLoop_c :
@@ -813,9 +749,8 @@ void ImpulsBiphas(void)
       else                  /**< First Pulse */
       {
         STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+229);
-        tBiphasState = gBiphasStatePos_c;
+        tBiphasState = gBiPhasInit1_c;
       }
-
       break;
 
     default :
@@ -824,16 +759,11 @@ void ImpulsBiphas(void)
 
   }
 
-//  p0_0 = 0; // pin test
 
 }
 /**********************************************************************************
 End of function
 ***********************************************************************************/
-
-
-
-
 
 
 
@@ -967,15 +897,16 @@ void ImpulsMonophas(void)
   switch(tMonophasState)
   {
     case gMonoPhasInit1_c:
-      {
+
         // Configuration du timming prochaine étape
         STIM_GEN_RELOAD_NEXT_COUNT(iSS_TIMMING_COURT);
-        CMD_M_DISCONNECT;       /**< Desactive CMD */
-                tMonophasState = gMonoPhasInit2_c;
+        /**< Desactive CMD */
+        CMD_M_DISCONNECT;
+        tMonophasState = gMonoPhasInit2_c;
         break;
-      }
+
     case gMonoPhasInit2_c:
-      {
+
         // Configuration du timming prochaine étape
         STIM_GEN_RELOAD_NEXT_COUNT(500);
        /** Sets Next Step Time */
@@ -983,119 +914,101 @@ void ImpulsMonophas(void)
         //  Application AOP -> ON
         Gpio_SetAop();
         // Petit d�lai par des cycles horloge
-         PETIT_DELAI_NOP;
-         /** Sets Level */
+        PETIT_DELAI_NOP;
+        /** Sets Level */
         (void)Ad5691r_SetIntensiteStimulation(gStimGen_t.tPulse[i].digitalAmplitude); //exprimer en uV gStimGen_t.tPulse[i].digitalAmplitude
-
         tMonophasState = gMonophasStatePos_c;
         break;
-      }
-    /** Positive Pulse */
+
     case gMonophasStatePos_c  :
 
-      //CMD_M_DISCONNECT;       /**< Desactive CMD */
+         //CMD_M_DISCONNECT;       /**< Desactive CMD */
+        Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiERREUR_TIMER_MFT1);
+        /** Sets Commands */
+        GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);// STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]);  a modif    /**< Active Pulse Output */
+        CMD_M_SET_POSITIVE_PULSE;       /**< Enables Positive pulse CMD */
+        // SWITCH_START;             /**< Enables switching */
+        tMonophasState = gMonophasStatePos_c1;
+        break;
 
-      Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiERREUR_TIMER_MFT1);
-           /** Sets Commands */
-      GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);// STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]);  a modif    /**< Active Pulse Output */
-      CMD_M_SET_POSITIVE_PULSE;       /**< Enables Positive pulse CMD */
-     // SWITCH_START;             /**< Enables switching */
-
-      tMonophasState = gMonophasStatePos_c1;
-
-      break;
     case gMonophasStatePos_c1  :
 
          //CMD_M_DISCONNECT;       /**< Desactive CMD */
-      /** Sets Next Step Time */
+         /** Sets Next Step Time */
          STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth); /// DUREE DE L'IMPULSION
+         gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current(); ;
+         gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+         gflag[i]=TRUE;
          tMonophasState = gMonophasStatePalier_c;
-
          break;
+
     case gMonophasStatePalier_c  :
 
          //CMD_M_DISCONNECT;       /**< Desactive CMD */
-      /** Sets Next Step Time */
-      Gpio_SetElectrostimulation(eETAPE4);
-      Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1);
+         /** Sets Next Step Time */
+         Gpio_SetElectrostimulation(eETAPE4);
+         Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1);
          tMonophasState = gMonophasStateNeg_c;
-
          break;
-    /** Negative Pulse */
+
+
     case gMonophasStateNeg_c  :
 
-      /** Current Measurement */
-      (void)Adc_TraitementAcquisitionCourantRelecture();
-      // MSB reception.
-
-//      gStimGen_t.tPulse[i].digitalMeasAmplitude = ( MAKE_UINT(msb,lsb) & 0x0FFC ) >> 2 ;
-//      gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
-//      gflag[i]=TRUE;
-//      SPI_CLOCK_RATE(SPI_DEFAULT_CLK);
-
-
-      if(++i < gStimGen_t.nPulse)       /**< Next Pulse */
-      {
-        STIM_GEN_RELOAD_NEXT_COUNT(2172);    //!!!!!
-        Gpio_ClrAop();
-     //   CMD_M_DISCONNECT;             /**< Disables pulse CMD */
+        /** Current Measurement
+        gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current(); ;
+        gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+        gflag[i]=TRUE; */
+        if(++i < gStimGen_t.nPulse)       /**< Next Pulse */
+        {
+        //   STIM_GEN_RELOAD_NEXT_COUNT(2172);    //!!!!!
+       // Gpio_ClrAop();
+        //   CMD_M_DISCONNECT;             /**< Disables pulse CMD */
         tMonophasState = /*gBiphasStatePos_c*/gMonophasStateInter_c;
-      }
-      else                  /**< No Pulse */
-      {
-        STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
-        i = 0;
-        Gpio_ClrAop();
-      //  CMD_M_DISCONNECT;             /**< Disables pulse CMD */
-        tMonophasState = gMonophasStateNull_c;
-      }
+        }
+        else                  /**< No Pulse */
+        {
+          STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
+          i = 0;
+       //  Gpio_ClrAop();
+       //  CMD_M_DISCONNECT;             /**< Disables pulse CMD */
+       tMonophasState = gMonophasStateNull_c;
+        }
 
       break;
 
 
-    /** Inter Pulse */
+
     case gMonophasStateInter_c  :
 
-      /** Sets Commands */
+        /** Sets Commands */
           //SWITCH_STOP;              /**< Disables switching */
-      CMD_M_DISCONNECT;             /**< Disables pulse CMD */
-      STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
+        CMD_M_DISCONNECT;             /**< Disables pulse CMD */
+        STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
+        /** Sets Level */
+        tmp = NORMAL_MODE;
+        // Application AOP -> OFF
+        Gpio_ClrAop();
+       (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
+        /** Sets pause cmd */
+        //   CMD_M_SET_NO_PULSE; // modif LIo
+       /** Sets Next Step Time */
+       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
+       tMonophasState = gMonoPhasInit2_c;//gMonophasStatePos_c;
+       break;
 
-      /** Sets Level */
-      tmp = NORMAL_MODE;
-      // Application AOP -> OFF
-      Gpio_ClrAop();
-
-      (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
-
-      /** Sets pause cmd */
-   //   CMD_M_SET_NO_PULSE; // modif LIo
-
-      /** Sets Next Step Time */
-      STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
-      tMonophasState = gMonoPhasInit2_c;//gMonophasStatePos_c;
-
-      break;
-
-
-    /** Null Pulse */
     case gMonophasStateNull_c :
 
-      /** Sets Commands */
-      //SWITCH_STOP;              /**< Disables switching */
-      CMD_M_DISCONNECT;             /**< Disables pulse CMD */
-      STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
-
-      /** Sets Level */
-      tmp = NORMAL_MODE;
-      // Application AOP -> OFF
-      Gpio_ClrAop();
-     (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
-
-
+       /** Sets Commands */
+       //SWITCH_STOP;              /**< Disables switching */
+       CMD_M_DISCONNECT;             /**< Disables pulse CMD */
+       STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
+       /** Sets Level */
+       tmp = NORMAL_MODE;
+       // Application AOP -> OFF
+       Gpio_ClrAop();
+      (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
       /** Sets pause cmd */
-   //   CMD_M_SET_NO_PULSE; //modif lio
-
+      //   CMD_M_SET_NO_PULSE; //modif lio
       /** Sets Next Step Time */
       if (gStimGen_t.nTimerLoop > 0)      /**< Next Loop */
       {
@@ -1108,9 +1021,7 @@ void ImpulsMonophas(void)
         STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
         tMonophasState = gMonoPhasInit2_c;//gMonophasStatePos_c;
       }
-
       break;
-
 
     case gMonophasStateNullLoop_c :
 
@@ -1124,7 +1035,6 @@ void ImpulsMonophas(void)
       }
 
       break;
-
 
     default :
     /** TODO !!!!! */
@@ -1170,82 +1080,75 @@ void ImpulsBiphasAltern(void)
   switch(tBiphasState)
   {
     case gBiPhasInit1_c:
+
         // Configuration du timming prochaine étape
         STIM_GEN_RELOAD_NEXT_COUNT(iSS_TIMMING_COURT);
         CMD_M_DISCONNECT;       /**< Desactive CMD */
-                tBiphasState = gBiPhasInit2_c;
+        tBiphasState = gBiPhasInit2_c;
         break;
 
-        case gBiPhasInit2_c:
-              // Configuration du timming prochaine étape
-        STIM_GEN_RELOAD_NEXT_COUNT(500);
-       /** Sets Next Step Time */
+    case gBiPhasInit2_c:
+
+        // Configuration du timming prochaine étape
+        STIM_GEN_RELOAD_NEXT_COUNT(500); //ui16TimeApplicationAop
+        /** Sets Next Step Time */
         CMD_M_SET_NO_PULSE;    //L1-L2
         //  Application AOP -> ON
         Gpio_SetAop();
         // Petit d�lai par des cycles horloge
-         PETIT_DELAI_NOP;
-         /** Sets Level */
+        PETIT_DELAI_NOP;
+        /** Sets Level */
         (void)Ad5691r_SetIntensiteStimulation(gStimGen_t.tPulse[i].digitalAmplitude); //exprimer en uV gStimGen_t.tPulse[i].digitalAmplitude
-
         tBiphasState = gBiphasStatePos_c;
         break;
 
-        /** Positive Pulse */
-    case gBiphasStatePos_c  :
+     case gBiphasStatePos_c  :
 
         //CMD_M_DISCONNECT;       /**< Desactive CMD */
-
-            Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiERREUR_TIMER_MFT1);
-           /** Sets Commands */
-            GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);// STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]);  a modif    /**< Active Pulse Output */
-      if(flag==FALSE)
-        CMD_M_SET_POSITIVE_PULSE;       /**< Enables Positive pulse CMD */
-      else
+        Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiERREUR_TIMER_MFT1);
+        /** Sets Commands */
+        GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);// STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]);  a modifier    /**< Active Pulse Output */
+        if(flag==FALSE)
+        CMD_M_SET_POSITIVE_PULSE;     /**< Enables Positive pulse CMD */
+        else
         CMD_M_SET_NEGATIVE_PULSE;
-    //  SWITCH_START;             /**< Enables switching */
-
-      /** Sets Next Step Time */
+        //  SWITCH_START;             /**< Enables switching */
+        /** Sets Next Step Time */
         tBiphasState = gBiphasStatePos_c1;
-
-      break;
+        break;
 
     case gBiphasStatePos_c1  :
 
-         //CMD_M_DISCONNECT;       /**< Desactive CMD */
-      /** Sets Next Step Time */
-         STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth); /// DUREE DE L'IMPULSION
+        //CMD_M_DISCONNECT;       /**< Desactive CMD */
+        /** Sets Next Step Time */
+        STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth); /// DUREE DE L'IMPULSION
+        /** Current Measurement */
+        gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
+        gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+        tBiphasState = gBiphasStatePalier_c;
+        break;
 
-         /** Current Measurement */
-         (void)Adc_TraitementAcquisitionCourantRelecture();
-        // gStimGen_t.tPulse[i].digitalMeasAmplitude = ( MAKE_UINT(msb,lsb) & 0x0FFC ) >> 2 ; à modifier Stocker valeur
-         gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
-         tBiphasState = gBiphasStatePalier_c;
-         break;
-
-         case gBiphasStatePalier_c  :
+     case gBiphasStatePalier_c  :
 
          //CMD_M_DISCONNECT;       /**< Desactive CMD */
-
-            if(flag==FALSE){
+         if(flag==FALSE){
         /**< Disable Positive pulse CMD */
-                Gpio_SetElectrostimulation(eETAPE4);
-                Gpio_SetElectrostimulation(eETAPE6);;       /**< Enables Positive pulse CMD */
-                flag=TRUE;
+           Gpio_SetElectrostimulation(eETAPE4);
+           Gpio_SetElectrostimulation(eETAPE6);;       /**< Enables Positive pulse CMD */
+           flag=TRUE;
             }
             else {
-                 /**< Disable Negatif pulse CMD */
-                Gpio_SetElectrostimulation(eETAPE9);
-                Gpio_SetElectrostimulation(eETAPE10);;       /**< Enables Negative pulse CMD */
-                 flag=FALSE;
-            }
+           /**< Disable Negatif pulse CMD */
+           Gpio_SetElectrostimulation(eETAPE9);
+           Gpio_SetElectrostimulation(eETAPE10);;       /**< Enables Negative pulse CMD */
+           flag=FALSE;
+           }
          Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1);
          tBiphasState = gBiphasStateNeg_c;
-
          break;
 
     /** Negative Pulse */
-    case gBiphasStateNeg_c  :
+     case gBiphasStateNeg_c  :
 
       /** Sets Next Step Time */
       switch(gStimGen_t.FreqDiff)
@@ -1279,7 +1182,7 @@ void ImpulsBiphasAltern(void)
           }
           break;
 
-        case 0 :
+         case 0 :
 
           if(++i < gStimGen_t.nPulse)       /**< Next Pulse */
           {
@@ -1330,88 +1233,78 @@ void ImpulsBiphasAltern(void)
     /** Inter Pulse */
     case gBiphasStateInter_c  :
 
-      /** Sets Commands */
-      //CMD_DEMAG_DIS;              /**< Disables Pulse */
-      //SWITCH_STOP;              /**< Disables switching */
-      CMD_M_DISCONNECT;             /**< Disables pulse CMD */
-      STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
-
-      /** Sets Level */
+        /** Sets Commands */
+        //CMD_DEMAG_DIS;              /**< Disables Pulse */
+        //SWITCH_STOP;              /**< Disables switching */
+        CMD_M_DISCONNECT;             /**< Disables pulse CMD */
+        STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
+        /** Sets Level */
         tmp = NORMAL_MODE;
-            // Application AOP -> OFF
-              Gpio_ClrAop();
-
-            (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
-      /** Sets pause cmd */
-   //   CMD_M_SET_NO_PULSE;
-
+        // Application AOP -> OFF
+        Gpio_ClrAop();
+       (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
+       /** Sets pause cmd */
+       //   CMD_M_SET_NO_PULSE;
       /** Sets Next Step Time */
-      STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+1200);
-      tBiphasState = gBiPhasInit1_c;
-
-      break;
+       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+1200);
+       tBiphasState = gBiPhasInit1_c;
+       break;
 
 
     /** Null Pulse */
     case gBiphasStateNull_c :
 
-      /** Sets Commands */
-    //  CMD_DEMAG_DIS;              /**< Disables Pulse */
-    //  SWITCH_STOP;              /**< Disables switching */
-      CMD_M_DISCONNECT;             /**< Disables pulse CMD */
-      STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
-
-      /** Sets Level */
+       /** Sets Commands */
+       //  CMD_DEMAG_DIS;              /**< Disables Pulse */
+       //  SWITCH_STOP;              /**< Disables switching */
+       CMD_M_DISCONNECT;             /**< Disables pulse CMD */
+       STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
+       /** Sets Level */
        tmp = NORMAL_MODE;
-             // Application AOP -> OFF
-            Gpio_ClrAop();
-            (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
-      /** Sets pause cmd */
-      CMD_M_SET_NO_PULSE;
-
-      /** Sets Next Step Time */
-      if (gStimGen_t.nTimerLoop > 0)      /**< Next Loop */
-      {
-        Nloop = gStimGen_t.nTimerLoop;
-        STIM_GEN_RELOAD_NEXT_COUNT(STIM_GEN_COUNT_MAX);
-        tBiphasState = gBiphasStateNullLoop_c;
-      }
-      else                  /**< First Pulse */
-      {
-        STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+1333);
-        tBiphasState = gBiPhasInit1_c;
-        if(flag==FALSE)
-          flag=TRUE;        /**< Enables Positive pulse CMD */
-        else
-          flag=FALSE;
-      }
-
-      break;
+       // Application AOP -> OFF
+       Gpio_ClrAop();
+      (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
+       /** Sets pause cmd */
+       //   CMD_M_SET_NO_PULSE;
+       /** Sets Next Step Time */
+       if (gStimGen_t.nTimerLoop > 0)      /**< Next Loop */
+       {
+         Nloop = gStimGen_t.nTimerLoop;
+         STIM_GEN_RELOAD_NEXT_COUNT(STIM_GEN_COUNT_MAX);
+         tBiphasState = gBiphasStateNullLoop_c;
+       }
+       else                  /**< First Pulse */
+       {
+         STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+1333);
+         tBiphasState = gBiPhasInit1_c;
+         if(flag==FALSE)
+           flag=TRUE;        /**< Enables Positive pulse CMD */
+         else
+           flag=FALSE;
+       }
+       break;
 
     case gBiphasStateNullLoop_c :
 
-      Nloop--;
-      if(Nloop > 0)             /**< Next Loop */
-        STIM_GEN_RELOAD_NEXT_COUNT(STIM_GEN_COUNT_MAX);
-      else                  /**< First Pulse */
-      {
-        STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+1333);
-        tBiphasState = gBiPhasInit1_c;
-        if(flag==FALSE)
-          flag=TRUE;        /**< Enables Positive pulse CMD */
-        else
-          flag=FALSE;
-      }
-
+       Nloop--;
+       if(Nloop > 0)             /**< Next Loop */
+         STIM_GEN_RELOAD_NEXT_COUNT(STIM_GEN_COUNT_MAX);
+       else                  /**< First Pulse */
+       {
+       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+1333);
+       tBiphasState = gBiPhasInit1_c;
+       if(flag==FALSE)
+         flag=TRUE;        /**< Enables Positive pulse CMD */
+       else
+         flag=FALSE;
+       }
       break;
 
     default :
     /** TODO !!!!! */
       break;
-
   }
 
-//  p0_0 = 0; // pin test
 
 }
 /**********************************************************************************
@@ -1498,6 +1391,8 @@ void ImpulsBiphasNeg(void)
             //CMD_M_DISCONNECT;       /**< Desactive CMD */
               /** Sets Next Step Time */
             STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth+200); /// DUREE DE L'IMPULSION
+            gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
+            gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
             tBiphasState = gBiphasStatePalier_c;
 
          break;
@@ -1507,12 +1402,12 @@ void ImpulsBiphasNeg(void)
 
          //CMD_M_DISCONNECT;       /**< Desactive CMD */
             /** Current Measurement */
-            (void)Adc_TraitementAcquisitionCourantRelecture();
-           // gStimGen_t.tPulse[i].digitalMeasAmplitude = ( MAKE_UINT(msb,lsb) & 0x0FFC ) >> 2 ; à modifier Stocker valeur
-            gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+
 
                  /**< Disable Negatif pulse CMD */
                 Gpio_SetElectrostimulation(eETAPE9);
+                /**Enable Pulse positif*/
+                Gpio_SetElectrostimulation(eETAPE10);
 
          Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1);
          tBiphasState = gBiphasStateNeg_c;
@@ -1522,9 +1417,9 @@ void ImpulsBiphasNeg(void)
     /** Negative Pulse */
     case gBiphasStateNeg_c  :
 
-      CMD_M_DISCONNECT;             /**< Disables pulse CMD */
+  //    CMD_M_DISCONNECT;             /**< Disables pulse CMD */
         /** Sets Commands */
-      CMD_M_SET_POSITIVE_PULSE;       /**< Enables Negative pulse CMD */
+    //  CMD_M_SET_POSITIVE_PULSE;       /**< Enables Negative pulse CMD */
 
 
 
@@ -1625,7 +1520,7 @@ void ImpulsBiphasNeg(void)
             (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
 
       /** Sets pause cmd */
-      CMD_M_SET_NO_PULSE;
+     // CMD_M_SET_NO_PULSE;
 
       /** Sets Next Step Time */
       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
@@ -1649,7 +1544,7 @@ void ImpulsBiphasNeg(void)
             Gpio_ClrAop();
             (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
       /** Sets pause cmd */
-      CMD_M_SET_NO_PULSE;
+   //   CMD_M_SET_NO_PULSE;
 
       /** Sets Next Step Time */
       if (gStimGen_t.nTimerLoop > 0)      /**< Next Loop */
@@ -1691,11 +1586,6 @@ void ImpulsBiphasNeg(void)
 /**********************************************************************************
 End of function
 ***********************************************************************************/
-
-
-
-
-
 
 
 /*!
@@ -2495,4 +2385,109 @@ void VeineuxBiphas(void)
 /**********************************************************************************
 End of function
 ***********************************************************************************/
+
+
+/************************************************************************************
+* Name :  NeuroMonophas   *//**
+* @brief  .
+* @param  .
+* @return .
+************************************************************************************/
+
+void NeuroMonophas(void)
+{
+  static uint16_t i = 0 ;
+  uint16_t tmp = 0;
+  CMD_GALV_SEL_NONE;
+   /** Monophasic pulse states */
+  static enum
+  {
+    gWidthStatePos_c = 1,     /**< Positive Current */
+    gWidthStateNeg_c = 0,     /**< Negative Current */
+    gWidthStateNull_c = 2,      /**< Null Pulse */
+    gWidthStateMax_c
+  } tWidthState;
+
+  if( gStimGen_t.FreqDiff == 1)
+  {
+    tWidthState = gWidthStateNeg_c;
+    tWidthState = gWidthStateNeg_c;
+
+  }
+  if( gStimGen_t.FreqDiff == 2)
+  {
+    tWidthState = gWidthStatePos_c;
+    tWidthState = gWidthStatePos_c;
+  }
+
+  switch(tWidthState)
+  {
+
+    /** Positive Current */
+    case gWidthStatePos_c :
+
+          //      CMD_GALV_SEL_NONE;  /**<  Desactive CMD and Opto. */
+
+      tmp = NORMAL_MODE | ( (gStimGen_t.tPulse[i].digitalAmplitude & 0x0FFF) << 2 );
+      if(gStimGen_t.tPulse[i].digitalAmplitude == 0)
+      {
+      //  SWITCH_STOP;
+        CMD_GALV_SEL_NONE;
+        (void)Ad5691r_SetIntensiteStimulation(0); //exprimer en uV gStimGen_t.tPulse[i].digitalAmplitude
+      }
+      else
+      {
+         (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV gStimGen_t.tPulse[i].digitalAmplitude
+        /** Sets Commands */
+         GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);//  STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]);  /**< Active Pulse Output */
+        CMD_GALV_SEL_POS;     /**< Enables positive current. */
+        SWITCH_START;             /**< Enables switching */
+          //  tWidthState = gWidthStateNull_c;
+        STIM_GEN_RELOAD_NEXT_COUNT(5000/*STIM_GEN_COUNT_MAX*/);
+
+      }
+        break;
+
+    /** Negative Current */
+    case gWidthStateNeg_c :
+
+      //CMD_GALV_SEL_NONE;    /**<  Desactive CMD and Opto. */
+      /** Sets levels */
+      tmp = NORMAL_MODE | ( (gStimGen_t.tPulse[i].digitalAmplitude & 0x0FFF) << 2 );
+      if(gStimGen_t.tPulse[i].digitalAmplitude == 0)
+      {
+        CMD_GALV_SEL_NONE;
+        (void)Ad5691r_SetIntensiteStimulation(0); //exprimer en uV
+      }
+      else
+      {
+        (void)Ad5691r_SetIntensiteStimulation(tmp); //exprimer en uV
+                /** Sets Commands */
+        GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);// STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]);  /**< Active Pulse Output */
+        CMD_GALV_SEL_NEG;     /**< Enables positive current. */
+        SWITCH_START;             /**< Enables switching */
+      //  tWidthState = gWidthStateNull_c;
+        STIM_GEN_RELOAD_NEXT_COUNT(/*STIM_GEN_COUNT_MAX*/5000);
+      }
+
+      break;
+
+    /** Null Current */
+    case gWidthStateNull_c :
+
+      CMD_GALV_SEL_NONE;
+
+      break;
+
+    default:
+      break;
+  }
+
+}
+
+
+/**********************************************************************************
+End of function
+***********************************************************************************/
+
 

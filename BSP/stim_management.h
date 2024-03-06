@@ -91,13 +91,6 @@ User Includes
 #define CMD_GALV_PORT       //p1
 #define CMD_GALV_PIN_MASK     0x06
 
-#define CMD_GALV_SEL_POS      {GPIO_SET_PORT_DATA(CMD_GALV_PORT, CMD_GALV_POS, CMD_GALV_PIN_MASK); \
-                   GPIO_SET_PORT_DATA(CMD_M_PORT, CMD_GALV_POS_M, CMD_M_PIN_MASK);}
-#define CMD_GALV_SEL_NEG      {GPIO_SET_PORT_DATA(CMD_GALV_PORT, CMD_GALV_NEG, CMD_GALV_PIN_MASK); \
-                   GPIO_SET_PORT_DATA(CMD_M_PORT, CMD_GALV_NEG_M, CMD_M_PIN_MASK);}
-#define CMD_GALV_SEL_NONE     {GPIO_SET_PORT_DATA(CMD_GALV_PORT, CMD_GALV_NONE, CMD_GALV_PIN_MASK); \
-                   CMD_M_DISCONNECT;}
-
 /* Detection Resistance Chip Select Management */
 #define DETECT_RES_CS_PIN     p3_4
 
@@ -133,6 +126,9 @@ User Includes
 #define CLR_BRIDGE GPIO->P_CLR[CMD_H1_PORT].DOUT = ((1 << CMD_L2_PIN) | (1 << CMD_L1_PIN) | (1 << CMD_H2_PIN) |  (1 << CMD_H1_PIN))  //#define CLR_BRIDGE GPIO->P_CLR[CMD_H1_PORT].DOUT = ((1 << CMD_L2_PIN) | (1 << CMD_L1_PIN) | (1 << CMD_H2_PIN) |  (1 << CMD_H1_PIN))
 #define POS_PULSE GPIO->P_SET[CMD_H1_PORT].DOUT = ((1 << CMD_H1_PIN) | (1 << CMD_L2_PIN))
 #define NEG_PULSE GPIO->P_SET[CMD_H1_PORT].DOUT = ((1 << CMD_H2_PIN) | (1 << CMD_L1_PIN))
+#define CMD_GALV_SEL_NONE GPIO->P_CLR[CMD_GV_P_PORT].DOUT = ((1 << CMD_GV_P_PIN) | (1 << CMD_GV_N_PIN))
+#define CMD_GALV_SEL_NEG GPIO->P_SET[CMD_GV_N_PORT].DOUT = (1 << CMD_GV_N_PIN)
+#define CMD_GALV_SEL_POS GPIO->P_SET[CMD_GV_P_PORT].DOUT = (1 << CMD_GV_P_PIN)
 
 /* Switching Management */
 #define SWITCH_FORCE_COUNT_STOP   TMR_RA_FORCE_COUNT_STOP
@@ -159,6 +155,7 @@ User Includes
 /* Stim Generation Management */
 #define STIM_GEN_START        TIMER_Enable(TIMER0,true)
 #define STIM_GEN_STOP       TIMER_Enable(TIMER0,false)
+
 
 /************************************************************************************
 *************************************************************************************
