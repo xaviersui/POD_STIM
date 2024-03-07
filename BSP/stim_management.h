@@ -51,10 +51,7 @@ User Includes
 #define SWITCH_FORCE_COUNT_STOP   TMR_RA_FORCE_COUNT_STOP
 
 /* CMD_Mi Management */
-#define CMD_M_POSITIVE_PULSE    0x60
-#define CMD_M_NEGATIVE_PULSE    0x90
-#define CMD_M_NO_PULSE        0x30
-#define CMD_M_NULL          0x00
+
 
 #define CMD_M_PORT          p0
 #define CMD_M_PIN_MASK        0xF0
@@ -92,10 +89,10 @@ User Includes
 #define CMD_GALV_PIN_MASK     0x06
 
 /* Detection Resistance Chip Select Management */
-#define DETECT_RES_CS_PIN     p3_4
+//#define DETECT_RES_CS_PIN     p3_4
 
-#define DETECT_RES_CS_DIS     DETECT_RES_CS_PIN = gGpioPinStateLow_c;
-#define DETECT_RES_CS_EN      DETECT_RES_CS_PIN = gGpioPinStateHigh_c;
+#define DETECT_RES_CS_DIS    GPIO->P_CLR[SW_DETECT_PORT].DOUT = (1 << SW_DETECT_PIN)
+#define DETECT_RES_CS_EN     GPIO->P_SET[SW_DETECT_PORT].DOUT = (1 << SW_DETECT_PIN)
 
 /* Stim Superviser Management */
 
