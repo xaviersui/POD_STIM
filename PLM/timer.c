@@ -8,70 +8,10 @@
 #include "siue.h"
 #include "stdbool.h"
 #include "stim_management.h"
+#include "stimulation.h"
 #define N_MODULATION_MAX 4 /**< Maximum number of modulation by envelope */
 
-/** Modulation Types Id */
-typedef enum
-{
-  gModulDelay_c = 0,
-  gModulLinIncrease_c, /**< Amplitude linear increase */
-  gModulMaxAmp_c,    /**< Maximal amplitude */
-  gModulLinDecrease_c, /**< Amplitude linear decrease */
-  gModulNullAmp_c,   /**< Null amplitude */
-  gModulMax_c      /**< undefined */
-} ModulationID_t;
 
-/** Modulation Structure. Defines amplitude modulation parameters */
-typedef struct
-{
-  ModulationID_t id; /**< Modulation Type */
-  uint16_t period;   /**< Modulation Period */
-  uint16_t curTime;  /**< Modulation Current Time during execution */
-} Modulation_t;
-
-/** Envelope Structure. Define envelope parameters */
-typedef struct
-{
-  uint8_t nModulation; /**< Number of Modulation. */
-  bool wobulationEnabled;
-  Modulation_t tModulation[N_MODULATION_MAX]; /**< Modulation array. Contains the modulations list */
-  uint16_t patternFrequencyA;
-  uint16_t pulseWidthA;
-  uint16_t patternFrequencyB;
-  uint16_t pulseWidthB;
-  uint16_t patternFrequencyC;
-  uint16_t pulseWidthC;
-  uint16_t delay;      /**< Envelope Delay. Delay before the envelope starts */
-  uint16_t curAmplitude; /**< Amplitude. */
-  uint16_t maxAmplitude; /**< Maximum Amplitude. */
-  uint16_t amplitudeIncrement;
-#ifdef V016
-  uint8_t nRepetition; /**< Number of envelope repetition. */
-#endif
-} Envelope_t;
-
-/** Stimulation Structure. */
-typedef struct
-{
-  Envelope_t tEnvelope;
-  bool electrodeAdhesionDetect;
-
-} StimulationControl_t;
-
-/** Stimulation Control Structure */
-typedef struct
-{
-  bool startEn;
-  bool pauseEn;
-  StimulationControl_t tControl[gStimOutMax_c];
-  StimulationConfiguration_t tConfig;
-} Stimulation_t;
-
-typedef struct
-{
-  uint8_t OutId;
-  uint8_t Step;
-} StimStep_c;
 
 TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
 extern void (*pStimGenCallback[gStimPatternMax_c])(void);

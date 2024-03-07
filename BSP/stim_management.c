@@ -13,7 +13,7 @@
 #include "pin_config.h"
 #include "em_gpio.h"
 
-#define STIM_OUT_SEL_NONE GPIO_PinOutClear(CS_VOIE1_PORT, CS_VOIE1_PIN);
+//#define STIM_OUT_SEL_NONE GPIO->P_CLR[CS_VOIE1_PORT].DOUT = ((1 << CS_VOIE1_PIN) | (1 << CS_VOIE2_PIN)) //GPIO_PinOutClear(CS_VOIE1_PORT, CS_VOIE1_PIN);
 
 #define N_MODULATION_MAX          4     /**< Maximum number of modulation by envelope */
 
@@ -288,10 +288,8 @@ bool bRet=false;
      bRet=true;
 
  }
-
    return(bRet);
 }
-
 
 /*!
  * \fn void Gpio_SetElectrostimulation (eCdeElectrostimulation_Type eCdeElectrostimulation)
@@ -1928,102 +1926,6 @@ void MeSS_GestionCourantBiphasiqueAlterne(void)
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-/*!
- * \fn void MeSS_GestionCourantVeineuxBiphasique ()
- * \brief Fonction de gestion des courant Veineux biphasique
- * les periodes sont de 1 Hz à 6 Hz les pulses sont de 1 ms à 6 ms
- *////////////////////////////////////////////////////////////////
-void MeSS_GestionCourantVeineuxBiphasique(void)
-{
-  static uint8_t state = 0;
- // static uint16_t v = 0; //(400 * 4095) / 3300;
-  //
-  static uint32_t IntensiteProgramme = 15000;
-  static uint8_t first = 0;
-  static uint16_t ui16TimeApplicationAop = 500;
-
-  GPIO_PinOutSet(CS_VOIE1_PORT, CS_VOIE1_PIN);
-
-  if (first < 20)
-  {
-       switch (state)
-    {
-    case 0:
-      // Configuration du timming prochaine étape
-      Timer_SetMft1Timming(iSS_TIMMING_COURT);
-      //Application "RAZ des commandes du pont" ordre1
-      Gpio_SetElectrostimulation(eETAPE1); //RAZ
-       break;
-    case 1:
-     // Configuration du timming prochaine étape
-      Timer_SetMft1Timming(ui16TimeApplicationAop);
-      // Application Mise à la masse du pont
-      Gpio_SetElectrostimulation(eETAPE2); //L1-L2
-      //  Application AOP -> ON
-       Gpio_SetAop();
-     // Petit d�lai par des cycles horloge
-     PETIT_DELAI_NOP;
-     //Mise en forme Intensité programmé
-     (void)Ad5691r_SetIntensiteStimulation(IntensiteProgramme); //exprimer en uV
-      break;
-      //--------------------------------------------------------------------------
-      // *********                   Polarit� -> HAUTE                 ***********
-      //--------------------------------------------------------------------------
-    case 2: // Etape de rebouclage de g�n�ration du stimuli par la polarit� -> HAUTE
-      // Configuration du timming prochaine étape
-      Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiERREUR_TIMER_MFT1);
-      // Application EPH
-      Gpio_SetElectrostimulation(eETAPE3); // Haut L2-H1 / CLR L1
-          break;
-    case 3: // Bas
-
-      // Configuration du timming prochaine étape
-      Timer_SetMft1Timming(iSS_DUREE_IMPULSION);/// Variable qui donne le temps de la pulsation Delta "t"
-      // R�cup�ration de la mesure de courant de relecture �ventuelle
-      (void)Adc_TraitementAcquisitionCourantRelecture();
-              break;
-   //--------------------------------------------------------------------------
-   // *********                   Polarit� -> BASSE                 ***********
-   //--------------------------------------------------------------------------
-       case 4: //Etape de changement de polarit� -> BASSE
-         // Application EPB
-            Gpio_SetElectrostimulation(eETAPE4); // Reset H1-L2
-            Gpio_SetElectrostimulation(eETAPE6); //BAS H2-L1
-            // Configuration du timming prochaine étape
-                Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1);
-                break;
-    case 5: // Bas
-        // Configuration du timming prochaine étape
-          Timer_SetMft1Timming(iSS_DUREE_IMPULSION-uiMIN_TIMER_MFT1);/// Variable qui donne le temps de la pulsation Delta "t"
-        // R�cup�ration de la mesure de courant de relecture �ventuelle
-              (void)Adc_TraitementAcquisitionCourantRelecture();
-              break;
-    //--------------------------------------------------------------------------
-    // *********                    BASE = PALIER                    ***********
-    //--------------------------------------------------------------------------
-    case 6: // Bas
-      // Configuration du timming prochaine étape
-      Timer_SetMft1Timming((iSS_DUREE_TPS_BASE-1733)/2);/// Variable  rapport périodique entre chaque impulsion
-         //Application "RAZ des commandes du pont" ordre7
-          Gpio_SetElectrostimulation(eETAPE7); //Reset
-          (void)Ad5691r_SetIntensiteStimulation(600); // à enlever
-          // Application AOP -> OFF
-          Gpio_ClrAop();
-              break;
-    case 7: // OFF
-      // Configuration du timming prochaine étape
-        Timer_SetMft1Timming(iSS_DUREE_TPS_BASE/2);/// Variable rapport périodique entre chaque impulsion
-      state = 0;
-      first++;
-      break;
-    default:
-      break;
-    }
-  }
-
-  // Configuration prochaine �tape
-  state++;
-}
 
 
 /************************************************************************************
@@ -2562,7 +2464,6 @@ void Galvanic(void)
 
         break;
 
-
     /** Negative Current */
     case gWidthStateNeg_c :
 
@@ -2590,7 +2491,6 @@ void Galvanic(void)
       }
 
       break;
-
 
     /** Null Current */
     case gWidthStateNull_c :
