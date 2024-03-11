@@ -109,7 +109,7 @@ void BoardInit(void)
       GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
 
       /** - Callback functions declaration. */
-        pStimGenCallback[gStimPatternBiphasic_c] = MeSS_GestionCourantBiphasiquePositif;
+        pStimGenCallback[gStimPatternBiphasic_c] = ImpulsBiphas;
         pStimGenCallback[gStimPatternMonophasic_c] = ImpulsMonophas;
         //pStimGenCallback[gStimPatternGalvanic_c] = Galvanic;
         pStimGenCallback[gStimPatternBiphasicAltern_c] = MeSS_GestionCourantBiphasiqueAlterne;
