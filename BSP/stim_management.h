@@ -152,6 +152,18 @@ User Includes
 #define STIM_GEN_START        TIMER_Enable(TIMER0,true)
 #define STIM_GEN_STOP       TIMER_Enable(TIMER0,false)
 
+#define STIM_OUT_0            0x02
+#define STIM_OUT_1            0x40
+#define STIM_OUT_SEL(cmd)     {\
+  if(cmd == STIM_OUT_0){\
+      STIM_OUT_SEL_NONE;\
+      GPIO_PinOutSet(CS_VOIE1_PORT,CS_VOIE1_PIN);\
+  }\
+  else{\
+      STIM_OUT_SEL_NONE;\
+      GPIO_PinOutSet(CS_VOIE2_PORT,CS_VOIE2_PIN);\
+  }\
+}\
 
 /************************************************************************************
 *************************************************************************************
