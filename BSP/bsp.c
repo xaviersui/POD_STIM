@@ -115,7 +115,7 @@ void BoardInit(void)
         pStimGenCallback[gStimPatternBiphasicAltern_c] = MeSS_GestionCourantBiphasiqueAlterne;
         //pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
         //pStimGenCallback[gStimPatternNeuro_c] = NeuroMonophas;
-        pStimGenCallback[gStimPatternBiphasicNegative_c] = MeSS_GestionCourantBiphasiqueNegatif;
+        pStimGenCallback[gStimPatternBiphasicNegative_c] = ImpulsBiphasNeg;
 
         /** - Number of alternance per signal. */
         gNPulse_c[gStimPatternBiphasic_c] = 2;
