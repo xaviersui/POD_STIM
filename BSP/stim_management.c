@@ -932,7 +932,7 @@ void ImpulsMonophas(void)
     case gMonophasStatePos_c1  :
          /** Sets Next Step Time */
          STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth); /// DUREE DE L'IMPULSION
-         gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current(); ;
+         gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
          gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
          gflag[i]=TRUE;
          tMonophasState = gMonophasStatePalier_c;
