@@ -129,10 +129,9 @@ User Includes
 
 /* Switching Management */
 #define SWITCH_FORCE_COUNT_STOP   TMR_RA_FORCE_COUNT_STOP
-#define SWITCH_START       {/*TIMER_CounterSet(TIMER0,0);*/TIMER_Enable(TIMER0,true);}
-#define SWITCH_STOP        {TIMER_Enable(TIMER0,false);/*TIMER_CounterSet(TIMER0,0);*/}
+#define SWITCH_START       {/*TIMER_CounterSet(TIMER0,0);*/TIMER_Enable(TIMER_GEN_COURANT,true);}
+#define SWITCH_STOP        {TIMER_Enable(TIMER_GEN_COURANT,false);/*TIMER_CounterSet(TIMER0,0);*/}
 
-#define STIM_GEN_RELOAD_COUNT(val)      trcgra_addr = (uint16_t)(val - 1)
 #define STIM_GEN_RELOAD_NEXT_COUNT(val)   Timer_SetMft1Timming(val)
 #define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER0,0)   // Timer RB counter
 
@@ -142,9 +141,9 @@ User Includes
 #define STIM_GEN_AMPLITUDE_MAX    1000      // in A*(10^-4)
 
 /* Stim Superviser Management */
-#define STIM_SUPERVIS_FORCE_COUNT_STOP    TIMER_Enable(TIMER1,false)
-#define STIM_SUPERVIS_START         TIMER_Enable(TIMER1,true)
-#define STIM_SUPERVIS_STOP         TIMER_Enable(TIMER1,false)
+#define STIM_SUPERVIS_FORCE_COUNT_STOP    TIMER_Enable(TIMER_ENV,false)
+#define STIM_SUPERVIS_START         TIMER_Enable(TIMER_ENV,true)
+#define STIM_SUPERVIS_STOP         TIMER_Enable(TIMER_ENV,false)
 
 #define STIM_SUPERVIS_RELOAD_COUNT(val)   set_timer1_time(val)
 #define STIM_SUPERVIS_RESET_COUNT     set_timer1_time(255)  // Timer RB counter

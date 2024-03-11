@@ -103,7 +103,9 @@ StimErr_t StimulationStart(void)
 		if (gStim_t.tConfig.patternId == 0x11)
 			gflag[0] = TRUE;
 
-		//STIM_SUPERVIS_START;
+		STIM_SUPERVIS_START;
+		//GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+		//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN); // 110V on
 		STIM_GEN_START;
 	}
 
@@ -121,6 +123,9 @@ StimErr_t StimulationStop(void)
 {
 	uint8_t i = 0;
 // A Modif
+	//GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+	//GPIO_PinOutClear(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN); //  110V Off
+
 	STIM_SUPERVIS_STOP;
 	STIM_SUPERVIS_RESET_COUNT;
 
@@ -1149,7 +1154,7 @@ void TIMER1_IRQHandler(void)
 // MeSS_GestionCourantBiphasiqueAlterne();
 //  VeineuxBiphas();
   gStimTick = TRUE;
-  TIMER_IntClear(TIMER0, TIMER_IF_OF);
+  TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
 }
 /**********************************************************************************
 End of function

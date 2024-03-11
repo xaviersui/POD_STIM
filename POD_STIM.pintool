@@ -13,6 +13,8 @@
     <property object="PB01" propertyId="pin.name" value="CAN_BIO_SPI_MISO"/>
     <property object="PB02" propertyId="pin.name" value="CAN_BIO_SPI_SCLK"/>
     <property object="PB03" propertyId="pin.name" value="CAN_BIO_SPI_MOSI"/>
+    <property object="PB04" propertyId="pin.name" value="ON_OFF_BOOSTER"/>
+    <property object="PB04" propertyId="pin.reserve" value="Reserved"/>
     <property object="PB05" propertyId="pin.name" value="MESURE_COURANT"/>
     <property object="PB05" propertyId="pin.reserve" value="Reserved"/>
     <property object="PB06" propertyId="pin.name" value="IO_RF_STOP"/>
