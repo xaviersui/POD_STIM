@@ -188,6 +188,7 @@ void MeSS_GestionCourantBiphasiqueAlterne(void);
 void ImpulsMonophas(void);
 void ImpulsBiphas(void);
 void ImpulsBiphasNeg(void);
+void ImpulsBiphasAltern(void);
 void Gpio_SetAop();
 void Gpio_ClrAop();
 void Timer_SetMft1Timming(uint16_t ui16Time);

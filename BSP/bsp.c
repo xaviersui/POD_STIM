@@ -112,7 +112,7 @@ void BoardInit(void)
         pStimGenCallback[gStimPatternBiphasic_c] = ImpulsBiphas;
         pStimGenCallback[gStimPatternMonophasic_c] = ImpulsMonophas;
         //pStimGenCallback[gStimPatternGalvanic_c] = Galvanic;
-        pStimGenCallback[gStimPatternBiphasicAltern_c] = MeSS_GestionCourantBiphasiqueAlterne;
+        pStimGenCallback[gStimPatternBiphasicAltern_c] = ImpulsBiphasAltern;
         //pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
         //pStimGenCallback[gStimPatternNeuro_c] = NeuroMonophas;
         pStimGenCallback[gStimPatternBiphasicNegative_c] = ImpulsBiphasNeg;
