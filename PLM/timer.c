@@ -131,23 +131,16 @@ void set_timer1_time(uint32_t time)
   TIMER_Enable(TIMER1, false);
   TIMER_IntClear(TIMER1, TIMER_IF_OF);
   TIMER_CounterSet(TIMER1,0);
-  uint32_t cnt = time*1000000 - 1;
+  uint32_t cnt = time - 1;
   if(TIMER_TopGet(TIMER1) != cnt)
   {
     TIMER_TopSet(TIMER1, cnt);
   }
-  TIMER_Enable(TIMER1, true);
 }
 
 void TIMER0_IRQHandler(void)
 {
-// MeSS_GestionCourantBiphasiquePositif();
- //MeSS_GestionCourantMonophasiquePositif();
-  //MeSS_GestionCourantBiphasiqueNegatif();
- // MeSS_GestionCourantMonophasiqueNegatif();
-// MeSS_GestionCourantBiphasiqueAlterne();
-//  VeineuxBiphas();
- (void)pStimGenCallback[gStim_t.tConfig.patternId]();
+	(void)pStimGenCallback[gStim_t.tConfig.patternId]();
 	TIMER_IntClear(TIMER0, TIMER_IF_OF);
 }
 

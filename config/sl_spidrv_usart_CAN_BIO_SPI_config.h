@@ -38,7 +38,7 @@
 
 // <o SL_SPIDRV_USART_CAN_BIO_SPI_BITRATE> SPI bitrate
 // <i> Default: 1000000
-#define SL_SPIDRV_USART_CAN_BIO_SPI_BITRATE           1000000
+#define SL_SPIDRV_USART_CAN_BIO_SPI_BITRATE           512000
 
 // <o SL_SPIDRV_USART_CAN_BIO_SPI_FRAME_LENGTH> SPI frame length <4-16>
 // <i> Default: 8
@@ -59,7 +59,7 @@
 // <spidrvClockMode1=> SPI mode 1: CLKPOL=0, CLKPHA=1
 // <spidrvClockMode2=> SPI mode 2: CLKPOL=1, CLKPHA=0
 // <spidrvClockMode3=> SPI mode 3: CLKPOL=1, CLKPHA=1
-#define SL_SPIDRV_USART_CAN_BIO_SPI_CLOCK_MODE        spidrvClockMode2
+#define SL_SPIDRV_USART_CAN_BIO_SPI_CLOCK_MODE        spidrvClockMode0
 
 // <o SL_SPIDRV_USART_CAN_BIO_SPI_CS_CONTROL> SPI master chip select (CS) control scheme.
 // <spidrvCsControlAuto=> CS controlled by the SPI driver
@@ -70,7 +70,7 @@
 // <spidrvSlaveStartImmediate=> Transfer starts immediately
 // <spidrvSlaveStartDelayed=> Transfer starts when the bus is idle (CS deasserted)
 // <i> Only applies if instance type is spidrvSlave
-#define SL_SPIDRV_USART_CAN_BIO_SPI_SLAVE_START_MODE  spidrvSlaveStartDelayed
+#define SL_SPIDRV_USART_CAN_BIO_SPI_SLAVE_START_MODE  spidrvSlaveStartImmediate
 // </h>
 // <<< end of configuration section >>>
 

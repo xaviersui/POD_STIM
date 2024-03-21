@@ -603,7 +603,7 @@ bool_t BiofeedbackExecute(int16_t *pValue, uint8_t *pNValue, uint8_t nValueMax)
                 }
                 else
                 {
-                  pValue[(j * gBiofeedback_t.nBio) + i] = gBiofeedback_t.acquisition[gBiofeedback_t.inputId[i]].processedVoltage[readIdxProcessedVoltage];
+                  pValue[(j * gBiofeedback_t.nBio) + i] = 0;
                 }
               }
               else
