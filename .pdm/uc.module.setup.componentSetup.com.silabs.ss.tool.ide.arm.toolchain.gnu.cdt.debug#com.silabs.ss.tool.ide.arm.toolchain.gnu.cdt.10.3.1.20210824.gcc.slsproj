@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="uc.module.setup.componentSetup.com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:10.3.1.20210824.gcc" propertyScope="project">
-  <folder name="gecko_sdk_4.4.0">
+  <folder name="gecko_sdk_4.4.1">
     <folder name="platform">
       <folder name="Device">
         <folder name="SiliconLabs">
@@ -237,20 +237,20 @@
   <file name="app.h" linked="false" uri="studio:/project/app.h"/>
   <file name="readme.md" linked="false" uri="studio:/project/readme.md"/>
   <includePath uri="studio:/project/"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/Device/SiliconLabs/EFM32PG23/Include"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/common/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/CMSIS/Core/Include"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/service/device_init/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/emdrv/dmadrv/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/emdrv/common/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/emlib/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/emdrv/gpiointerrupt/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/peripheral/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/common/toolchain/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/service/system/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/service/sleeptimer/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/emdrv/spidrv/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_4.4.0/platform/emdrv/uartdrv/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/Device/SiliconLabs/EFM32PG23/Include"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/common/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/CMSIS/Core/Include"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/service/device_init/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/emdrv/dmadrv/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/emdrv/common/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/emlib/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/emdrv/gpiointerrupt/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/peripheral/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/common/toolchain/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/service/system/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/service/sleeptimer/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/emdrv/spidrv/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/emdrv/uartdrv/inc"/>
   <macroDefinition name="DEBUG_EFM"/>
   <macroDefinition name="EFM32PG23B310F512IM48"/>
   <macroDefinition name="SL_COMPONENT_CATALOG_PRESENT"/>

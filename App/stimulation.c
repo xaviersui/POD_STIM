@@ -124,8 +124,8 @@ StimErr_t StimulationStop(void)
 	STIM_SUPERVIS_STOP;
 	STIM_SUPERVIS_RESET_COUNT;
 
-  STIM_GEN_STOP;
-	 STIM_GEN_RESET_COUNT;
+	STIM_GEN_STOP;
+	STIM_GEN_RESET_COUNT;
 
 	if ((gStim_t.tConfig.patternId == 0x09) || (gStim_t.tConfig.patternId == 0x02))
 	{

@@ -147,7 +147,7 @@ void BioManagementTimerInit(void)
 {
 	TIMER_Init_TypeDef BioTimerConf = TIMER_INIT_DEFAULT;
 	uint32_t BioTimerClk = CMU_ClockFreqGet(BIO_TIMER_CLK);
-	uint32_t BioTimerCnt = (1000000/BIO_SAMPLING_FREQUENCY) - 1; // To generate interrupt at 2500 Hz = 400 µs
+	uint32_t BioTimerCnt = (1000000/(BIO_SAMPLING_FREQUENCY/2)) - 1; // To generate interrupt at 2500 Hz = 400 µs
 
 	BioTimerConf.enable  = false;
 	BioTimerConf.oneShot = false;
