@@ -51,10 +51,7 @@ User Includes
 #define SWITCH_FORCE_COUNT_STOP   TMR_RA_FORCE_COUNT_STOP
 
 /* CMD_Mi Management */
-#define CMD_M_POSITIVE_PULSE    0x60
-#define CMD_M_NEGATIVE_PULSE    0x90
-#define CMD_M_NO_PULSE        0x30
-#define CMD_M_NULL          0x00
+
 
 #define CMD_M_PORT          p0
 #define CMD_M_PIN_MASK        0xF0
@@ -91,18 +88,11 @@ User Includes
 #define CMD_GALV_PORT       //p1
 #define CMD_GALV_PIN_MASK     0x06
 
-#define CMD_GALV_SEL_POS      {GPIO_SET_PORT_DATA(CMD_GALV_PORT, CMD_GALV_POS, CMD_GALV_PIN_MASK); \
-                   GPIO_SET_PORT_DATA(CMD_M_PORT, CMD_GALV_POS_M, CMD_M_PIN_MASK);}
-#define CMD_GALV_SEL_NEG      {GPIO_SET_PORT_DATA(CMD_GALV_PORT, CMD_GALV_NEG, CMD_GALV_PIN_MASK); \
-                   GPIO_SET_PORT_DATA(CMD_M_PORT, CMD_GALV_NEG_M, CMD_M_PIN_MASK);}
-#define CMD_GALV_SEL_NONE     {GPIO_SET_PORT_DATA(CMD_GALV_PORT, CMD_GALV_NONE, CMD_GALV_PIN_MASK); \
-                   CMD_M_DISCONNECT;}
-
 /* Detection Resistance Chip Select Management */
-#define DETECT_RES_CS_PIN     p3_4
+//#define DETECT_RES_CS_PIN     p3_4
 
-#define DETECT_RES_CS_DIS     DETECT_RES_CS_PIN = gGpioPinStateLow_c;
-#define DETECT_RES_CS_EN      DETECT_RES_CS_PIN = gGpioPinStateHigh_c;
+#define DETECT_RES_CS_DIS    GPIO->P_CLR[SW_DETECT_PORT].DOUT = (1 << SW_DETECT_PIN)
+#define DETECT_RES_CS_EN     GPIO->P_SET[SW_DETECT_PORT].DOUT = (1 << SW_DETECT_PIN)
 
 /* Stim Superviser Management */
 
@@ -123,25 +113,27 @@ User Includes
 #define STIM_GEN_AMPLITUDE_MAX    1000      // in A*(10^-4)
 
 
-#define CMD_M_SET_POSITIVE_PULSE  SIUE1316_Gpio_SetElectrostimulation(eETAPE3) // Set Haut L2-H1  CLR L1 /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
-#define CMD_M_SET_NEGATIVE_PULSE  SIUE1316_Gpio_SetElectrostimulation(eETAPE8)//set Bas H2-L1  CLR L2 /*CMD_M_PORT = NEGATIVE_PULSE_CMD*/
-#define CMD_M_SET_NO_PULSE     SIUE1316_Gpio_SetElectrostimulation(eETAPE2) //Set L1-L2     /*CMD_M_PORT = NO_PULSE_CMD*/
-#define CMD_M_DISCONNECT     SIUE1316_Gpio_SetElectrostimulation(eETAPE1)   //CLR L1-L2-H1-H2     /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
+#define CMD_M_SET_POSITIVE_PULSE  Gpio_SetElectrostimulation(eETAPE3) // Set Haut L2-H1  CLR L1 /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
+#define CMD_M_SET_NEGATIVE_PULSE  Gpio_SetElectrostimulation(eETAPE8)//set Bas H2-L1  CLR L2 /*CMD_M_PORT = NEGATIVE_PULSE_CMD*/
+#define CMD_M_SET_NO_PULSE     Gpio_SetElectrostimulation(eETAPE2) //Set L1-L2     /*CMD_M_PORT = NO_PULSE_CMD*/
+#define CMD_M_DISCONNECT     Gpio_SetElectrostimulation(eETAPE1)   //CLR L1-L2-H1-H2     /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
 
 
 
 #define CLR_BRIDGE GPIO->P_CLR[CMD_H1_PORT].DOUT = ((1 << CMD_L2_PIN) | (1 << CMD_L1_PIN) | (1 << CMD_H2_PIN) |  (1 << CMD_H1_PIN))  //#define CLR_BRIDGE GPIO->P_CLR[CMD_H1_PORT].DOUT = ((1 << CMD_L2_PIN) | (1 << CMD_L1_PIN) | (1 << CMD_H2_PIN) |  (1 << CMD_H1_PIN))
 #define POS_PULSE GPIO->P_SET[CMD_H1_PORT].DOUT = ((1 << CMD_H1_PIN) | (1 << CMD_L2_PIN))
 #define NEG_PULSE GPIO->P_SET[CMD_H1_PORT].DOUT = ((1 << CMD_H2_PIN) | (1 << CMD_L1_PIN))
+#define CMD_GALV_SEL_NONE GPIO->P_CLR[CMD_GV_P_PORT].DOUT = ((1 << CMD_GV_P_PIN) | (1 << CMD_GV_N_PIN))
+#define CMD_GALV_SEL_NEG GPIO->P_SET[CMD_GV_N_PORT].DOUT = (1 << CMD_GV_N_PIN)
+#define CMD_GALV_SEL_POS GPIO->P_SET[CMD_GV_P_PORT].DOUT = (1 << CMD_GV_P_PIN)
 
 /* Switching Management */
 #define SWITCH_FORCE_COUNT_STOP   TMR_RA_FORCE_COUNT_STOP
-#define SWITCH_START       {/*TIMER_CounterSet(TIMER0,0);*/TIMER_Enable(TIMER0,true);}
-#define SWITCH_STOP        {TIMER_Enable(TIMER0,false);/*TIMER_CounterSet(TIMER0,0);*/}
+#define SWITCH_START       {/*TIMER_CounterSet(TIMER0,0);*/TIMER_Enable(TIMER_GEN_COURANT,true);}
+#define SWITCH_STOP        {TIMER_Enable(TIMER_GEN_COURANT,false);/*TIMER_CounterSet(TIMER0,0);*/}
 
-#define STIM_GEN_RELOAD_COUNT(val)      trcgra_addr = (uint16_t)(val - 1)
-#define STIM_GEN_RELOAD_NEXT_COUNT(val)   SIUE1316_Timer_SetMft1Timming(val)
-#define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER0,0)   // Timer RB counter
+#define STIM_GEN_RELOAD_NEXT_COUNT(val)   Timer_SetMft1Timming(val)
+#define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER_GEN_COURANT,0)   // Timer RB counter
 
 
 #define DAC_VALUE_MAX       4095
@@ -149,16 +141,40 @@ User Includes
 #define STIM_GEN_AMPLITUDE_MAX    1000      // in A*(10^-4)
 
 /* Stim Superviser Management */
-#define STIM_SUPERVIS_FORCE_COUNT_STOP    TIMER_Enable(TIMER1,false)
-#define STIM_SUPERVIS_START         TIMER_Enable(TIMER1,true)
-#define STIM_SUPERVIS_STOP         TIMER_Enable(TIMER1,false)
+#define STIM_SUPERVIS_FORCE_COUNT_STOP    TIMER_Enable(TIMER_ENV,false)
+#define STIM_SUPERVIS_START         TIMER_Enable(TIMER_ENV,true)
+#define STIM_SUPERVIS_STOP         TIMER_Enable(TIMER_ENV,false)
 
 #define STIM_SUPERVIS_RELOAD_COUNT(val)   set_timer1_time(val)
 #define STIM_SUPERVIS_RESET_COUNT     set_timer1_time(255)  // Timer RB counter
 
 /* Stim Generation Management */
-#define STIM_GEN_START        TIMER_Enable(TIMER0,true)
-#define STIM_GEN_STOP       TIMER_Enable(TIMER0,false)
+#define STIM_GEN_START        TIMER_Enable(TIMER_GEN_COURANT,true)
+#define STIM_GEN_STOP       TIMER_Enable(TIMER_GEN_COURANT,false)
+
+#define STIM_OUT_0            0x02
+#define STIM_OUT_1            0x40
+#define STIM_OUT_SEL(cmd)     {\
+  if(cmd == STIM_OUT_0){\
+      STIM_OUT_SEL_NONE;\
+      GPIO_PinOutSet(CS_VOIE1_PORT,CS_VOIE1_PIN);\
+  }\
+  else{\
+      STIM_OUT_SEL_NONE;\
+      GPIO_PinOutSet(CS_VOIE2_PORT,CS_VOIE2_PIN);\
+  }\
+}\
+
+#define STIM_OUT_CLR(cmd)     {\
+  if(cmd == STIM_OUT_0){\
+      STIM_OUT_SEL_NONE;\
+            GPIO_PinOutClear(CS_VOIE1_PORT,CS_VOIE1_PIN);\
+  }\
+  else{\
+      STIM_OUT_SEL_NONE;\
+      GPIO_PinOutClear(CS_VOIE2_PORT,CS_VOIE2_PIN);\
+  }\
+}\
 
 /************************************************************************************
 *************************************************************************************
@@ -270,6 +286,7 @@ extern bool_t gflag[2];
 extern void StimManagementHacheurInit(void);
 extern StimGenErr_t StimManagementSetDigitalAmplitude(uint16_t amplitude, uint8_t pulseId);
 extern StimGenErr_t StimManagementConfigPulse(StimulationConfiguration_t* pStimConfig_t);
+bool_t ElectrodeAdhesionDetection(StimOutId_t OutId);
 
 
 #endif    /*  STIM_CONFIG_H_INCLUDED  */

@@ -249,6 +249,13 @@
 #define CAN_BIO_SPI_MOSI_PIN                     3
 #endif
 
+#ifndef ON_OFF_BOOSTER_PORT                     
+#define ON_OFF_BOOSTER_PORT                      gpioPortB
+#endif
+#ifndef ON_OFF_BOOSTER_PIN                      
+#define ON_OFF_BOOSTER_PIN                       4
+#endif
+
 #ifndef MESURE_COURANT_PORT                     
 #define MESURE_COURANT_PORT                      gpioPortB
 #endif

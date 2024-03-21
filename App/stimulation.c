@@ -53,7 +53,8 @@ extern bool_t hasNotifElectToSend;
 extern bool_t hasNotifDelayToSend;
 uint8_t nbVoie = 0;
 bool_t voie1Active = FALSE;
-
+extern void (*pStimGenCallback[gStimPatternMax_c])(void);
+extern uint8_t  gNPulse_c[gStimPatternMax_c];
 /************************************************************************************
 *************************************************************************************
 * Public functions
@@ -103,8 +104,10 @@ StimErr_t StimulationStart(void)
 		if (gStim_t.tConfig.patternId == 0x11)
 			gflag[0] = TRUE;
 
-		//STIM_SUPERVIS_START;
-		//STIM_GEN_START;
+		STIM_SUPERVIS_START;
+		//GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+		//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN); // 110V on
+		STIM_GEN_START;
 	}
 
 	return gStimErrNoError_c;
@@ -121,22 +124,25 @@ StimErr_t StimulationStop(void)
 {
 	uint8_t i = 0;
 // A Modif
+	//GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+	//GPIO_PinOutClear(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN); //  110V Off
+
 	STIM_SUPERVIS_STOP;
 	STIM_SUPERVIS_RESET_COUNT;
 
-	STIM_GEN_STOP;
-	STIM_GEN_RESET_COUNT;
+  STIM_GEN_STOP;
+  STIM_GEN_RESET_COUNT;
 
 	if ((gStim_t.tConfig.patternId == 0x09) || (gStim_t.tConfig.patternId == 0x02))
 	{
 		// A Modif
 		STIM_OUT_SEL_NONE;
-		// CMD_GALV_SEL_NONE;
+		CMD_GALV_SEL_NONE;
 	}
   // Application AOP -> OFF
-  SIUE1316_Gpio_ClrAop();
+  Gpio_ClrAop();
 
-  (void)SIUE1316_Ad5691r_SetIntensiteStimulation(0); //exprimer en uV
+  (void)Ad5691r_SetIntensiteStimulation(0); //exprimer en uV
 
 	for (i = 0; i < gStimOutMax_c; i++)
 	{
@@ -151,6 +157,23 @@ StimErr_t StimulationStop(void)
 
 	gStim_t.tConfig.nStim = 0;
 	if (gStim_t.tConfig.patternId != 0x09)
+	  {
+	    /** - Callback functions declaration. */
+	    pStimGenCallback[gStimPatternBiphasic_c] = ImpulsBiphas;
+	    pStimGenCallback[gStimPatternMonophasic_c] = ImpulsMonophas;
+	    //pStimGenCallback[gStimPatternGalvanic_c] = Galvanic;
+	    pStimGenCallback[gStimPatternBiphasicAltern_c] = ImpulsBiphasAltern;
+	    //pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
+	    //pStimGenCallback[gStimPatternNeuro_c] = NeuroMonophas;
+	    pStimGenCallback[gStimPatternBiphasicNegative_c] = ImpulsBiphasNeg;
+
+	    /** - Number of alternance per signal. */
+	    gNPulse_c[gStimPatternBiphasic_c] = 2;
+	    gNPulse_c[gStimPatternMonophasic_c] = 2;
+	    gNPulse_c[gStimPatternBiphasicAltern_c] = 2;
+	    gNPulse_c[gStimPatternVeineuxBiphasic_c] = 52;
+	    gNPulse_c[gStimPatternBiphasicNegative_c] = 2;
+	  }
 	//A modif
 	if (gStim_t.tConfig.patternId == 0x11)
 		gflag[0] = FALSE;
@@ -1149,7 +1172,7 @@ void TIMER1_IRQHandler(void)
 // MeSS_GestionCourantBiphasiqueAlterne();
 //  VeineuxBiphas();
   gStimTick = TRUE;
-  TIMER_IntClear(TIMER0, TIMER_IF_OF);
+  TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
 }
 /**********************************************************************************
 End of function

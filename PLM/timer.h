@@ -11,9 +11,15 @@
 #include "em_cmu.h"
 #include "stdint.h"
 
-#define FREQ_TIM0_CNT 1000000
-#define FREQ_TIM1_CNT 1000000
-#define GEN_TIMER TIMER1
+#define TIMER_GEN_COURANT_FRQ 1000000
+#define TIMER_ENV_FRQ         1000000
+
+#define TIMER_GEN_COURANT     TIMER0
+#define TIMER_GEN_COURANT_CLK cmuClock_TIMER0
+
+#define TIMER_ENV             TIMER1
+#define TIMER_ENV_CLK         cmuClock_TIMER1
+
 void initTIMER(void);
 /*@param : time en µs*/
 void set_timer0_time(uint32_t time);
