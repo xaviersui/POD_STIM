@@ -27,13 +27,14 @@ toolchain_settings: []
 component:
 - {id: emlib_i2c}
 - {id: emlib_iadc}
-- {id: sl_system}
 - instance: [CAN_BIO_SPI]
   id: spidrv_usart
+- {id: sl_system}
 - {id: device_init}
 - {id: EFM32PG23B310F512IM48}
 - instance: [COM_RF_UART]
   id: uartdrv_eusart
+- {id: udelay}
 define:
 - {name: DEBUG_EFM}
 ui_hints:

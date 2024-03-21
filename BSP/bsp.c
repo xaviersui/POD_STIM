@@ -93,20 +93,19 @@ void BoardInit(void)
     GPIO_PinModeSet(CMD_L1_PORT, CMD_L1_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_H2_PORT, CMD_H2_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_H1_PORT, CMD_H1_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN,gpioModeWiredOrPullDown,0);
+    GPIO_PinModeSet(CS_VOIE1_PORT,CS_VOIE1_PIN,gpioModeWiredOrPullDown,0);
+    GPIO_PinModeSet(CS_VOIE2_PORT,CS_VOIE2_PIN,gpioModeWiredOrPullDown,0);
+ GPIO_PinModeSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN,gpioModeWiredOrPullDown,0);
 
     ////////////// Enable GPIO pins PA5 (SDA) and PA6 (SCL) ///////////////
     CMU_ClockEnable(cmuClock_I2C0, true);
     GPIO_PinModeSet(I2C0_SCL_PORT, I2C0_SCL_PIN, gpioModeWiredAndPullUpFilter, 1);
     GPIO_PinModeSet(I2C0_SDA_PORT, I2C0_SDA_PIN, gpioModeWiredAndPullUpFilter, 1);
-
     GPIO_PinModeSet(IO_RF_STOP_PORT, IO_RF_STOP_PIN, gpioModeInput, 0);
-
     initIADC();
       init_I2C();
       initTIMER();
-
-      GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+   GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
 
       /** - Callback functions declaration. */
         pStimGenCallback[gStimPatternBiphasic_c] = ImpulsBiphas;

@@ -1182,14 +1182,26 @@ void FsmTaskManagement(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
       {
       case gTaskMngtRqstId: // Send how many tools are present and their action (Stim, Bio, Stim/Bio).
         fsmTaskReturn_t.bDataReturn = TRUE;
-        for (i = 0; i < Number_Channel; i++)
-        {
-          fsmTaskReturn_t.bReturn = FALSE;            /** Electrodes are disconnected. */
-          fsmTaskReturn_t.data[0] = (PodType_t) gPodType_StimBio; /** Error code for electrodes adhesion. */
-          fsmTaskReturn_t.data[1] = Number_Channel;   /** Channel i is disconnected. */
-          fsmTaskReturn_t.data[i + 2] = (ChannelType_t) gChannelType_NoTool;
-        }
 
+                //      if(ChannelTest())
+                //      {
+                for (i = 0; i < Number_Channel; i++)
+                {
+                  if (ElectrodeAdhesionDetection(i) == TRUE)
+                  {
+                    fsmTaskReturn_t.bReturn = FALSE;          /** Electrodes adhesion is ok. */
+                    fsmTaskReturn_t.data[0] = gPodType_StimBio;     /** POD Type */
+                    fsmTaskReturn_t.data[1] = Number_Channel;     /** Number of channels. */
+                    fsmTaskReturn_t.data[i + 2] = gChannelType_StimBio; /** Tool type of channel 1. */
+                  }
+                  else
+                  {
+                    fsmTaskReturn_t.bReturn = FALSE;      /** Electrodes are disconnected. */
+                    fsmTaskReturn_t.data[0] = gPodType_StimBio; /** Error code for electrodes adhesion. */
+                    fsmTaskReturn_t.data[1] = Number_Channel; /** Channel i is disconnected. */
+                    fsmTaskReturn_t.data[i + 2] = gChannelType_NoTool;
+                  }
+                }
         // Send frame via UART.
         SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, 7); // sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX);
         break;

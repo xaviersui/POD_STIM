@@ -133,7 +133,7 @@ User Includes
 #define SWITCH_STOP        {TIMER_Enable(TIMER_GEN_COURANT,false);/*TIMER_CounterSet(TIMER0,0);*/}
 
 #define STIM_GEN_RELOAD_NEXT_COUNT(val)   Timer_SetMft1Timming(val)
-#define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER0,0)   // Timer RB counter
+#define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER_GEN_COURANT,0)   // Timer RB counter
 
 
 #define DAC_VALUE_MAX       4095
@@ -149,8 +149,8 @@ User Includes
 #define STIM_SUPERVIS_RESET_COUNT     set_timer1_time(255)  // Timer RB counter
 
 /* Stim Generation Management */
-#define STIM_GEN_START        TIMER_Enable(TIMER0,true)
-#define STIM_GEN_STOP       TIMER_Enable(TIMER0,false)
+#define STIM_GEN_START        TIMER_Enable(TIMER_GEN_COURANT,true)
+#define STIM_GEN_STOP       TIMER_Enable(TIMER_GEN_COURANT,false)
 
 #define STIM_OUT_0            0x02
 #define STIM_OUT_1            0x40
@@ -162,6 +162,17 @@ User Includes
   else{\
       STIM_OUT_SEL_NONE;\
       GPIO_PinOutSet(CS_VOIE2_PORT,CS_VOIE2_PIN);\
+  }\
+}\
+
+#define STIM_OUT_CLR(cmd)     {\
+  if(cmd == STIM_OUT_0){\
+      STIM_OUT_SEL_NONE;\
+            GPIO_PinOutClear(CS_VOIE1_PORT,CS_VOIE1_PIN);\
+  }\
+  else{\
+      STIM_OUT_SEL_NONE;\
+      GPIO_PinOutClear(CS_VOIE2_PORT,CS_VOIE2_PIN);\
   }\
 }\
 
