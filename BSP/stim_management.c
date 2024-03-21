@@ -12,6 +12,8 @@
 #include "stimulation.h"
 #include "pin_config.h"
 #include "em_gpio.h"
+#include "sl_udelay.h"
+#include "stim_management.h"
 
 //#define STIM_OUT_SEL_NONE GPIO->P_CLR[CS_VOIE1_PORT].DOUT = ((1 << CS_VOIE1_PIN) | (1 << CS_VOIE2_PIN)) //GPIO_PinOutClear(CS_VOIE1_PORT, CS_VOIE1_PIN);
 
@@ -164,14 +166,13 @@ End of function
 ***********************************************************************************/
 int32_t Ad5691r_SetIntensiteStimulation(uint32_t v /*uint32_t ui32Intensite*/)
 {
-  volatile int32_t i32Ret = 0;
-  volatile float fTensionToDac;
-  volatile Data16bit_t DataBuffer;
-  volatile uint8_t ui8Data;
-  volatile uint16_t ui16Val;
-  static uint16_t last = 0;
-
-  int i;
+	int32_t i32Ret = 0;
+	float fTensionToDac;
+	Data16bit_t DataBuffer;
+	uint8_t ui8Data;
+	uint16_t ui16Val;
+	static uint16_t last = 0;
+	int i;
 
   // On programme l'intensit� si elle est diff�rente de la pr�c�dente programm�e
   /* if (Gui32LastIntensiteProgrammed != ui32Intensite)

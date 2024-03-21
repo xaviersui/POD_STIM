@@ -286,6 +286,7 @@ extern bool_t gflag[2];
 extern void StimManagementHacheurInit(void);
 extern StimGenErr_t StimManagementSetDigitalAmplitude(uint16_t amplitude, uint8_t pulseId);
 extern StimGenErr_t StimManagementConfigPulse(StimulationConfiguration_t* pStimConfig_t);
+bool_t ElectrodeAdhesionDetection(StimOutId_t OutId);
 
 
 #endif    /*  STIM_CONFIG_H_INCLUDED  */

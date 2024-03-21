@@ -1190,16 +1190,16 @@ void FsmTaskManagement(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
                   if (ElectrodeAdhesionDetection(i) == TRUE)
                   {
                     fsmTaskReturn_t.bReturn = FALSE;          /** Electrodes adhesion is ok. */
-                    fsmTaskReturn_t.data[0] = gPodType_StimBio;     /** POD Type */
+                    fsmTaskReturn_t.data[0] = (PodType_t) gPodType_StimBio;     /** POD Type */
                     fsmTaskReturn_t.data[1] = Number_Channel;     /** Number of channels. */
-                    fsmTaskReturn_t.data[i + 2] = gChannelType_StimBio; /** Tool type of channel 1. */
+                    fsmTaskReturn_t.data[i + 2] = (ChannelType_t) gChannelType_StimBio; /** Tool type of channel 1. */
                   }
                   else
                   {
                     fsmTaskReturn_t.bReturn = FALSE;      /** Electrodes are disconnected. */
-                    fsmTaskReturn_t.data[0] = gPodType_StimBio; /** Error code for electrodes adhesion. */
+                    fsmTaskReturn_t.data[0] = (PodType_t) gPodType_StimBio; /** Error code for electrodes adhesion. */
                     fsmTaskReturn_t.data[1] = Number_Channel; /** Channel i is disconnected. */
-                    fsmTaskReturn_t.data[i + 2] = gChannelType_NoTool;
+                    fsmTaskReturn_t.data[i + 2] = (ChannelType_t) gChannelType_NoTool;
                   }
                 }
         // Send frame via UART.

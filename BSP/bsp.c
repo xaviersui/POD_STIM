@@ -105,7 +105,6 @@ void BoardInit(void)
     initIADC();
       init_I2C();
       initTIMER();
-   GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
 
       /** - Callback functions declaration. */
         pStimGenCallback[gStimPatternBiphasic_c] = ImpulsBiphas;
