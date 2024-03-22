@@ -105,8 +105,6 @@ StimErr_t StimulationStart(void)
 			gflag[0] = TRUE;
 
 		STIM_SUPERVIS_START;
-		//GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-		//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN); // 110V on
 		STIM_GEN_START;
 	}
 
@@ -123,15 +121,12 @@ StimErr_t StimulationStart(void)
 StimErr_t StimulationStop(void)
 {
 	uint8_t i = 0;
-// A Modif
-	//GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-	//GPIO_PinOutClear(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN); //  110V Off
 
 	STIM_SUPERVIS_STOP;
 	STIM_SUPERVIS_RESET_COUNT;
 
-  STIM_GEN_STOP;
-  STIM_GEN_RESET_COUNT;
+	STIM_GEN_STOP;
+	STIM_GEN_RESET_COUNT;
 
 	if ((gStim_t.tConfig.patternId == 0x09) || (gStim_t.tConfig.patternId == 0x02))
 	{

@@ -61,7 +61,7 @@ User Includes
 #define STIM_OUT_NONE 0x00
 #define STIM_OUT_PORT p3
 #define STIM_OUT_PIN_MASK 0x42
-#define STIM_OUT_SEL_NONE GPIO->P_CLR[CS_VOIE1_PORT].DOUT = ((1 << CS_VOIE1_PIN) | (1 << CS_VOIE2_PIN)) //GPIO_PinOutClear(CS_VOIE1_PORT, CS_VOIE1_PIN);
+#define STIM_OUT_SEL_NONE {GPIO_PinOutClear(CS_VOIE1_PORT, CS_VOIE1_PIN);GPIO_PinOutClear(CS_VOIE2_PORT, CS_VOIE2_PIN);}//GPIO->P_CLR[CS_VOIE1_PORT].DOUT = ((1 << CS_VOIE1_PIN) | (1 << CS_VOIE2_PIN)) //GPIO_PinOutClear(CS_VOIE1_PORT, CS_VOIE1_PIN);
 
 /************************************************************************************
 *************************************************************************************

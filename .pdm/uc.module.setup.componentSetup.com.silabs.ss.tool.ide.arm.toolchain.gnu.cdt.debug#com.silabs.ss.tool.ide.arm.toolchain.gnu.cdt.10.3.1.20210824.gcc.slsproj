@@ -136,6 +136,15 @@
             <file name="sli_sleeptimer.h" linked="false" uri="studio:/sdk/platform/service/sleeptimer/inc/sli_sleeptimer.h"/>
           </folder>
         </folder>
+        <folder name="udelay">
+          <folder name="src">
+            <file name="sl_udelay.c" linked="false" uri="studio:/sdk/platform/service/udelay/src/sl_udelay.c"/>
+            <file name="sl_udelay_armv6m_gcc.S" linked="false" uri="studio:/sdk/platform/service/udelay/src/sl_udelay_armv6m_gcc.S"/>
+          </folder>
+          <folder name="inc">
+            <file name="sl_udelay.h" linked="false" uri="studio:/sdk/platform/service/udelay/inc/sl_udelay.h"/>
+          </folder>
+        </folder>
       </folder>
       <folder name="emdrv">
         <folder name="dmadrv">
@@ -251,6 +260,7 @@
   <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/service/sleeptimer/inc"/>
   <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/emdrv/spidrv/inc"/>
   <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/emdrv/uartdrv/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_4.4.1/platform/service/udelay/inc"/>
   <macroDefinition name="DEBUG_EFM"/>
   <macroDefinition name="EFM32PG23B310F512IM48"/>
   <macroDefinition name="SL_COMPONENT_CATALOG_PRESENT"/>

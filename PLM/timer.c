@@ -34,7 +34,7 @@ void initTIMER(void)
   // Run in one-shot mode and toggle the pin on each compare match
   timerInit.oneShot = true;
   timerInit.prescale = (CMU_ClockFreqGet(TIMER_GEN_COURANT_CLK)/TIMER_GEN_COURANT_FRQ) - 1;
-  TIMER_Init(TIMER0, &timerInit);
+  TIMER_Init(TIMER_GEN_COURANT, &timerInit);
 
   TIMER_IntEnable(TIMER_GEN_COURANT,TIMER_IF_OF);
 
@@ -55,7 +55,7 @@ void initTIMER(void)
 
 void set_timer0_time(uint32_t time)
 {
-	TIMER_Enable(TIMER_GEN_COURANT, false);
+    TIMER_Enable(TIMER_GEN_COURANT, false);
 	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
 	TIMER_CounterSet(TIMER_GEN_COURANT,0);
 	uint32_t cnt = time - 1;
@@ -63,14 +63,14 @@ void set_timer0_time(uint32_t time)
 	{
 		TIMER_TopSet(TIMER_GEN_COURANT, cnt);
 	}
-	TIMER_Enable(TIMER_GEN_COURANT, true);
+  TIMER_Enable(TIMER_GEN_COURANT, true);
 }
 
 void set_timer1_time(uint32_t time)
 {
-  TIMER_Enable(TIMER_ENV, false);
-  TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
-  TIMER_CounterSet(TIMER_ENV,0);
+//  TIMER_Enable(TIMER_ENV, false);
+//  TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
+//  TIMER_CounterSet(TIMER_ENV,0);
   uint32_t cnt = time - 1;
   if(TIMER_TopGet(TIMER_ENV) != cnt)
   {

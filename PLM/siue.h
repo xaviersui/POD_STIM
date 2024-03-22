@@ -191,7 +191,7 @@ void ImpulsBiphasNeg(void);
 void ImpulsBiphasAltern(void);
 void Gpio_SetAop();
 void Gpio_ClrAop();
-void Timer_SetMft1Timming(uint16_t ui16Time);
+void Timer_SetMft1Timming(uint32_t ui16Time);
 
 void VeineuxBiphas(void);
 void ImportTrameDAL(void);

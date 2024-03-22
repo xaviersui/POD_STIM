@@ -11,7 +11,7 @@
 #include "em_cmu.h"
 #include "stdint.h"
 
-#define TIMER_GEN_COURANT_FRQ 1000000
+#define TIMER_GEN_COURANT_FRQ 10000000
 #define TIMER_ENV_FRQ         1000000
 
 #define TIMER_GEN_COURANT     TIMER0
