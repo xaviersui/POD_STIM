@@ -167,11 +167,9 @@ User Includes
 
 #define STIM_OUT_CLR(cmd)     {\
   if(cmd == STIM_OUT_0){\
-      STIM_OUT_SEL_NONE;\
-            GPIO_PinOutClear(CS_VOIE1_PORT,CS_VOIE1_PIN);\
+	  GPIO_PinOutClear(CS_VOIE1_PORT,CS_VOIE1_PIN);\
   }\
   else{\
-      STIM_OUT_SEL_NONE;\
       GPIO_PinOutClear(CS_VOIE2_PORT,CS_VOIE2_PIN);\
   }\
 }\

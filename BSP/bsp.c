@@ -98,6 +98,7 @@ void BoardInit(void)
     GPIO_PinModeSet(CS_VOIE2_PORT,CS_VOIE2_PIN,gpioModeWiredOrPullDown,0);
     GPIO_PinModeSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN,gpioModeWiredOrPullDown,0);
 
+    //GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
     GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
 
     /// Pin used for biofeedback

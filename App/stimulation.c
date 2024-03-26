@@ -89,7 +89,7 @@ End of function
 StimErr_t StimulationStart(void)
 {
 	uint8_t i = 0;
-
+	//GPIO_PinOutClear(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
 	gStim_t.startEn = TRUE;
 	gStim_t.pauseEn = FALSE;
 	if (gStim_t.tConfig.nStim)
@@ -121,7 +121,7 @@ StimErr_t StimulationStart(void)
 StimErr_t StimulationStop(void)
 {
 	uint8_t i = 0;
-
+	//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
 	STIM_SUPERVIS_STOP;
 	STIM_SUPERVIS_RESET_COUNT;
 

@@ -57,7 +57,7 @@ void set_timer0_time(uint32_t time)
 {
     TIMER_Enable(TIMER_GEN_COURANT, false);
 	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
-	TIMER_CounterSet(TIMER_GEN_COURANT,0);
+	//TIMER_CounterSet(TIMER_GEN_COURANT,0);
 	uint32_t cnt = time - 1;
 	if(TIMER_TopGet(TIMER_GEN_COURANT) != cnt)
 	{
