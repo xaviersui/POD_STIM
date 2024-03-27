@@ -544,7 +544,7 @@ void ImpulsBiphas(void)
 
      case gBiPhasInit1_c:
         // Configuration du timming prochaine étape
-        STIM_GEN_RELOAD_NEXT_COUNT(iSS_TIMMING_COURT);
+        STIM_GEN_RELOAD_NEXT_COUNT(iSS_TIMMING_COURT*20);
         /**< Desactive CMD */
         CMD_M_DISCONNECT;
         tBiphasState = gBiPhasInit2_c;
@@ -554,7 +554,7 @@ void ImpulsBiphas(void)
 
 
         // Configuration du timming prochaine étape
-        STIM_GEN_RELOAD_NEXT_COUNT(500);
+        STIM_GEN_RELOAD_NEXT_COUNT(500*20);
         (void)Ad5691r_SetIntensiteStimulation(0*fGAIN_DAC+fOFFSET_DAC);
        /** Sets Next Step Time */
         CMD_M_SET_NO_PULSE;    //L1-L2
@@ -598,7 +598,7 @@ void ImpulsBiphas(void)
          Gpio_SetElectrostimulation(eETAPE4);
          /**Negatif Pulse*/
          Gpio_SetElectrostimulation(eETAPE6);
-         Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1);
+         Timer_SetMft1Timming(iSS_MOMENT_RELECTURE_COURANT-uiMIN_TIMER_MFT1*20);
          tBiphasState = gBiphasStateNeg_c;
          break;
 
@@ -983,10 +983,10 @@ void ImpulsMonophas(void)
          CMD_M_DISCONNECT;             /**< Disables pulse CMD */
          STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
          /** Sets Level 0 */
-         (void)Ad5691r_SetIntensiteStimulation(0);
+      //   (void)Ad5691r_SetIntensiteStimulation(0);
          Gpio_ClrAop();
          // Petit d�lai par des cycles horloge
-         PETIT_DELAI_NOP;
+     //    PETIT_DELAI_NOP;
 
          /** Sets pause cmd */
          CMD_M_SET_NO_PULSE;
@@ -1000,7 +1000,7 @@ void ImpulsMonophas(void)
          CMD_M_DISCONNECT;             /**< Disables pulse CMD */
          STIM_OUT_SEL_NONE;            /**< Disables Pulse Output */
          /** Sets Level 0 */
-         (void)Ad5691r_SetIntensiteStimulation(0);
+       //  (void)Ad5691r_SetIntensiteStimulation(0);
          Gpio_ClrAop();
          /** Sets pause cmd */
          CMD_M_SET_NO_PULSE;
