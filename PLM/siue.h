@@ -175,7 +175,7 @@ typedef enum
 #define iNB_PURGE_ADC_ON_STOP_SS                                                10
 
 
-#define STIM_GEN_TRM_PERIOD_MAX   32768     // in �s*10^(-1)  //( ((uint32_t)(TMR_RC_COUNTER_MAX + 1)*DEF_TIME_NBR_uS_PER_SEC)/STIM_GEN_TRM_CLK_SOURCE )
+//#define STIM_GEN_TRM_PERIOD_MAX   32768     // in �s*10^(-1)  //( ((uint32_t)(TMR_RC_COUNTER_MAX + 1)*DEF_TIME_NBR_uS_PER_SEC)/STIM_GEN_TRM_CLK_SOURCE )
 
 
 int32_t Ad5691r_SetIntensiteStimulation(uint32_t v/*uint32_t ui32Intensite*/);

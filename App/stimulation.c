@@ -121,6 +121,7 @@ StimErr_t StimulationStart(void)
 StimErr_t StimulationStop(void)
 {
 	uint8_t i = 0;
+	uint8_t courant[2] = {0};
 	//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
 	STIM_SUPERVIS_STOP;
 	STIM_SUPERVIS_RESET_COUNT;
@@ -134,6 +135,8 @@ StimErr_t StimulationStop(void)
 		STIM_OUT_SEL_NONE;
 		CMD_GALV_SEL_NONE;
 	}
+
+	I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_DAC_AND_INPUT_REGISTER_COMMAND_BYTE, courant, 2);
   // Application AOP -> OFF
   Gpio_ClrAop();
 
@@ -158,7 +161,7 @@ StimErr_t StimulationStop(void)
 	    pStimGenCallback[gStimPatternMonophasic_c] = ImpulsMonophas;
 	    //pStimGenCallback[gStimPatternGalvanic_c] = Galvanic;
 	    pStimGenCallback[gStimPatternBiphasicAltern_c] = ImpulsBiphasAltern;
-	    //pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
+	    pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
 	    //pStimGenCallback[gStimPatternNeuro_c] = NeuroMonophas;
 	    pStimGenCallback[gStimPatternBiphasicNegative_c] = ImpulsBiphasNeg;
 

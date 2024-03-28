@@ -19,9 +19,9 @@ I2C_TransferReturn_TypeDef I2C_LeaderWrite(uint16_t followerAddress, uint8_t tar
 
 
 /*! Gain pour la fonction de transfert de l�intensit� en mA vers la tension du DAC (Vout) */
-#define fGAIN_DAC 0.0408102377f // 0.04259259f= 1.15/27 // 0.15625f = 2.25/27
+#define fGAIN_DAC 0.04259259f // 0.04259259f= 1.15/27 // 0.15625f = 2.25/27
 /*! Offset pour la fonction de transfert de l�intensit� en mA vers la tension du DAC (Vout) */
-#define fOFFSET_DAC -3.74405f// = -500/27= -31.25f <-- pour 50mA  // 500/16 = -62.5f <-- pour 100mA
+#define fOFFSET_DAC -18.51f// = -500/27= -31.25f <-- pour 50mA  // 500/16 = -62.5f <-- pour 100mA
 
 #define I2C_DAC_ADDR 76
 

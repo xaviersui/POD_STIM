@@ -11,6 +11,7 @@
 
 void init_I2C()
 {
+
 	CMU_ClockEnable(cmuClock_I2C0, true);
 	CMU_ClockEnable(cmuClock_GPIO, true);
 
@@ -27,6 +28,7 @@ void init_I2C()
 
 	// Enable automatic STOP on NACK
 	I2C0->CTRL = I2C_CTRL_AUTOSN;
+
 }
 
 void I2C_LeaderRead(uint16_t followerAddress, uint8_t targetAddress, uint8_t *rxBuff, uint8_t numBytes)
