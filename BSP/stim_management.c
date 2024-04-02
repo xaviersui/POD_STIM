@@ -109,13 +109,13 @@ StimGenErr_t StimManagementConfigPulse(StimulationConfiguration_t* pStimConfig_t
   /* T = TStim - TPulse = (NStimTimerloop - NPulseTimerloop) * BSP_MAX_STIM_TIMER_PERIOD + (TrStim - TrPulse) */
   nStimTimerloop -= nPulseTimerloop;
 
-//  if(trStim >= trPulse)
-//    trStim -= trPulse;
-//  else
-//  {
-//    nStimTimerloop--;
-//    trStim = STIM_GEN_TRM_PERIOD_MAX + trStim - trPulse;
-//  }
+  if(trStim >= trPulse)
+    trStim -= trPulse;
+  else
+  {
+    nStimTimerloop--;
+    trStim = STIM_GEN_TRM_PERIOD_MAX + trStim - trPulse;
+  }
 
   /* if TrStim < Critical Tinterrupt, TrStim = Critical Tinterrupt */
   if(trStim < STIM_GEN_TR_MIN)
@@ -992,7 +992,7 @@ void ImpulsMonophas(void)
     	}
     	else                  /**< N Pulse */
     	{
-    		STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr - gStimGen_t.nPulse * 1400 * 20);
+    		STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr - gStimGen_t.nPulse * 1000 * 20);
     		i = 0;
     		tMonophasState = gMonophasStateNull_c;
     	}
