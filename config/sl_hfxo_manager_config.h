@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Device initialization for clocks.
+ * @brief HFXO Manager configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,34 +27,30 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_device_init_clocks.h"
 
-#include "em_cmu.h"
+// <<< Use Configuration Wizard in Context Menu >>>
 
-sl_status_t sl_device_init_clocks(void)
-{
-  CMU_CLOCK_SELECT_SET(SYSCLK, HFXO);
-#if defined(_CMU_EM01GRPACLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPACLK, HFXO);
-#endif
-#if defined(_CMU_EM01GRPBCLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPBCLK, HFXO);
-#endif
-#if defined(_CMU_EM01GRPCCLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPCCLK, HFXO);
-#endif
-  CMU_CLOCK_SELECT_SET(EM23GRPACLK, LFRCO);
-  CMU_CLOCK_SELECT_SET(EM4GRPACLK, LFRCO);
-#if defined(RTCC_PRESENT)
-  CMU_CLOCK_SELECT_SET(RTCC, LFRCO);
-#endif
-#if defined(SYSRTC_PRESENT)
-  CMU_CLOCK_SELECT_SET(SYSRTC, LFRCO);
-#endif
-  CMU_CLOCK_SELECT_SET(WDOG0, LFRCO);
-#if WDOG_COUNT > 1
-  CMU_CLOCK_SELECT_SET(WDOG1, LFRCO);
-#endif
+#ifndef SL_HFXO_MANAGER_CONFIG_H
+#define SL_HFXO_MANAGER_CONFIG_H
 
-  return SL_STATUS_OK;
-}
+// <h>HFXO Manager Configuration
+
+// <q SL_HFXO_MANAGER_CUSTOM_HFXO_IRQ_HANDLER> Enable custom IRQ handler for crystal HF oscillator.
+// <i> Enable if HFXO0_IRQHandler is needed from your application.
+// <i> The HFXO IRQ priority must not be changed as the HFXO Manager module needs it to be high priority
+// <i> and to stay enabled through atomic sections.
+// <i> The function sl_hfxo_manager_irq_handler() will have to be called from you custom handler if this is enabled.
+// <i> Default: 0
+#define SL_HFXO_MANAGER_CUSTOM_HFXO_IRQ_HANDLER  0
+
+// <q SL_HFXO_MANAGER_SLEEPY_CRYSTAL_SUPPORT> Enable support for Sleepy Crystals.
+// <i> If Enabled and if HFXO fails to startup due to a sleepy crystal, HFXO Manager will retry the startup with more aggressive settings
+// <i> before falling back to the configured settings.
+// <i> Default: 0
+#define SL_HFXO_MANAGER_SLEEPY_CRYSTAL_SUPPORT  0
+
+// </h>
+
+#endif /* SL_HFXO_MANAGER_CONFIG_H */
+
+// <<< end of configuration section >>>

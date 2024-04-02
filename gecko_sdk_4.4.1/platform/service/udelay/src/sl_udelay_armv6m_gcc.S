@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Device initialization for clocks.
+ * @brief Microsecond delay.
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,34 +27,34 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_device_init_clocks.h"
 
-#include "em_cmu.h"
+    .text
+    .align 4
+    .syntax unified
+    .thumb_func
+    .global  sli_delay_loop
 
-sl_status_t sl_device_init_clocks(void)
-{
-  CMU_CLOCK_SELECT_SET(SYSCLK, HFXO);
-#if defined(_CMU_EM01GRPACLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPACLK, HFXO);
-#endif
-#if defined(_CMU_EM01GRPBCLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPBCLK, HFXO);
-#endif
-#if defined(_CMU_EM01GRPCCLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPCCLK, HFXO);
-#endif
-  CMU_CLOCK_SELECT_SET(EM23GRPACLK, LFRCO);
-  CMU_CLOCK_SELECT_SET(EM4GRPACLK, LFRCO);
-#if defined(RTCC_PRESENT)
-  CMU_CLOCK_SELECT_SET(RTCC, LFRCO);
-#endif
-#if defined(SYSRTC_PRESENT)
-  CMU_CLOCK_SELECT_SET(SYSRTC, LFRCO);
-#endif
-  CMU_CLOCK_SELECT_SET(WDOG0, LFRCO);
-#if WDOG_COUNT > 1
-  CMU_CLOCK_SELECT_SET(WDOG1, LFRCO);
-#endif
+/*
+ * @brief
+ *   Hardware delay loop
+ *
+ * @detail
+ *   This is the hardware specific delay loop. It is designed specifically to
+ *   execute in 4 or 3 cycles for each iteration depending on the architecture.
+ *   Using this information the caller can use the core clock frequency to
+ *   calculate the number of loops required in order to delay a specific time
+ *   period.
+ * 
+ * @param[in] n (r0)
+ *   n is the number of loops to execute. Each loop will execute in 4 cycles.
+ *   Note that we assume that r0 > 0, so this invariant should be checked by
+ *   the caller.
+ */
+sli_delay_loop:
+    subs  r0, r0, #1
+    beq   done
+    b.n   sli_delay_loop
+done:
+    bx    lr
 
-  return SL_STATUS_OK;
-}
+    .end

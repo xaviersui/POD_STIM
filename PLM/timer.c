@@ -27,13 +27,14 @@ void initTIMER(void)
   CMU_ClockEnable(TIMER_GEN_COURANT_CLK, true);
   CMU_ClockEnable(TIMER_ENV_CLK, true);
 
+
   /////// Init TIMER_GEN_COURANT
   // Do not start counter upon initialization
   timerInit.enable = false;
 
   // Run in one-shot mode and toggle the pin on each compare match
   timerInit.oneShot = true;
-  timerInit.prescale = (CMU_ClockFreqGet(TIMER_GEN_COURANT_CLK)/TIMER_GEN_COURANT_FRQ) - 1;
+  timerInit.prescale = _TIMER_CFG_PRESC_DIV2/*(CMU_ClockFreqGet(TIMER_GEN_COURANT_CLK)/TIMER_GEN_COURANT_FRQ) - 1*/;
   TIMER_Init(TIMER_GEN_COURANT, &timerInit);
 
   TIMER_IntEnable(TIMER_GEN_COURANT,TIMER_IF_OF);
@@ -57,7 +58,7 @@ void set_timer0_time(uint32_t time)
 {
     TIMER_Enable(TIMER_GEN_COURANT, false);
 	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
-	//TIMER_CounterSet(TIMER_GEN_COURANT,0);
+	TIMER_CounterSet(TIMER_GEN_COURANT,0);
 	uint32_t cnt = time - 1;
 	if(TIMER_TopGet(TIMER_GEN_COURANT) != cnt)
 	{

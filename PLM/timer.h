@@ -11,8 +11,8 @@
 #include "em_cmu.h"
 #include "stdint.h"
 
-#define TIMER_GEN_COURANT_FRQ 10000000
-#define TIMER_ENV_FRQ         1000000
+#define TIMER_GEN_COURANT_FRQ 20000000
+#define TIMER_ENV_FRQ         80000
 
 #define TIMER_GEN_COURANT     TIMER0
 #define TIMER_GEN_COURANT_CLK cmuClock_TIMER0

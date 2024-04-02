@@ -281,7 +281,7 @@ typedef void(*callback_t)(void);
 
 #define  DEF_TIME_NBR_mS_PER_SEC          1000uL
 #define  DEF_TIME_NBR_uS_PER_SEC          1000000uL
-#define  DEF_TIME_NBR_100nS_PER_SEC         10000000uL
+#define  DEF_TIME_NBR_100nS_PER_SEC       10000000uL
 #define  DEF_TIME_NBR_nS_PER_SEC          1000000000uL
 
 #define  DEF_TIME_NBR_nS_PER_uS           1000uL

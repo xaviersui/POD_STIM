@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief Device initialization for clocks.
+ * @brief HFXO Manager Internal API definition.
  *******************************************************************************
  * # License
  * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
@@ -27,34 +27,24 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_device_init_clocks.h"
 
-#include "em_cmu.h"
+#ifndef SLI_HFXO_MANAGER_INTERNAL_H
+#define SLI_HFXO_MANAGER_INTERNAL_H
 
-sl_status_t sl_device_init_clocks(void)
-{
-  CMU_CLOCK_SELECT_SET(SYSCLK, HFXO);
-#if defined(_CMU_EM01GRPACLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPACLK, HFXO);
-#endif
-#if defined(_CMU_EM01GRPBCLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPBCLK, HFXO);
-#endif
-#if defined(_CMU_EM01GRPCCLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPCCLK, HFXO);
-#endif
-  CMU_CLOCK_SELECT_SET(EM23GRPACLK, LFRCO);
-  CMU_CLOCK_SELECT_SET(EM4GRPACLK, LFRCO);
-#if defined(RTCC_PRESENT)
-  CMU_CLOCK_SELECT_SET(RTCC, LFRCO);
-#endif
-#if defined(SYSRTC_PRESENT)
-  CMU_CLOCK_SELECT_SET(SYSRTC, LFRCO);
-#endif
-  CMU_CLOCK_SELECT_SET(WDOG0, LFRCO);
-#if WDOG_COUNT > 1
-  CMU_CLOCK_SELECT_SET(WDOG1, LFRCO);
+#include "sl_hfxo_manager.h"
+#include "sl_status.h"
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-  return SL_STATUS_OK;
+/***************************************************************************//**
+ * Updates sleepy crystal settings in specific hardware registers.
+ ******************************************************************************/
+sl_status_t sli_hfxo_manager_update_sleepy_xtal_settings_hardware(sl_hfxo_manager_sleepy_xtal_settings_t *settings);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* SLI_HFXO_MANAGER_INTERNAL_H */

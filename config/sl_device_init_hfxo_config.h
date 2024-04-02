@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Device initialization for clocks.
+ * @brief DEVICE_INIT_HFXO Config
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,34 +27,31 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_device_init_clocks.h"
 
-#include "em_cmu.h"
+#ifndef SL_DEVICE_INIT_HFXO_CONFIG_H
+#define SL_DEVICE_INIT_HFXO_CONFIG_H
 
-sl_status_t sl_device_init_clocks(void)
-{
-  CMU_CLOCK_SELECT_SET(SYSCLK, HFXO);
-#if defined(_CMU_EM01GRPACLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPACLK, HFXO);
-#endif
-#if defined(_CMU_EM01GRPBCLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPBCLK, HFXO);
-#endif
-#if defined(_CMU_EM01GRPCCLKCTRL_MASK)
-  CMU_CLOCK_SELECT_SET(EM01GRPCCLK, HFXO);
-#endif
-  CMU_CLOCK_SELECT_SET(EM23GRPACLK, LFRCO);
-  CMU_CLOCK_SELECT_SET(EM4GRPACLK, LFRCO);
-#if defined(RTCC_PRESENT)
-  CMU_CLOCK_SELECT_SET(RTCC, LFRCO);
-#endif
-#if defined(SYSRTC_PRESENT)
-  CMU_CLOCK_SELECT_SET(SYSRTC, LFRCO);
-#endif
-  CMU_CLOCK_SELECT_SET(WDOG0, LFRCO);
-#if WDOG_COUNT > 1
-  CMU_CLOCK_SELECT_SET(WDOG1, LFRCO);
-#endif
+// <<< Use Configuration Wizard in Context Menu >>>
 
-  return SL_STATUS_OK;
-}
+// <o SL_DEVICE_INIT_HFXO_MODE> Mode
+// <i>
+// <cmuHfxoOscMode_Crystal=> Crystal oscillator
+// <cmuHfxoOscMode_ExternalSine=> External sine wave
+// <i> Default: cmuHfxoOscMode_Crystal
+#define SL_DEVICE_INIT_HFXO_MODE           cmuHfxoOscMode_Crystal
+
+// <o SL_DEVICE_INIT_HFXO_FREQ> Frequency <38000000-40000000>
+// <i> Default: 39000000
+#define SL_DEVICE_INIT_HFXO_FREQ           39000000
+
+// <o SL_DEVICE_INIT_HFXO_PRECISION> HFXO precision in PPM <0-65535>
+// <i> Default: 50
+#define SL_DEVICE_INIT_HFXO_PRECISION      50
+
+// <o SL_DEVICE_INIT_HFXO_CTUNE> CTUNE <0-255>
+// <i> Default: 140
+#define SL_DEVICE_INIT_HFXO_CTUNE          140
+
+// <<< end of configuration section >>>
+
+#endif // SL_DEVICE_INIT_HFXO_CONFIG_H
