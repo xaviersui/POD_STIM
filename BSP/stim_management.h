@@ -146,7 +146,7 @@ User Includes
 #define STIM_SUPERVIS_STOP         TIMER_Enable(TIMER_ENV,false)
 
 #define STIM_SUPERVIS_RELOAD_COUNT(val)   set_timer1_time(val)
-#define STIM_SUPERVIS_RESET_COUNT     set_timer1_time(255)  // Timer RB counter
+#define STIM_SUPERVIS_RESET_COUNT     set_timer1_time(0xffff)  // Timer RB counter
 
 /* Stim Generation Management */
 #define STIM_GEN_START        TIMER_Enable(TIMER_GEN_COURANT,true)
@@ -167,6 +167,8 @@ User Includes
 
 #define STIM_OUT_CLR  STIM_OUT_SEL_NONE
 
+#define TIMER_ERROR_MONOPHASIQUE 1000 // en us
+#define CONVERSION_uS_To_50ns 20
 /************************************************************************************
 *************************************************************************************
 * Public type definitions

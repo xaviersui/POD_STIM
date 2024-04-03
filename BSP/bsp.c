@@ -82,7 +82,6 @@ Return value:   none
 ***********************************************************************************/
 void BoardInit(void)
 {
-  bool first = false;
 	///////////////////// Configure en GPIO en sortie //////////////////////
 	/// Pin used for stimulation
     CMU_ClockEnable(cmuClock_GPIO, true);
@@ -113,55 +112,16 @@ void BoardInit(void)
     GPIO_PinModeSet(I2C0_SCL_PORT, I2C0_SCL_PIN, gpioModeWiredAndPullUpFilter, 1);
     GPIO_PinModeSet(I2C0_SDA_PORT, I2C0_SDA_PIN, gpioModeWiredAndPullUpFilter, 1);
     GPIO_PinModeSet(IO_RF_STOP_PORT, IO_RF_STOP_PIN, gpioModeInput, 0);
+
+    /// Driver Init
     // Spi is initialised in function "sl_driver_init" locate in s"l_event_handler.h"
     initIADC();
     init_I2C();
     initTIMER();
 
-      /** - Callback functions declaration. */
-        pStimGenCallback[gStimPatternBiphasic_c] = ImpulsBiphas;
-        pStimGenCallback[gStimPatternMonophasic_c] = ImpulsMonophas;
-        //pStimGenCallback[gStimPatternGalvanic_c] = Galvanic;
-        pStimGenCallback[gStimPatternBiphasicAltern_c] = ImpulsBiphasAltern;
-        pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
-        //pStimGenCallback[gStimPatternNeuro_c] = NeuroMonophas;
-        pStimGenCallback[gStimPatternBiphasicNegative_c] = ImpulsBiphasNeg;
-
-    /** - Number of alternance per signal. */
-    gNPulse_c[gStimPatternBiphasic_c] = 2;
-    gNPulse_c[gStimPatternMonophasic_c] = 2;
-    gNPulse_c[gStimPatternBiphasicAltern_c] = 2;
-    gNPulse_c[gStimPatternVeineuxBiphasic_c] = 52;
-    gNPulse_c[gStimPatternBiphasicNegative_c] = 2;
-
-//    Data16bit_t DataBuffer;
-//    uint16_t Vout = 2400; //mV
-//    uint8_t ui8Data;
-//    uint16_t D =376;
-//    uint8_t data[2] = {0};
-//    data[0] = MSB(D);
-//    data[1] = LSB(D);
-//
-//    DataBuffer.ui16bit =(uint16_t)D;
-//    DataBuffer.ui16bit=DataBuffer.ui16bit<<4;
-//    // Inversion Msb et Lsb car les Msb doivent �tre envoy�s en premier
-//    ui8Data=DataBuffer.u8bit[0];
-//    DataBuffer.u8bit[0]=DataBuffer.u8bit[1];
-//    DataBuffer.u8bit[1]=ui8Data;
-
-//    while(1)
-//      {
-//        if(first == false)
-//          {
-//            I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_DAC_AND_INPUT_REGISTER_COMMAND_BYTE, DataBuffer.u8bit, 2);
-//            first  = true;
-//          }
-//
-//      }
-
     while(EFM32_STOP_IS_EN);
     SrlCommManagmntInit();
-    //StimManagementHacheurInit();
+    StimManagementHacheurInit();
     BioManagementInit();
     //error = flash_Init(BLOCK_DEF);
 }

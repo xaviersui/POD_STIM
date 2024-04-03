@@ -156,23 +156,9 @@ StimErr_t StimulationStop(void)
 	gStim_t.tConfig.nStim = 0;
 	if (gStim_t.tConfig.patternId != 0x09)
 	  {
-	    /** - Callback functions declaration. */
-	    pStimGenCallback[gStimPatternBiphasic_c] = ImpulsBiphas;
-	    pStimGenCallback[gStimPatternMonophasic_c] = ImpulsMonophas;
-	    //pStimGenCallback[gStimPatternGalvanic_c] = Galvanic;
-	    pStimGenCallback[gStimPatternBiphasicAltern_c] = ImpulsBiphasAltern;
-	    pStimGenCallback[gStimPatternVeineuxBiphasic_c] = VeineuxBiphas;
-	    //pStimGenCallback[gStimPatternNeuro_c] = NeuroMonophas;
-	    pStimGenCallback[gStimPatternBiphasicNegative_c] = ImpulsBiphasNeg;
-
-	    /** - Number of alternance per signal. */
-	    gNPulse_c[gStimPatternBiphasic_c] = 2;
-	    gNPulse_c[gStimPatternMonophasic_c] = 2;
-	    gNPulse_c[gStimPatternBiphasicAltern_c] = 2;
-	    gNPulse_c[gStimPatternVeineuxBiphasic_c] = 52;
-	    gNPulse_c[gStimPatternBiphasicNegative_c] = 2;
+		StimManagementHacheurInit();
 	  }
-	//A modif
+
 	if (gStim_t.tConfig.patternId == 0x11)
 		gflag[0] = FALSE;
 
@@ -282,8 +268,9 @@ StimErr_t StimulationSetPulseWidth(uint8_t pulseId, uint16_t PWA, uint16_t PWB, 
 		pulseId = 0;
 	}
 
-	if (PWA >= STIM_GEN_TRM_PERIOD_MAX || PWB >= STIM_GEN_TRM_PERIOD_MAX || PWC >= STIM_GEN_TRM_PERIOD_MAX)
-		return gStimErrConfigStimPulseWidthMax_c;
+	/// NOT USED in V2 BECAUSE STIM_GEN_TRM_PERIOD_MAX is TIMER cnt on 32-bits (V1 was 16-bits
+	/*if (PWA >= STIM_GEN_TRM_PERIOD_MAX || PWB >= STIM_GEN_TRM_PERIOD_MAX || PWC >= STIM_GEN_TRM_PERIOD_MAX)
+		return gStimErrConfigStimPulseWidthMax_c;*/
 
 	gStim_t.tControl[pulseId].tEnvelope.pulseWidthA = PWA;
 	gStim_t.tControl[pulseId].tEnvelope.pulseWidthB = PWB;
@@ -829,8 +816,11 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 			gStim_t.tControl[nStim].tEnvelope.patternFrequencyA = pConfigData->patternFrequencyA;
 			gStim_t.tControl[nStim].tEnvelope.patternFrequencyB = pConfigData->patternFrequencyB;
 			gStim_t.tControl[nStim].tEnvelope.patternFrequencyC = pConfigData->patternFrequencyC;
-			if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
-				return gStimErrConfigStimPulseWidthMax_c;
+
+			///NOT USED in V2 BECAUSE STIM_GEN_TRM_PERIOD_MAX is TIMER cnt on 32-bits (V1 was 16-bits
+			/*if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
+				return gStimErrConfigStimPulseWidthMax_c;*/
+
 			gStim_t.tControl[nStim].tEnvelope.pulseWidthA = pConfigData->pulseWidthA;
 			gStim_t.tControl[nStim].tEnvelope.pulseWidthB = pConfigData->pulseWidthB;
 			gStim_t.tControl[nStim].tEnvelope.pulseWidthC = pConfigData->pulseWidthC;
@@ -896,8 +886,10 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyA = pConfigData->patternFrequencyA;
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyB = pConfigData->patternFrequencyB;
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyC = pConfigData->patternFrequencyC;
-				if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
-					return gStimErrConfigStimPulseWidthMax_c;
+
+				///NOT USED in V2 BECAUSE STIM_GEN_TRM_PERIOD_MAX is TIMER cnt on 32-bits (V1 was 16-bits
+				/*if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
+					return gStimErrConfigStimPulseWidthMax_c;*/
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthA = pConfigData->pulseWidthA;
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthB = pConfigData->pulseWidthB;
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthC = pConfigData->pulseWidthC;
@@ -997,8 +989,11 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyA = pConfigData->patternFrequencyA;
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyB = pConfigData->patternFrequencyB;
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyC = pConfigData->patternFrequencyC;
-				if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
-					return gStimErrConfigStimPulseWidthMax_c;
+
+				///NOT USED in V2 BECAUSE STIM_GEN_TRM_PERIOD_MAX is TIMER cnt on 32-bits (V1 was 16-bits)
+				/*if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
+					return gStimErrConfigStimPulseWidthMax_c;*/
+
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthA = pConfigData->pulseWidthA;
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthB = pConfigData->pulseWidthB;
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthC = pConfigData->pulseWidthC;
@@ -1163,12 +1158,6 @@ Return value: 	none
 
 void TIMER1_IRQHandler(void)
 {
-// MeSS_GestionCourantBiphasiquePositif();
- //MeSS_GestionCourantMonophasiquePositif();
-  //MeSS_GestionCourantBiphasiqueNegatif();
- // MeSS_GestionCourantMonophasiqueNegatif();
-// MeSS_GestionCourantBiphasiqueAlterne();
-//  VeineuxBiphas();
   gStimTick = TRUE;
   TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
 }

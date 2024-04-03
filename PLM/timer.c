@@ -13,7 +13,8 @@
 
 
 
-TIMER_Init_TypeDef timerInit = TIMER_INIT_DEFAULT;
+TIMER_Init_TypeDef GentimerInit = TIMER_INIT_DEFAULT;
+TIMER_Init_TypeDef SupervistimerInit = TIMER_INIT_DEFAULT;
 extern void (*pStimGenCallback[gStimPatternMax_c])(void);
 extern Stimulation_t gStim_t;    /**< */
 
@@ -27,29 +28,28 @@ void initTIMER(void)
   CMU_ClockEnable(TIMER_GEN_COURANT_CLK, true);
   CMU_ClockEnable(TIMER_ENV_CLK, true);
 
-
   /////// Init TIMER_GEN_COURANT
   // Do not start counter upon initialization
-  timerInit.enable = false;
-
+  GentimerInit.enable = false;
   // Run in one-shot mode and toggle the pin on each compare match
-  timerInit.oneShot = true;
-  timerInit.prescale = _TIMER_CFG_PRESC_DIV2/*(CMU_ClockFreqGet(TIMER_GEN_COURANT_CLK)/TIMER_GEN_COURANT_FRQ) - 1*/;
-  TIMER_Init(TIMER_GEN_COURANT, &timerInit);
+  GentimerInit.oneShot = true;
+  GentimerInit.prescale = _TIMER_CFG_PRESC_DIV2/*(CMU_ClockFreqGet(TIMER_GEN_COURANT_CLK)/TIMER_GEN_COURANT_FRQ) - 1*/;
 
+  TIMER_Init(TIMER_GEN_COURANT, &GentimerInit);
   TIMER_IntEnable(TIMER_GEN_COURANT,TIMER_IF_OF);
 
   /////// Init TIMER_ENV
-  timerInit.prescale = (CMU_ClockFreqGet(TIMER_ENV_CLK)/TIMER_ENV_FRQ) - 1;
+  SupervistimerInit.enable = false;
+  SupervistimerInit.prescale = (CMU_ClockFreqGet(TIMER_ENV_CLK)/TIMER_ENV_FRQ) - 1;
   // Run in one-shot mode and toggle the pin on each compare match
-    timerInit.oneShot = false;
-  TIMER_Init(TIMER_ENV, &timerInit);
+  SupervistimerInit.oneShot = false;
 
+  TIMER_Init(TIMER_ENV, &SupervistimerInit);
   TIMER_IntEnable(TIMER_ENV,TIMER_IF_OF);
-//
+
   NVIC_ClearPendingIRQ(TIMER0_IRQn);
   NVIC_EnableIRQ(TIMER0_IRQn);
-//
+
   NVIC_ClearPendingIRQ(TIMER1_IRQn);
   NVIC_EnableIRQ(TIMER1_IRQn);
 }
@@ -69,9 +69,6 @@ void set_timer0_time(uint32_t time)
 
 void set_timer1_time(uint32_t time)
 {
-//  TIMER_Enable(TIMER_ENV, false);
-//  TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
-//  TIMER_CounterSet(TIMER_ENV,0);
   uint32_t cnt = time - 1;
   if(TIMER_TopGet(TIMER_ENV) != cnt)
   {
