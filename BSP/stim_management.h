@@ -168,6 +168,7 @@ User Includes
 #define STIM_OUT_CLR  STIM_OUT_SEL_NONE
 
 #define TIMER_ERROR_MONOPHASIQUE 1000 // en us
+#define TIMER_ERROR_BIPHASIQUE   1200 // en us
 #define CONVERSION_uS_To_50ns 20
 /************************************************************************************
 *************************************************************************************
