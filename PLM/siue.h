@@ -180,11 +180,6 @@ typedef enum
 
 int32_t Ad5691r_SetIntensiteStimulation(uint32_t v/*uint32_t ui32Intensite*/);
 void Gpio_SetElectrostimulation(eCdeElectrostimulation_Type eCdeElectrostimulation);
-void MeSS_GestionCourantBiphasiquePositif(void);
-void  MeSS_GestionCourantMonophasiquePositif(void);
-void MeSS_GestionCourantBiphasiqueNegatif(void);
-void MeSS_GestionCourantMonophasiqueNegatif(void);
-void MeSS_GestionCourantBiphasiqueAlterne(void);
 void ImpulsMonophas(void);
 void ImpulsBiphas(void);
 void ImpulsBiphasNeg(void);
