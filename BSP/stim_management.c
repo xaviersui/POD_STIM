@@ -2071,9 +2071,12 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
 {
   static uint16_t i = 0, Nloop = 0;
   uint16_t tmp = 0;
-  uint16_t meanAmp = 0;
-  uint16_t courant = 0;
+  volatile uint16_t meanAmp = 0;
+  volatile uint16_t amp = 0;
+  volatile uint16_t courant = 0;
   bool pulseDone = false;
+  bool_t flag = FALSE;
+  uint8_t cp = 0;
   /** Biphasic pulse states */
   static enum {
     gBiPhasInit1_c = 0,   // LIO
@@ -2094,6 +2097,7 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
   //  p0_0 = 1; // pin test
   while (1)
   {
+    amp = 0;
     for (uint8_t i = 0; i < 10; i++)
     {
       while (pulseDone != true)
@@ -2146,7 +2150,7 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
 
           // Configuration du timming prochaine étape
           sl_udelay_wait(50);
-          meanAmp += IADC_Read_Current();
+          amp += IADC_Read_Current();
           tBiphasState = gBiphasStatePalier_c;
           break;
         }
@@ -2158,7 +2162,7 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
           Gpio_SetElectrostimulation(eETAPE6); // BAS H1-L2
           // Configuration du timming prochaine étape
           sl_udelay_wait(50);
-          meanAmp += IADC_Read_Current();
+          // amp += IADC_Read_Current();
           tBiphasState = gBiphasStateInter1_c;
           break;
         }
@@ -2181,16 +2185,30 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
       pulseDone = false;
     }
 
-    if (courant >= 500)
+    meanAmp = amp / 10;
+
+//    if (meanAmp > 0x55)
+//    {
+//      flag = TRUE;
+//      cp++;
+//    }
+//    else
+//    {
+    if(meanAmp > 30)
     {
-      break;
+    	flag = true;
+    	break;
     }
-    else
-    {
-      courant += 100;
-    }
+
+    if ((courant) < 200)
+        courant += 50;
+      else
+      {
+    	  flag = false;
+    	  break;
+      }
   }
-  return true;
+  return flag;
 }
 void StimGenDummyFunct(void)
 {

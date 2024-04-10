@@ -101,7 +101,7 @@ uint16_t IADC_Read_Current(void)
 
 	tmp = IADC_pullSingleFifoResult(IADC0).data;
 
-	voltage = (uint16_t)(tmp * 3300)/0xFFF;
+	voltage = (tmp * 3300)/0xFFF;
 
 	return voltage;
 }
