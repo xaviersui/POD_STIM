@@ -69,11 +69,11 @@ void initIADC(void)
    * Specify the input channel.  When negInput = iadcNegInputGnd, the
    * conversion is single-ended.
    */
-  singleInput.posInput   =  iadcPosInputPadAna0 /*| 1*/;
+  singleInput.posInput   =  iadcPosInputPortBPin5; /*| 1*/;
   singleInput.negInput   = 	iadcNegInputGnd;
 
   // Allocate the analog bus for ADC0 inputs
-  GPIO->ABUSALLOC |= GPIO_ABUSALLOC_AODD0_ADC0;
+  GPIO->BBUSALLOC |= GPIO_BBUSALLOC_BODD0_ADC0;
 
   // Initialize IADC
   IADC_init(IADC0, &init, &initAllConfigs);

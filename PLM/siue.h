@@ -184,6 +184,7 @@ void ImpulsMonophas(void);
 void ImpulsBiphas(void);
 void ImpulsBiphasNeg(void);
 void ImpulsBiphasAltern(void);
+void Galvanic(void);
 void Gpio_SetAop();
 void Gpio_ClrAop();
 void Timer_SetMft1Timming(uint32_t ui16Time);

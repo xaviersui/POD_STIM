@@ -14,9 +14,14 @@ void init_I2C()
 
 	CMU_ClockEnable(cmuClock_I2C0, true);
 	CMU_ClockEnable(cmuClock_GPIO, true);
+	volatile uint32_t clk =0;
+	clk = CMU_ClockFreqGet(cmuClock_I2C0);
 
 	// Use default settings
 	I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
+
+	i2cInit.freq = I2C_FREQ_FASTPLUS_MAX;
+	i2cInit.clhr = i2cClockHLRAsymetric;
 
 	// Route I2C pins to GPIO
 	GPIO->I2CROUTE[0].SDAROUTE = (GPIO->I2CROUTE[0].SDAROUTE & ~_GPIO_I2C_SDAROUTE_MASK) | (I2C0_SDA_PORT << _GPIO_I2C_SDAROUTE_PORT_SHIFT | (I2C0_SDA_PIN << _GPIO_I2C_SDAROUTE_PIN_SHIFT));
