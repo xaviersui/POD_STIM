@@ -329,7 +329,7 @@ bool_t StimulationExecute(FsmTaskActionReturn_t fsmTaskNotif_t[])
 	int32_t var = 0;
 	int32_t temp[2] = {0, 0};
 	bool_t bEnveloppeEnd = FALSE, StepEnd[2] = {0};
-	uint32_t amplitude = 0 ,AmpMeas[2];
+	volatile uint32_t amplitude = 0 ,AmpMeas[2];
 	int16_t halfperiod = 0, nCurTemp = 0;
 	StimStep_c StepReturn[2];
 

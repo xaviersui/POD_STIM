@@ -541,21 +541,23 @@ void ImpulsBiphas(void)
     // Configuration du timming prochaine étape
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth); /// Variable qui donne le temps de la pulsation Delta "t"
                                                                // R�cup�ration de la mesure de courant de relecture �ventuelle
-    gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
-    gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+//    gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
+//    gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
     tBiphasState = gBiphasStatePalier_c;
     break;
   }
 
   case gBiphasStatePalier_c:
   {
+	  gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
+	      gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+	      gflag[i] = TRUE;
     //  Application EPB
     Gpio_SetElectrostimulation(eETAPE4); // Reset H1-L2
     Gpio_SetElectrostimulation(eETAPE6); // BAS H2-L1
     // Configuration du timming prochaine étape
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
-    gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
-    gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+
     tBiphasState = gBiphasStateInter1_c;
     break;
   }
@@ -566,6 +568,7 @@ void ImpulsBiphas(void)
                                                                // R�cup�ration de la mesure de courant de relecture �ventuelle
     gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
     gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+    gflag[i] = TRUE;
     tBiphasState = gBiphasStateInter1_c;
     break;
   }
@@ -2094,6 +2097,7 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
   } tBiphasState = gBiphasStatePos_c;
 
   STIM_OUT_SEL_NONE;
+  //DETECT_RES_CS_EN;
   //  p0_0 = 1; // pin test
   while (1)
   {
@@ -2200,14 +2204,15 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
     	break;
     }
 
-    if ((courant) < 200)
-        courant += 50;
+    if ((courant) < 150)
+        courant += 10;
       else
       {
     	  flag = false;
     	  break;
       }
   }
+ // DETECT_RES_CS_DIS;
   return flag;
 }
 void StimGenDummyFunct(void)
