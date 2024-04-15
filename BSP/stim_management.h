@@ -135,7 +135,7 @@ User Includes
 #define SWITCH_STOP        {TIMER_Enable(TIMER_GEN_COURANT,false);/*TIMER_CounterSet(TIMER0,0);*/}
 
 #define STIM_GEN_RELOAD_NEXT_COUNT(val)   Timer_SetMft1Timming(val)
-#define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER_GEN_COURANT,0)   // Timer RB counter
+#define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER_GEN_COURANT,0xffffffff)   // Timer RB counter
 
 
 #define DAC_VALUE_MAX       4095

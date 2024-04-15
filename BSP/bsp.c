@@ -124,6 +124,7 @@ void BoardInit(void)
     SrlCommManagmntInit();
     StimManagementHacheurInit();
     BioManagementInit();
+    DETECT_RES_CS_DIS;
     //error = flash_Init(BLOCK_DEF);
 }
 
