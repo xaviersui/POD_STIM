@@ -18,7 +18,7 @@
 /***************************************************************************//**
  * Initialize application.
  ******************************************************************************/
-// #include "em_i2c.h"
+// //#include "em_i2c.h"
 // #include "pin_config.h"
 // #include "em_cmu.h"
 // #include "em_gpio.h"
@@ -48,7 +48,7 @@
 // /*! Nombre de r��ssai de communication */
 // #define iNB_REESSAI_COMMUNICATION                                               3
 
-// void I2C_LeaderRead(uint16_t followerAddress, uint8_t targetAddress, uint8_t *rxBuff, uint8_t numBytes)
+// //void //I2C_LeaderRead(uint16_t followerAddress, uint8_t targetAddress, uint8_t *rxBuff, uint8_t numBytes)
 // {
 //   // Transfer structure
 //   I2C_TransferSeq_TypeDef i2cTransfer;
@@ -73,7 +73,7 @@
 // /***************************************************************************//**
 //  * @brief I2C write numBytes to follower device starting at target address
 //  ******************************************************************************/
-// void I2C_LeaderWrite(uint16_t followerAddress, uint8_t targetAddress, uint8_t *txBuff, uint8_t numBytes)
+// void //I2C_LeaderWrite(uint16_t followerAddress, uint8_t targetAddress, uint8_t *txBuff, uint8_t numBytes)
 // {
 //   // Transfer structure
 //   I2C_TransferSeq_TypeDef i2cTransfer = {0};
@@ -142,7 +142,7 @@
 //  uint8_t ui8Data = 0;
 
 
-//  I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_CONTROL_REGISTER_COMMAND_BYTE, DataBuffer.u8bit, 2);
+//  //I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_CONTROL_REGISTER_COMMAND_BYTE, DataBuffer.u8bit, 2);
 
 //  //cmd bio 1 et 2 a 1
 //  // cs voie 1 et 2 a 1
@@ -169,7 +169,7 @@
 //   DataBuffer.u8bit[0] =  (d & 0xff00) >> 8;
 //   DataBuffer.u8bit[1] =  (d & 0x00ff);
 
-//   I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_DAC_AND_INPUT_REGISTER_COMMAND_BYTE, DataBuffer.u8bit, 2);
+//   //I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_DAC_AND_INPUT_REGISTER_COMMAND_BYTE, DataBuffer.u8bit, 2);
 //   CLR_ALL_H_BRIDGE;
 //   while(1)
 //     {

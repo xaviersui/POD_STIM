@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief emlib_core Configuration
+ * @brief Math type definitions.
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,19 +27,39 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#ifndef SL_MATH_TYPES_H
+#define SL_MATH_TYPES_H
 
-#ifndef EM_CORE_DEBUG_CONFIG_H
-#define EM_CORE_DEBUG_CONFIG_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// <<< Use Configuration Wizard in Context Menu >>>
+/// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
+/***************************************************************************//**
+ * @addtogroup math_types Data types
+ * @{
+ ******************************************************************************/
 
-// <h> Core Configuration
+// Define the half precision floating point type, if not defined elsewhere.
+// It will default to the 16 bits encoded in binary16 format.
+#if !defined(SL_MATH_TYPE_F16)
+#define SL_MATH_TYPE_F16 __fp16
+#endif
 
-// <q SL_EMLIB_CORE_ENABLE_INTERRUPT_DISABLED_TIMING> Enables measuring of interrupt disable time for debugging purposes.
-// <i> Default: 0
-#define SL_EMLIB_CORE_ENABLE_INTERRUPT_DISABLED_TIMING    0
+// float16_t is a half precision floating point type.
+typedef SL_MATH_TYPE_F16 float16_t;
 
-// </h>
+// Complex float16_t type.
+typedef struct {
+  float16_t real;
+  float16_t imag;
+} sl_math_complex_f16_t;
 
-// <<< end of configuration section >>>
-#endif // EM_CORE_CONFIG_H
+/** @} (end addtogroup math_types) */
+/// @endcond
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SL_MATH_TYPES_H

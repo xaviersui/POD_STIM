@@ -254,6 +254,7 @@ BioErr_t BiofeedbackStart(uint8_t *pNBio)
 {
   uint16_t k = 0;
   int16_t curVoltage[gBioInMax_c] = {0};
+  //GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
   /** Tests if biofeedback is configured */
   if (gBiofeedback_t.nBio)
   {

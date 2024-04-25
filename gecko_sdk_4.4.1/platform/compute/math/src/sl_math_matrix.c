@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief emlib_core Configuration
+ * @brief Math matrix definitions.
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,19 +27,11 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include "sl_math_matrix.h"
 
-#ifndef EM_CORE_DEBUG_CONFIG_H
-#define EM_CORE_DEBUG_CONFIG_H
-
-// <<< Use Configuration Wizard in Context Menu >>>
-
-// <h> Core Configuration
-
-// <q SL_EMLIB_CORE_ENABLE_INTERRUPT_DISABLED_TIMING> Enables measuring of interrupt disable time for debugging purposes.
-// <i> Default: 0
-#define SL_EMLIB_CORE_ENABLE_INTERRUPT_DISABLED_TIMING    0
-
-// </h>
-
-// <<< end of configuration section >>>
-#endif // EM_CORE_CONFIG_H
+void sl_math_matrix_init_f16(sl_math_matrix_f16_t *matrix, size_t num_rows, size_t num_cols, float16_t *data)
+{
+  matrix->num_rows = num_rows;
+  matrix->num_cols = num_cols;
+  matrix->data = data;
+}

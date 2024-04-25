@@ -25,8 +25,8 @@ User Includes
 ***********************************************************************************/
 /* sfr_r827.h provides a structure to access all of the device registers. */
 #include "em_eusart.h"
-#include "uartdrv.h"
-#include "sl_uartdrv_instances.h"
+//#include "uartdrv.h"
+//#include "sl_uartdrv_instances.h"
 /* RSKR8C27def.h provides common defines for widely used items. */
 #include "rskR8C27def.h"
 

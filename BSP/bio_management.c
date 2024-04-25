@@ -156,6 +156,7 @@ void BioManagementTimerInit(void)
 
 	TIMER_Init(BIO_TIMER,&BioTimerConf);
 	TIMER_TopSet(BIO_TIMER,BioTimerCnt);
+	TIMER_IntClear(BIO_TIMER,TIMER_IF_OF);
 	TIMER_IntEnable(BIO_TIMER,TIMER_IF_OF);
 
 	NVIC_ClearPendingIRQ(BIO_TIMER_IRQ);
@@ -187,7 +188,7 @@ void BioManagementADCInit(void)
   cmd[1] = LSB(tmp);
 
   // Configure Range register
-  SPIDRV_MTransferB(sl_spidrv_usart_CAN_BIO_SPI_handle, cmd,dummyrx,2);
+  SPIDRV_MTransferB(sl_spidrv_usart_COM_CAN_BIO_SPI_handle, cmd,dummyrx,2);
 }
 
 /**********************************************************************************
@@ -397,7 +398,7 @@ void TIMER2_IRQHandler(void)
       cmd[0] = MSB(tmp);
       cmd[1] = LSB(tmp);
 #if 1
-      SPIDRV_MTransferB(sl_spidrv_usart_CAN_BIO_SPI_handle, cmd,rxBuff,2);
+      SPIDRV_MTransferB(sl_spidrv_usart_COM_CAN_BIO_SPI_handle, cmd,rxBuff,2);
 #else
       SPIDRV_MTransmitB(sl_spidrv_usart_CAN_BIO_SPI_handle,cmd,1);
       SPIDRV_MReceiveB(sl_spidrv_usart_CAN_BIO_SPI_handle,rxBuff,1);

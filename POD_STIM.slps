@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <model:MDescriptors xmlns:model="http://www.silabs.com/ss/Studio.ecore">
   <descriptors name="POD_STIM">
-    <properties key="projectCommon.sdkId" value="com.silabs.sdk.stack.super:4.4.1._2055160463"/>
+    <properties key="projectCommon.sdkId" value="com.silabs.sdk.stack.super:4.4.1._2055160462"/>
     <properties key="universalConfig.relativeWorkspacePath" value="..\POD_STIM.slcw"/>
     <properties key="universalConfig.generationDirectory" value=""/>
     <properties key="universalConfig.toolchainCompatibility" value="iar gcc"/>
@@ -9,7 +9,7 @@
     <properties key="projectCommon.boardIds" value="com.silabs.board.none:0.0.0"/>
     <properties key="projectCommon.kitId" value=""/>
     <properties key="projectCommon.partId" value="mcu.arm.efm32.pg23.efm32pg23b310f512im48"/>
-    <properties key="projectCommon.toolchainId" value="com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:10.3.1.20210824"/>
+    <properties key="projectCommon.toolchainId" value="com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:10.2.1.20201103"/>
     <properties key="universalConfig.projectTypeIds" value="com.silabs.ss.framework.ide.project.core.cdtMbsProjectType"/>
     <properties key="projectCommon.importModeId" value="COPY"/>
   </descriptors>

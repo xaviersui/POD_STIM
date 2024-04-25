@@ -25,17 +25,17 @@ include:
 sdk: {id: gecko_sdk, version: 4.4.1}
 toolchain_settings: []
 component:
-- {id: emlib_i2c}
-- {id: emlib_iadc}
-- {id: sl_system}
 - {id: EFM32PG23B310F512IM48}
-- instance: [COM_RF_UART]
-  id: uartdrv_eusart
-- {id: device_init_hfxo}
-- instance: [CAN_BIO_SPI]
-  id: spidrv_usart
 - {id: device_init}
+- {id: device_init_hfxo}
+- {id: emlib_iadc}
 - {id: hfxo_manager}
+- {id: math}
+- {id: sl_system}
+- instance: [GEN_SPI]
+  id: spidrv_eusart
+- instance: [COM_CAN_BIO_SPI]
+  id: spidrv_usart
 - {id: udelay}
 define:
 - {name: DEBUG_EFM}

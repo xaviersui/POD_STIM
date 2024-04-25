@@ -28,7 +28,7 @@ Macro defines
 #define SPI_WAIT_TRANSFER_FINISH(remain) {\
   do\
       {\
-        SPIDRV_GetTransferStatus(sl_spidrv_usart_CAN_BIO_SPI_handle, NULL, &remain);\
+        SPIDRV_GetTransferStatus(sl_spidrv_usart_COM_CAN_BIO_SPI_handle, NULL, &remain);\
       }\
     while(remain != 0);\
     }\

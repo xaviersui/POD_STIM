@@ -9,7 +9,7 @@ extern "C" {
 #include "uartdrv.h"
 
 
-extern UARTDRV_Handle_t sl_uartdrv_eusart_COM_RF_UART_handle;
+extern UARTDRV_Handle_t sl_uartdrv_eusart_COM_RF_handle;
 
 void sl_uartdrv_init_instances(void);
 

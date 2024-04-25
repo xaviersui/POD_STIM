@@ -294,7 +294,7 @@ Return value:   none
 ***********************************************************************************/
 void ApplicationInit(void)
 {
-  //StimulationInit();
+  StimulationInit();
   BiofeedbackInit();
 }
 

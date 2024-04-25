@@ -32,7 +32,19 @@ User Includes
 ******************************************************************************/
 #define UART_TRANFERT_DATA_8_BITS_MODE    5         /**< transfer data is 8 bits long. */
 
-
+#define EUSART_UART_INIT                                                                 \
+  {                                                                                                   \
+    eusartEnable,              /* Enable RX/TX when initialization completed. */                      \
+    0,                         /* Use current configured reference clock for configuring baud rate.*/ \
+    115200,                    /* 115200 bits/s. */                                                   \
+    eusartOVS16,               /* Oversampling x16. */                                                \
+    eusartDataBits8,           /* 8 data bits. */                                                     \
+	eusartOddParity,            /* No parity. */                                                       \
+    eusartStopbits2,           /* 1 stop bit. */                                                      \
+    eusartMajorityVoteEnable,  /* Majority vote enabled. */                                           \
+    eusartLoopbackDisable,     /* Loop back disabled. */                                              \
+    NULL,                      /* Default advanced settings. */                                       \
+  }
 /************************************************************************************
 *************************************************************************************
 * Private prototypes
@@ -77,9 +89,7 @@ void UartInitialize(void)
   CMU_ClockEnable(cmuClock_EUSART0,true);
   CMU_ClockEnable(cmuClock_GPIO,true);
 
-  EUSART_UartInit_TypeDef init = EUSART_UART_INIT_DEFAULT_HF;
-  init.parity = eusartOddParity;
-  init.stopbits = eusartStopbits2;
+  EUSART_UartInit_TypeDef init = EUSART_UART_INIT;
 
   GPIO_PinModeSet(COM_RF_UART_RX_PORT,COM_RF_UART_RX_PIN, gpioModeInputPull,1);
   GPIO_PinModeSet(COM_RF_UART_TX_PORT,COM_RF_UART_TX_PIN, gpioModePushPull,1);

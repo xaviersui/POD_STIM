@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="ASCII"?>
-<device:XMLDevice xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:device="http://www.silabs.com/ss/hwconfig/document/device.ecore" name="pin_tool.EFM32PG23B310F512IM48" partId="mcu.arm.efm32.pg23.efm32pg23b310f512im48" contextId="com.silabs.sdk.stack.super:4.4.1._2055160463">
+<device:XMLDevice xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:device="http://www.silabs.com/ss/hwconfig/document/device.ecore" name="pin_tool.EFM32PG23B310F512IM48" partId="mcu.arm.efm32.pg23.efm32pg23b310f512im48" contextId="com.silabs.sdk.stack.super:4.4.1._2055160462">
   <mode name="DefaultMode">
     <property object="AIN0" propertyId="pin.name" value="DET_COURANT"/>
     <property object="DefaultMode" propertyId="mode.diagramLocation" value="100, 100"/>
-    <property object="EUSART0" propertyId="ABModule.selectedRequirement" value="eusart%T%SL_UARTDRV_EUSART_COM_RF_UART%T%sl_uartdrv_eusart_COM_RF_UART_config.h"/>
+    <property object="EUSART0" propertyId="ABModule.selectedRequirement" value="eusart%T%SL_UARTDRV_EUSART_COM_RF%T%sl_uartdrv_eusart_COM_RF_config.h"/>
     <property object="EUSART0" propertyId="ABPeripheral.included" value="true"/>
+    <property object="EUSART1" propertyId="ABModule.selectedRequirement" value="eusart%T%SL_SPIDRV_EUSART_GEN_SPI%T%sl_spidrv_eusart_GEN_SPI_config.h"/>
+    <property object="EUSART1" propertyId="ABPeripheral.included" value="true"/>
     <property object="PA00" propertyId="pin.name" value="CMD_110V_ON_OFF"/>
     <property object="PA00" propertyId="pin.reserve" value="Reserved"/>
-    <property object="PA05" propertyId="pin.name" value="SDA_GEN_COURANT"/>
-    <property object="PA06" propertyId="pin.name" value="SCL_GEN_COURANT"/>
+    <property object="PA05" propertyId="pin.name" value="GEN_MOSI"/>
+    <property object="PA06" propertyId="pin.name" value="GEN_CLK"/>
     <property object="PA07" propertyId="pin.name" value="COM_RF_UART_RX"/>
     <property object="PA08" propertyId="pin.name" value="COM_RF_UART_TX"/>
-    <property object="PB01" propertyId="pin.name" value="CAN_BIO_SPI_MISO"/>
-    <property object="PB02" propertyId="pin.name" value="CAN_BIO_SPI_SCLK"/>
-    <property object="PB03" propertyId="pin.name" value="CAN_BIO_SPI_MOSI"/>
+    <property object="PB00" propertyId="pin.name" value="GEN_MISO"/>
+    <property object="PB01" propertyId="pin.name" value="COM_CAN_BIO_SPI_MISO"/>
+    <property object="PB02" propertyId="pin.name" value="COM_CAN_BIO_SPI_CLK"/>
+    <property object="PB03" propertyId="pin.name" value="COM_CAN_BIO_SPI_MOSI"/>
     <property object="PB04" propertyId="pin.name" value="ON_OFF_BOOSTER"/>
     <property object="PB04" propertyId="pin.reserve" value="Reserved"/>
     <property object="PB05" propertyId="pin.name" value="MESURE_COURANT"/>
-    <property object="PB05" propertyId="pin.reserve" value="Reserved"/>
     <property object="PB06" propertyId="pin.name" value="IO_RF_STOP"/>
     <property object="PB06" propertyId="pin.reserve" value="Reserved"/>
     <property object="PC00" propertyId="pin.name" value="SW_DETECT"/>
@@ -38,6 +40,7 @@
     <property object="PC07" propertyId="pin.reserve" value="Reserved"/>
     <property object="PC08" propertyId="pin.name" value="CMD_G2_CH2"/>
     <property object="PC08" propertyId="pin.reserve" value="Reserved"/>
+    <property object="PC09" propertyId="pin.name" value="GEN_CS"/>
     <property object="PD00" propertyId="pin.name" value="CMD_H2"/>
     <property object="PD00" propertyId="pin.reserve" value="Reserved"/>
     <property object="PD01" propertyId="pin.name" value="CMD_L1"/>
@@ -53,12 +56,16 @@
     <property object="PORTIO" propertyId="portio.eusart0.enable.tx" value="Enabled"/>
     <property object="PORTIO" propertyId="portio.eusart0.location.rx" value="7"/>
     <property object="PORTIO" propertyId="portio.eusart0.location.tx" value="8"/>
-    <property object="PORTIO" propertyId="portio.i2c0.enable.scl" value="Enabled"/>
-    <property object="PORTIO" propertyId="portio.i2c0.enable.sda" value="Enabled"/>
-    <property object="PORTIO" propertyId="portio.i2c0.location.scl" value="6"/>
-    <property object="PORTIO" propertyId="portio.i2c0.location.sda" value="5"/>
+    <property object="PORTIO" propertyId="portio.eusart1.enable.cs" value="Enabled"/>
+    <property object="PORTIO" propertyId="portio.eusart1.enable.rx" value="Enabled"/>
+    <property object="PORTIO" propertyId="portio.eusart1.enable.sclk" value="Enabled"/>
+    <property object="PORTIO" propertyId="portio.eusart1.enable.tx" value="Enabled"/>
+    <property object="PORTIO" propertyId="portio.eusart1.location.cs" value="41"/>
+    <property object="PORTIO" propertyId="portio.eusart1.location.rx" value="16"/>
+    <property object="PORTIO" propertyId="portio.eusart1.location.sclk" value="6"/>
+    <property object="PORTIO" propertyId="portio.eusart1.location.tx" value="5"/>
     <property object="PORTIO" propertyId="portio.iadc0.enable.pos" value="Enabled"/>
-    <property object="PORTIO" propertyId="portio.iadc0.location.pos" value="64"/>
+    <property object="PORTIO" propertyId="portio.iadc0.location.pos" value="149"/>
     <property object="PORTIO" propertyId="portio.usart0.enable.clk" value="Enabled"/>
     <property object="PORTIO" propertyId="portio.usart0.enable.cs" value="Enabled"/>
     <property object="PORTIO" propertyId="portio.usart0.enable.rx" value="Enabled"/>
@@ -67,7 +74,7 @@
     <property object="PORTIO" propertyId="portio.usart0.location.cs" value="51"/>
     <property object="PORTIO" propertyId="portio.usart0.location.rx" value="17"/>
     <property object="PORTIO" propertyId="portio.usart0.location.tx" value="19"/>
-    <property object="USART0" propertyId="ABModule.selectedRequirement" value="usart%T%SL_SPIDRV_USART_CAN_BIO_SPI%T%sl_spidrv_usart_CAN_BIO_SPI_config.h"/>
+    <property object="USART0" propertyId="ABModule.selectedRequirement" value="usart%T%SL_SPIDRV_USART_COM_CAN_BIO_SPI%T%sl_spidrv_usart_COM_CAN_BIO_SPI_config.h"/>
     <property object="USART0" propertyId="ABPeripheral.included" value="true"/>
   </mode>
   <modeTransition>

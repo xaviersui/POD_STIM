@@ -112,6 +112,38 @@
 // [I2C1]$
 
 // $[EUSART1]
+// EUSART1 CS on PC09
+#ifndef EUSART1_CS_PORT                         
+#define EUSART1_CS_PORT                          gpioPortC
+#endif
+#ifndef EUSART1_CS_PIN                          
+#define EUSART1_CS_PIN                           9
+#endif
+
+// EUSART1 RX on PB00
+#ifndef EUSART1_RX_PORT                         
+#define EUSART1_RX_PORT                          gpioPortB
+#endif
+#ifndef EUSART1_RX_PIN                          
+#define EUSART1_RX_PIN                           0
+#endif
+
+// EUSART1 SCLK on PA06
+#ifndef EUSART1_SCLK_PORT                       
+#define EUSART1_SCLK_PORT                        gpioPortA
+#endif
+#ifndef EUSART1_SCLK_PIN                        
+#define EUSART1_SCLK_PIN                         6
+#endif
+
+// EUSART1 TX on PA05
+#ifndef EUSART1_TX_PORT                         
+#define EUSART1_TX_PORT                          gpioPortA
+#endif
+#ifndef EUSART1_TX_PIN                          
+#define EUSART1_TX_PIN                           5
+#endif
+
 // [EUSART1]$
 
 // $[EUSART2]
@@ -127,6 +159,14 @@
 // [LETIMER0]$
 
 // $[IADC0]
+// IADC0 POS on PB05
+#ifndef IADC0_POS_PORT                          
+#define IADC0_POS_PORT                           gpioPortB
+#endif
+#ifndef IADC0_POS_PIN                           
+#define IADC0_POS_PIN                            5
+#endif
+
 // [IADC0]$
 
 // $[ACMP0]
@@ -148,22 +188,6 @@
 // [HFXO0]$
 
 // $[I2C0]
-// I2C0 SCL on PA06
-#ifndef I2C0_SCL_PORT                           
-#define I2C0_SCL_PORT                            gpioPortA
-#endif
-#ifndef I2C0_SCL_PIN                            
-#define I2C0_SCL_PIN                             6
-#endif
-
-// I2C0 SDA on PA05
-#ifndef I2C0_SDA_PORT                           
-#define I2C0_SDA_PORT                            gpioPortA
-#endif
-#ifndef I2C0_SDA_PIN                            
-#define I2C0_SDA_PIN                             5
-#endif
-
 // [I2C0]$
 
 // $[EUSART0]
@@ -200,18 +224,18 @@
 #define _PIN                                     1
 #endif
 
-#ifndef SDA_GEN_COURANT_PORT                    
-#define SDA_GEN_COURANT_PORT                     gpioPortA
+#ifndef GEN_MOSI_PORT                           
+#define GEN_MOSI_PORT                            gpioPortA
 #endif
-#ifndef SDA_GEN_COURANT_PIN                     
-#define SDA_GEN_COURANT_PIN                      5
+#ifndef GEN_MOSI_PIN                            
+#define GEN_MOSI_PIN                             5
 #endif
 
-#ifndef SCL_GEN_COURANT_PORT                    
-#define SCL_GEN_COURANT_PORT                     gpioPortA
+#ifndef GEN_CLK_PORT                            
+#define GEN_CLK_PORT                             gpioPortA
 #endif
-#ifndef SCL_GEN_COURANT_PIN                     
-#define SCL_GEN_COURANT_PIN                      6
+#ifndef GEN_CLK_PIN                             
+#define GEN_CLK_PIN                              6
 #endif
 
 #ifndef COM_RF_UART_RX_PORT                     
@@ -228,25 +252,32 @@
 #define COM_RF_UART_TX_PIN                       8
 #endif
 
-#ifndef CAN_BIO_SPI_MISO_PORT                   
-#define CAN_BIO_SPI_MISO_PORT                    gpioPortB
+#ifndef GEN_MISO_PORT                           
+#define GEN_MISO_PORT                            gpioPortB
 #endif
-#ifndef CAN_BIO_SPI_MISO_PIN                    
-#define CAN_BIO_SPI_MISO_PIN                     1
-#endif
-
-#ifndef CAN_BIO_SPI_SCLK_PORT                   
-#define CAN_BIO_SPI_SCLK_PORT                    gpioPortB
-#endif
-#ifndef CAN_BIO_SPI_SCLK_PIN                    
-#define CAN_BIO_SPI_SCLK_PIN                     2
+#ifndef GEN_MISO_PIN                            
+#define GEN_MISO_PIN                             0
 #endif
 
-#ifndef CAN_BIO_SPI_MOSI_PORT                   
-#define CAN_BIO_SPI_MOSI_PORT                    gpioPortB
+#ifndef COM_CAN_BIO_SPI_MISO_PORT               
+#define COM_CAN_BIO_SPI_MISO_PORT                gpioPortB
 #endif
-#ifndef CAN_BIO_SPI_MOSI_PIN                    
-#define CAN_BIO_SPI_MOSI_PIN                     3
+#ifndef COM_CAN_BIO_SPI_MISO_PIN                
+#define COM_CAN_BIO_SPI_MISO_PIN                 1
+#endif
+
+#ifndef COM_CAN_BIO_SPI_CLK_PORT                
+#define COM_CAN_BIO_SPI_CLK_PORT                 gpioPortB
+#endif
+#ifndef COM_CAN_BIO_SPI_CLK_PIN                 
+#define COM_CAN_BIO_SPI_CLK_PIN                  2
+#endif
+
+#ifndef COM_CAN_BIO_SPI_MOSI_PORT               
+#define COM_CAN_BIO_SPI_MOSI_PORT                gpioPortB
+#endif
+#ifndef COM_CAN_BIO_SPI_MOSI_PIN                
+#define COM_CAN_BIO_SPI_MOSI_PIN                 3
 #endif
 
 #ifndef ON_OFF_BOOSTER_PORT                     
@@ -333,6 +364,13 @@
 #define CMD_G2_CH2_PIN                           8
 #endif
 
+#ifndef GEN_CS_PORT                             
+#define GEN_CS_PORT                              gpioPortC
+#endif
+#ifndef GEN_CS_PIN                              
+#define GEN_CS_PIN                               9
+#endif
+
 #ifndef CMD_H2_PORT                             
 #define CMD_H2_PORT                              gpioPortD
 #endif
@@ -373,6 +411,13 @@
 #endif
 #ifndef CMD_AOP_PIN                             
 #define CMD_AOP_PIN                              5
+#endif
+
+#ifndef DET_COURANT_PORT                        
+#define DET_COURANT_PORT                         iadcInputPadAna0
+#endif
+#ifndef DET_COURANT_PIN                         
+#define DET_COURANT_PIN                          0
 #endif
 
 // [CUSTOM_PIN_NAME]$

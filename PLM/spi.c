@@ -61,7 +61,7 @@ void spi_master_TrData(unsigned char * Data8, unsigned short length)
   for(i=0;i<length;i++)
   {
       SPI_WAIT_TRANSFER_FINISH(remain);
-      SPIDRV_MTransmitB(sl_spidrv_usart_CAN_BIO_SPI_handle,Data8 + i,1);
+      SPIDRV_MTransmitB(sl_spidrv_usart_COM_CAN_BIO_SPI_handle,Data8 + i,1);
   }
 
   SPI_WAIT_TRANSFER_FINISH(remain);        /* wait transmission end */
@@ -79,15 +79,15 @@ void spi_master_ReData(unsigned char * Data8, unsigned short length)
 
   unsigned short i;
   int remain = 0;
-  SPIDRV_MReceiveB(sl_spidrv_usart_CAN_BIO_SPI_handle,Data8,1); /* read a dummy data to start reading operation */
+  SPIDRV_MReceiveB(sl_spidrv_usart_COM_CAN_BIO_SPI_handle,Data8,1); /* read a dummy data to start reading operation */
 
   for(i=0;i<length-1;i++)     /* Maintains receive operation after receiving 1 byte */
   {
       SPI_WAIT_TRANSFER_FINISH(remain);
-      SPIDRV_MReceiveB(sl_spidrv_usart_CAN_BIO_SPI_handle, Data8 + i, 1);
+      SPIDRV_MReceiveB(sl_spidrv_usart_COM_CAN_BIO_SPI_handle, Data8 + i, 1);
   }
   SPI_WAIT_TRANSFER_FINISH(remain);
-  SPIDRV_MReceiveB(sl_spidrv_usart_CAN_BIO_SPI_handle, Data8 + i, 1);
+  SPIDRV_MReceiveB(sl_spidrv_usart_COM_CAN_BIO_SPI_handle, Data8 + i, 1);
 
 }
 

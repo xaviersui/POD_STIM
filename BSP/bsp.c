@@ -109,23 +109,36 @@ void BoardInit(void)
     GPIO_PinModeSet(CMD_G3_CH2_PORT,CMD_G3_CH2_PIN,gpioModePushPull,0);
 
     ////////////// Enable GPIO pins PA5 (SDA) and PA6 (SCL) ///////////////
-    CMU_ClockEnable(cmuClock_I2C0, true);
-    GPIO_PinModeSet(I2C0_SCL_PORT, I2C0_SCL_PIN, gpioModeWiredAndPullUpFilter, 1);
-    GPIO_PinModeSet(I2C0_SDA_PORT, I2C0_SDA_PIN, gpioModeWiredAndPullUpFilter, 1);
+//    CMU_ClockEnable(cmuClock_I2C0, true);
+//    GPIO_PinModeSet(I2C0_SCL_PORT, I2C0_SCL_PIN, gpioModeWiredAndPullUpFilter, 1);
+//    GPIO_PinModeSet(I2C0_SDA_PORT, I2C0_SDA_PIN, gpioModeWiredAndPullUpFilter, 1);
     GPIO_PinModeSet(IO_RF_STOP_PORT, IO_RF_STOP_PIN, gpioModeInput, 0);
 
     /// Driver Init
     // Spi is initialised in function "sl_driver_init" locate in s"l_event_handler.h"
     initIADC();
-    init_I2C();
+    //init_I2C();
     initTIMER();
 
+
     while(EFM32_STOP_IS_EN);
+
     SrlCommManagmntInit();
     StimManagementHacheurInit();
     BioManagementInit();
     DETECT_RES_CS_DIS;
-    //error = flash_Init(BLOCK_DEF);
+//    while(1)
+//          {
+//
+//            uint16_t tmp = 0 | ( (5000 & 0x0FFF) << 2 );
+//            uint8_t buf[2] ={ 0};
+//            buf[0] = MSB(tmp);
+//            buf[1] = LSB(tmp);
+//
+//            SPIDRV_MTransmitB(sl_spidrv_eusart_GEN_SPI_handle, buf, 2);
+//            sl_sleeptimer_delay_millisecond(50);
+//          }
+
 }
 
 /**********************************************************************************

@@ -40,7 +40,7 @@ User Includes
 * Public macros
 *************************************************************************************
 ************************************************************************************/
-
+#define SPI_TRANSMIT_DATA(val) EUSART_Tx(EUSART1, val)
 /* CMD_DEMAG Management */
 #define CMD_DEMAG_PIN       p4_5
 
@@ -110,7 +110,7 @@ User Includes
 #define STIM_GEN_TRM_PERIOD_MAX   2147483648//32768     // in �s*10^(-1)  //( ((uint32_t)(TMR_RC_COUNTER_MAX + 1)*DEF_TIME_NBR_uS_PER_SEC)/STIM_GEN_TRM_CLK_SOURCE )
 
 #define STIM_GEN_AMPLITUDE_MIN    0       // in A*(10^-4)
-#define STIM_GEN_AMPLITUDE_MAX    1000      // in A*(10^-4)
+//#define STIM_GEN_AMPLITUDE_MAX    1000      // in A*(10^-4)
 
 
 #define CMD_M_SET_POSITIVE_PULSE  Gpio_SetElectrostimulation(eETAPE3) // Set Haut L2-H1  CLR L1 /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
@@ -140,7 +140,7 @@ User Includes
 
 #define DAC_VALUE_MAX       4095
 #define STIM_GEN_AMPLITUDE_MIN    0       // in A*(10^-4)
-#define STIM_GEN_AMPLITUDE_MAX    1000      // in A*(10^-4)
+#define STIM_GEN_AMPLITUDE_MAX    1090      // in A*(10^-4)
 
 /* Stim Superviser Management */
 #define STIM_SUPERVIS_FORCE_COUNT_STOP    TIMER_Enable(TIMER_ENV,false)
@@ -211,6 +211,7 @@ typedef enum
 //  gStimPatternMonophasicSingle_c = 0x12,
   gStimPatternBiphasicAltern_c = 0x13,
   gStimPatternBiphasicNegative_c = 0x14,
+  gStimPatternBiphasicSynchro = 0x15,
 
   gStimPatternMax_c,
 } StimPatternId_t;

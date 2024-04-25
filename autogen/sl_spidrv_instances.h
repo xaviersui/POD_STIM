@@ -6,7 +6,8 @@ extern "C" {
 #endif
 
 #include "spidrv.h"
-extern SPIDRV_Handle_t sl_spidrv_usart_CAN_BIO_SPI_handle;
+extern SPIDRV_Handle_t sl_spidrv_usart_COM_CAN_BIO_SPI_handle;
+extern SPIDRV_Handle_t sl_spidrv_eusart_GEN_SPI_handle;
 
 void sl_spidrv_init_instances(void);
 

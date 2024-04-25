@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief emlib_core Configuration
+ * @brief Math matrix definitions.
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,19 +27,46 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#ifndef SL_MATH_MATRIX_H
+#define SL_MATH_MATRIX_H
 
-#ifndef EM_CORE_DEBUG_CONFIG_H
-#define EM_CORE_DEBUG_CONFIG_H
+#include <stddef.h>
+#include "sl_math_types.h"
 
-// <<< Use Configuration Wizard in Context Menu >>>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// <h> Core Configuration
+/**
+ * @brief
+ *  Matrix data type.
+ */
+typedef struct {
+  size_t    num_rows;   ///< The number of rows in the matrix.
+  size_t    num_cols;   ///< The number of columns in the matrix.
+  float16_t *data;      ///< Pointer to the matrix data.
+} sl_math_matrix_f16_t;
 
-// <q SL_EMLIB_CORE_ENABLE_INTERRUPT_DISABLED_TIMING> Enables measuring of interrupt disable time for debugging purposes.
-// <i> Default: 0
-#define SL_EMLIB_CORE_ENABLE_INTERRUPT_DISABLED_TIMING    0
+/***************************************************************************//**
+ * @addtogroup math_mvp_matrix
+ * @{
+ ******************************************************************************/
 
-// </h>
+/**
+ * @brief
+ *  Matrix initialization.
+ *
+ * @param[in] matrix Pointer to a matrix.
+ * @param[in] num_rows The number of rows in the matrix.
+ * @param[in] num_cols The number of cols in the matrix.
+ * @param[in] data A pointer to the matrix data.
+ */
+void sl_math_matrix_init_f16(sl_math_matrix_f16_t *matrix, size_t num_rows, size_t num_cols, float16_t *data);
 
-// <<< end of configuration section >>>
-#endif // EM_CORE_CONFIG_H
+/** @} (end addtogroup math_mvp_matrix) */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SL_MATH_MATRIX_H

@@ -89,8 +89,9 @@ End of function
 StimErr_t StimulationStart(void)
 {
 	uint8_t i = 0;
-	//GPIO_PinOutClear(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
-	gStim_t.startEn = TRUE;
+	//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
+	//GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+		gStim_t.startEn = TRUE;
 	gStim_t.pauseEn = FALSE;
 	if (gStim_t.tConfig.nStim)
 	{
@@ -107,7 +108,7 @@ StimErr_t StimulationStart(void)
 		STIM_SUPERVIS_START;
 		STIM_GEN_START;
 	}
-
+	//
 	return gStimErrNoError_c;
 }
 
@@ -122,7 +123,8 @@ StimErr_t StimulationStop(void)
 {
 	uint8_t i = 0;
 	uint8_t courant[2] = {0};
-	//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
+	//GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+
 	STIM_SUPERVIS_STOP;
 	STIM_SUPERVIS_RESET_COUNT;
 
@@ -136,11 +138,13 @@ StimErr_t StimulationStop(void)
 		CMD_GALV_SEL_NONE;
 	}
 
-	I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_DAC_AND_INPUT_REGISTER_COMMAND_BYTE, courant, 2);
+	//I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_DAC_AND_INPUT_REGISTER_COMMAND_BYTE, courant, 2);
+	SPI_TRANSMIT_DATA(0);
+	SPI_TRANSMIT_DATA(0);
   // Application AOP -> OFF
   Gpio_ClrAop();
 
-  (void)Ad5691r_SetIntensiteStimulation(0); //exprimer en uV
+  //////(void)Ad5691r_SetIntensiteStimulation(0); //exprimer en uV
 
 	for (i = 0; i < gStimOutMax_c; i++)
 	{
@@ -163,7 +167,7 @@ StimErr_t StimulationStop(void)
 		gflag[0] = FALSE;
 
 	bReprise = TRUE;
-
+	//GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
 	return gStimErrNoError_c;
 }
 
