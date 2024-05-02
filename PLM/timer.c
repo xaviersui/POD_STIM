@@ -56,8 +56,9 @@ void initTIMER(void)
 
 void set_timer0_time(uint32_t time)
 {
+	DISABLE_IRQ;
     TIMER_Enable(TIMER_GEN_COURANT, false);
-	//TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
+	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
 	TIMER_CounterSet(TIMER_GEN_COURANT,0);
 	uint32_t cnt = time - 1;
 	if(TIMER_TopGet(TIMER_GEN_COURANT) != cnt)
@@ -65,20 +66,24 @@ void set_timer0_time(uint32_t time)
 		TIMER_TopSet(TIMER_GEN_COURANT, cnt);
 	}
   TIMER_Enable(TIMER_GEN_COURANT, true);
+  ENABLE_IRQ;
 }
 
 void set_timer1_time(uint32_t time)
 {
+	DISABLE_IRQ;
   uint32_t cnt = time - 1;
   if(TIMER_TopGet(TIMER_ENV) != cnt)
   {
     TIMER_TopSet(TIMER_ENV, cnt);
   }
+  ENABLE_IRQ;
 }
 
 void TIMER0_IRQHandler(void)
 {
 	(void)pStimGenCallback[gStim_t.tConfig.patternId]();
 	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
+
 }
 

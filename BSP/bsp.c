@@ -33,6 +33,7 @@ User Includes
 #include "i2c.h"
 #include "timer.h"
 #include "siue.h"
+#include "em_emu.h"
 //#include "Flash.h"
 
 /************************************************************************************
@@ -61,6 +62,7 @@ static void BoardInit(void);
 
 extern void (*pStimGenCallback[gStimPatternMax_c])(void);
 extern uint8_t  gNPulse_c[gStimPatternMax_c];
+bool On110V = false;
 /************************************************************************************
 *************************************************************************************
 * Public memory declarations
@@ -82,12 +84,13 @@ Return value:   none
 ***********************************************************************************/
 void BoardInit(void)
 {
+	//EMU_EnterEM1();
 	///////////////////// Configure en GPIO en sortie //////////////////////
 	/// Pin used for stimulation
     CMU_ClockEnable(cmuClock_GPIO, true);
     GPIO_PinModeSet(SW_DETECT_PORT, SW_DETECT_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_AOP_PORT,CMD_AOP_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN, gpioModeWiredOrPullDown, 0);
+    GPIO_PinModeSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN, gpioModePushPull, 0);
     GPIO_PinModeSet(CMD_GV_P_PORT, CMD_GV_P_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_GV_N_PORT, CMD_GV_N_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_L2_PORT, CMD_L2_PIN, gpioModeWiredOrPullDown, 0);
@@ -99,27 +102,22 @@ void BoardInit(void)
     GPIO_PinModeSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN,gpioModeWiredOrPullDown,0);
     GPIO_PinModeSet(MESURE_COURANT_PORT,MESURE_COURANT_PIN,gpioModeInput,0);
 
-    //GPIO_PinOutClear(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
-    GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-
     /// Pin used for biofeedback
     GPIO_PinModeSet(CMD_G2_CH1_PORT,CMD_G2_CH1_PIN,gpioModePushPull,0);
     GPIO_PinModeSet(CMD_G2_CH2_PORT,CMD_G2_CH2_PIN,gpioModePushPull,0);
     GPIO_PinModeSet(CMD_G3_CH1_PORT,CMD_G3_CH1_PIN,gpioModePushPull,0);
     GPIO_PinModeSet(CMD_G3_CH2_PORT,CMD_G3_CH2_PIN,gpioModePushPull,0);
 
-    ////////////// Enable GPIO pins PA5 (SDA) and PA6 (SCL) ///////////////
-//    CMU_ClockEnable(cmuClock_I2C0, true);
-//    GPIO_PinModeSet(I2C0_SCL_PORT, I2C0_SCL_PIN, gpioModeWiredAndPullUpFilter, 1);
-//    GPIO_PinModeSet(I2C0_SDA_PORT, I2C0_SDA_PIN, gpioModeWiredAndPullUpFilter, 1);
     GPIO_PinModeSet(IO_RF_STOP_PORT, IO_RF_STOP_PIN, gpioModeInput, 0);
+
+
+    GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+    On110V = true;
 
     /// Driver Init
     // Spi is initialised in function "sl_driver_init" locate in s"l_event_handler.h"
     initIADC();
-    //init_I2C();
     initTIMER();
-
 
     while(EFM32_STOP_IS_EN);
 
@@ -127,18 +125,6 @@ void BoardInit(void)
     StimManagementHacheurInit();
     BioManagementInit();
     DETECT_RES_CS_DIS;
-//    while(1)
-//          {
-//
-//            uint16_t tmp = 0 | ( (5000 & 0x0FFF) << 2 );
-//            uint8_t buf[2] ={ 0};
-//            buf[0] = MSB(tmp);
-//            buf[1] = LSB(tmp);
-//
-//            SPIDRV_MTransmitB(sl_spidrv_eusart_GEN_SPI_handle, buf, 2);
-//            sl_sleeptimer_delay_millisecond(50);
-//          }
-
 }
 
 /**********************************************************************************

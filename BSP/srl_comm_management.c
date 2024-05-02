@@ -21,7 +21,8 @@ System Includes
 User Includes
 ***********************************************************************************/
 #include "srl_comm_management.h"
-
+#include "em_gpio.h"
+#include "pin_config.h"
 
 /************************************************************************************
 *************************************************************************************
@@ -92,7 +93,9 @@ Return value:   none
 ***********************************************************************************/
 void SrlCommManagmntInit(void)
 {
+
   SrlCommManagmntFlushBuffRx();
+
   UartInitialize();
 
 }
@@ -146,6 +149,7 @@ SrlCommErr_t SrlCommManagmntWriteData(uint8_t *pBuff, uint8_t bufferSize)
   if (bufferSize == 0)
     return gSrlCommErrNoError_c;
 
+  //sl_udelay_wait(200);
   // OK to send.
   uartErr = UartWriteData (pBuff, bufferSize);
 
@@ -242,6 +246,7 @@ void EUSART0_RX_IRQHandler(void)
     nRx++;
 #endif
     SRL_COMM_RECEIVE_DATA( u16RxData );
+    //u16RxData = EUSART0->RXDATA;
     gSrlCommBuffRx.len = u16RxData & 0x00FF;
 
     if( u16RxData & 0xF000 )
@@ -258,7 +263,7 @@ void EUSART0_RX_IRQHandler(void)
   }
   else
   {
-    SRL_COMM_RECEIVE_DATA( u16RxData );
+	  SRL_COMM_RECEIVE_DATA( u16RxData );
     gSrlCommBuffRx.data[gSrlCommBuffRx.writeIdx] = u16RxData & 0x00FF;
     if( u16RxData & 0xF000 )
     {

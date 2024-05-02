@@ -617,6 +617,9 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 				fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
 				len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1;
 				SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+//				DISABLE_IRQ;
+//				GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+//				ENABLE_IRQ;
 				break;
 
 			case gTaskStimRqstResume_c:
@@ -684,18 +687,9 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 			if (!ActivityFlag)
 			{
 				// A remplacer par I2C -- Debut
-				/*CONFIG_DAC_SPI;
-				SPI_CONFIG_TRANSMIT;
-				DAC_CS_EN;
-
 				SPI_TRANSMIT_DATA(0x00);
 				SPI_TRANSMIT_DATA(0x00);
-
-				while (tend_sssr != 1)
-					;
-
-				SPI_DISABLE_CONFIG;
-				DAC_CS_DIS;*/
+				Gpio_ClrAop();
 				// A remplacer par I2C -- Fin
 			}
 #endif

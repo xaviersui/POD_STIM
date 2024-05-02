@@ -85,13 +85,16 @@ User Includes
 ************************************************************************************/
 void UartInitialize(void)
 {
-  DISABLE_IRQ;
+  //DISABLE_IRQ;
   CMU_ClockEnable(cmuClock_EUSART0,true);
   CMU_ClockEnable(cmuClock_GPIO,true);
 
   EUSART_UartInit_TypeDef init = EUSART_UART_INIT;
+  EUSART_AdvancedInit_TypeDef advance_init = EUSART_ADVANCED_INIT_DEFAULT;
 
-  GPIO_PinModeSet(COM_RF_UART_RX_PORT,COM_RF_UART_RX_PIN, gpioModeInputPull,1);
+  init.advancedSettings = &advance_init;
+
+  GPIO_PinModeSet(COM_RF_UART_RX_PORT,COM_RF_UART_RX_PIN, gpioModeInput,1);
   GPIO_PinModeSet(COM_RF_UART_TX_PORT,COM_RF_UART_TX_PIN, gpioModePushPull,1);
 
   GPIO->EUSARTROUTE[0].TXROUTE = (COM_RF_UART_TX_PORT << _GPIO_USART_TXROUTE_PORT_SHIFT) |
@@ -104,12 +107,12 @@ void UartInitialize(void)
   GPIO->EUSARTROUTE[0].ROUTEEN = GPIO_EUSART_ROUTEEN_RXPEN | GPIO_EUSART_ROUTEEN_TXPEN;
 
   EUSART_UartInitHf(EUSART0,&init);
-  NVIC_SetPriority(EUSART0_RX_IRQn,0);
+  NVIC_SetPriority(EUSART0_RX_IRQn,1);
 
   NVIC_ClearPendingIRQ(EUSART0_RX_IRQn);
   NVIC_EnableIRQ(EUSART0_RX_IRQn);
   EUSART_IntEnable(EUSART0,EUSART_IF_RXFL);
-  ENABLE_IRQ;
+ // ENABLE_IRQ;
 }
 /**********************************************************************************
 End of function
