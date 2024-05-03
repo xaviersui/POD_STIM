@@ -91,9 +91,7 @@ StimErr_t StimulationStart(void)
 	uint8_t i = 0;
 	//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
 
-//	DISABLE_IRQ;
-//	GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-//	ENABLE_IRQ;
+
 
 	gStim_t.startEn = TRUE;
 	gStim_t.pauseEn = FALSE;

@@ -267,8 +267,8 @@ BioErr_t BiofeedbackStart(uint8_t *pNBio)
   {
 	  DISABLE_IRQ;
 	   CMU_ClockEnable(cmuClock_EUSART0, FALSE);
-	   GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-	    sl_udelay_wait(200);
+	   GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+	  //  sl_udelay_wait(200);
 	    CMU_ClockEnable(cmuClock_EUSART0, TRUE);
 	    ENABLE_IRQ;
 	    On110V = false;
@@ -321,8 +321,7 @@ BioErr_t BiofeedbackStop(void)
   {
 	  DISABLE_IRQ;
 	  CMU_ClockEnable(cmuClock_EUSART0, FALSE);
-	  GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-	  sl_udelay_wait(200);
+	  GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
 	  CMU_ClockEnable(cmuClock_EUSART0, TRUE);
 	  ENABLE_IRQ;
 	  On110V = true;

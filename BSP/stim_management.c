@@ -109,7 +109,7 @@ void StimManagementHacheurInit(void)
 //  SPI_TRANSMIT_DATA(0);
 
   Gpio_ClrAop();
-  CMD_M_SET_NO_PULSE;
+  //CMD_M_SET_NO_PULSE;
   STIM_OUT_SEL_NONE;
 
   // DETECT_RES_CS_EN;

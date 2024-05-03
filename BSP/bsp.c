@@ -90,7 +90,7 @@ void BoardInit(void)
     CMU_ClockEnable(cmuClock_GPIO, true);
     GPIO_PinModeSet(SW_DETECT_PORT, SW_DETECT_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_AOP_PORT,CMD_AOP_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_GV_P_PORT, CMD_GV_P_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_GV_N_PORT, CMD_GV_N_PIN, gpioModeWiredOrPullDown, 0);
     GPIO_PinModeSet(CMD_L2_PORT, CMD_L2_PIN, gpioModeWiredOrPullDown, 0);
@@ -110,8 +110,11 @@ void BoardInit(void)
 
     GPIO_PinModeSet(IO_RF_STOP_PORT, IO_RF_STOP_PIN, gpioModeInput, 0);
 
+    GPIO_PinOutClear(CMD_GV_P_PORT, CMD_GV_P_PIN);
+    GPIO_PinOutClear(CMD_GV_N_PORT, CMD_GV_N_PIN);
+  //  GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+    GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
 
-    GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
     On110V = true;
 
     /// Driver Init
