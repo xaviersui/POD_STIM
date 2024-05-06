@@ -514,7 +514,7 @@ void ImpulsBiphas(void)
     STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]); /**< Active Pulse Output */
 
     CMD_M_SET_POSITIVE_PULSE; /**< Enables Positive pulse CMD */
-
+    GPIO_PinOutSet(CMD_110V_ON_OFF_PORT,CMD_110V_ON_OFF_PIN);
     /** Sets Next Step Time */
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
 
@@ -632,7 +632,7 @@ void ImpulsBiphas(void)
 
   /** Inter Pulse */
   case gBiphasStateInter_c:
-
+	  GPIO_PinOutClear(CMD_110V_ON_OFF_PORT,CMD_110V_ON_OFF_PIN);
     /** Sets Commands */
     CMD_M_DISCONNECT;  /**< Disables pulse CMD */
     STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
@@ -654,7 +654,7 @@ void ImpulsBiphas(void)
 
   /** Null Pulse */
   case gBiphasStateNull_c:
-
+	  GPIO_PinOutClear(CMD_110V_ON_OFF_PORT,CMD_110V_ON_OFF_PIN);
     /** Sets Commands */
     CMD_M_DISCONNECT;  /**< Disables pulse CMD */
     STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
@@ -684,7 +684,7 @@ void ImpulsBiphas(void)
     break;
 
   case gBiphasStateNullLoop_c:
-
+	  GPIO_PinOutClear(CMD_110V_ON_OFF_PORT,CMD_110V_ON_OFF_PIN);
     Nloop--;
     if (Nloop > 0) /**< Next Loop */
       STIM_GEN_RELOAD_NEXT_COUNT(STIM_GEN_COUNT_MAX);

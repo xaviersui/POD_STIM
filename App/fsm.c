@@ -517,10 +517,10 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 
         ///////////////////MODIF LIO ///////////////
 
-           GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-           sl_sleeptimer_delay_millisecond(1);
-           GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-           sl_sleeptimer_delay_millisecond(500);
+//           GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
+//           sl_sleeptimer_delay_millisecond(1);
+//           GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+//           sl_sleeptimer_delay_millisecond(500);
 
             ////////////////////////////////////////
 				break;
@@ -629,10 +629,10 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 				SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
 				///////////////////MODIF LIO ///////////////
 
-				           GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-				           sl_sleeptimer_delay_millisecond(1);
-				           GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-				           sl_sleeptimer_delay_millisecond(1);
+//				           GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
+//				           sl_sleeptimer_delay_millisecond(1);
+//				           GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+//				           sl_sleeptimer_delay_millisecond(1);
 
 				            ////////////////////////////////////////
 				break;
