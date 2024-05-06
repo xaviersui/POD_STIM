@@ -90,7 +90,12 @@ StimErr_t StimulationStart(void)
 {
 	uint8_t i = 0;
 	//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
-
+//	   DISABLE_IRQ;
+//	     GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
+//	     CMU_ClockEnable(cmuClock_EUSART0, FALSE);
+//	     GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+//	     CMU_ClockEnable(cmuClock_EUSART0, TRUE);
+//	   ENABLE_IRQ;
 
 
 	gStim_t.startEn = TRUE;
@@ -128,6 +133,7 @@ StimErr_t StimulationStart(void)
 StimErr_t StimulationStop(void)
 {
 	uint8_t i = 0;
+
 
 
 	STIM_SUPERVIS_STOP;

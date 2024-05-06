@@ -112,8 +112,9 @@ void BoardInit(void)
 
     GPIO_PinOutClear(CMD_GV_P_PORT, CMD_GV_P_PIN);
     GPIO_PinOutClear(CMD_GV_N_PORT, CMD_GV_N_PIN);
+    GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
   //  GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-    GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+    GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
 
     On110V = true;
 

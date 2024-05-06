@@ -495,6 +495,7 @@ void ImpulsBiphas(void)
   /** Positive Pulse */
   case gBiphasStatePos_c1:
     CMD_M_DISCONNECT; /**< Desactive CMD */
+
     CMD_M_SET_NO_PULSE;
     /** Sets Next Step Time */
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
