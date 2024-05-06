@@ -107,11 +107,11 @@ void UartInitialize(void)
   GPIO->EUSARTROUTE[0].ROUTEEN = GPIO_EUSART_ROUTEEN_RXPEN | GPIO_EUSART_ROUTEEN_TXPEN;
 
   EUSART_UartInitHf(EUSART0,&init);
-  NVIC_SetPriority(EUSART0_RX_IRQn,1);
+  NVIC_SetPriority(EUSART0_RX_IRQn,0);
 
   NVIC_ClearPendingIRQ(EUSART0_RX_IRQn);
   NVIC_EnableIRQ(EUSART0_RX_IRQn);
-  EUSART_IntEnable(EUSART0,EUSART_IF_RXFL);
+  EUSART_IntEnable(EUSART0,EUSART_IEN_RXFL);
  // ENABLE_IRQ;
 }
 /**********************************************************************************

@@ -505,14 +505,6 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 
 			case gTaskStimRqstStart_c:
 
-			  ///////////////////MODIF LIO ///////////////
-		     DISABLE_IRQ;
-		       GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-		       CMU_ClockEnable(cmuClock_EUSART0, FALSE);
-		       GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-		       CMU_ClockEnable(cmuClock_EUSART0, TRUE);
-		     ENABLE_IRQ;
-			      ////////////////////////////////////////
 				StimulationStart();
 
 				ActivityFlag = TRUE;
@@ -522,6 +514,15 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 				fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
 				len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1
 				SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+
+        ///////////////////MODIF LIO ///////////////
+
+           GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
+           sl_sleeptimer_delay_millisecond(1);
+           GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+           sl_sleeptimer_delay_millisecond(500);
+
+            ////////////////////////////////////////
 				break;
 
 			case gTaskStimRqstSetLevel_c:
@@ -626,9 +627,14 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 				fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
 				len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1;
 				SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
-//				DISABLE_IRQ;
-//				GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-//				ENABLE_IRQ;
+				///////////////////MODIF LIO ///////////////
+
+				           GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
+				           sl_sleeptimer_delay_millisecond(1);
+				           GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+				           sl_sleeptimer_delay_millisecond(1);
+
+				            ////////////////////////////////////////
 				break;
 
 			case gTaskStimRqstResume_c:
@@ -693,14 +699,14 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 			{
 			}
 #ifndef TEST_MODE
-			if (!ActivityFlag)
-			{
-				// A remplacer par I2C -- Debut
-				SPI_TRANSMIT_DATA(0x00);
-				SPI_TRANSMIT_DATA(0x00);
-				Gpio_ClrAop();
-				// A remplacer par I2C -- Fin
-			}
+//			if (!ActivityFlag)
+//			{
+//				// A remplacer par I2C -- Debut
+//				SPI_TRANSMIT_DATA(0x00);
+//				SPI_TRANSMIT_DATA(0x00);
+//				Gpio_ClrAop();
+//				// A remplacer par I2C -- Fin
+//			}
 #endif
 			/** if error go to stop. */
 			if (0)
