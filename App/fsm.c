@@ -102,6 +102,7 @@ bool_t hasNotifToSendV1 = FALSE;
 bool_t hasNotifToSendV2 = FALSE;
 bool_t hasNotifElectToSend = FALSE;
 bool_t hasNotifDelayToSend = FALSE;
+extern bool On110V;
 /************************************************************************************
 *************************************************************************************
 * Public functions
@@ -338,398 +339,397 @@ Return value:   none
 ***********************************************************************************/
 void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 {
-	SrlCommErr_t srlCommErr = gSrlCommErrNoError_c;
-	uint8_t fsmTaskFrame[FSM_STIM_FRAME_SIZE_MAX];
-	uint8_t len, nRetry = 0;
-	bool_t bRetry = FALSE, ActivityFlag = FALSE;
-	StimConfigData_t *pStimConfigData_t;
-	StimSetLevelData_t *pStimSetLevelData_t;
+  SrlCommErr_t srlCommErr = gSrlCommErrNoError_c;
+  uint8_t fsmTaskFrame[FSM_STIM_FRAME_SIZE_MAX];
+  uint8_t len, nRetry = 0;
+  bool_t bRetry = FALSE, ActivityFlag = FALSE;
+  StimConfigData_t *pStimConfigData_t;
+  StimSetLevelData_t *pStimSetLevelData_t;
 #ifdef V016
-	StimSetFrequencyData_t *pStimSetFrequencyData_t;
-	StimSetPulseWidthData_t *pStimSetPulseWidthData_t;
+  StimSetFrequencyData_t *pStimSetFrequencyData_t;
+  StimSetPulseWidthData_t *pStimSetPulseWidthData_t;
 #endif
-	FsmTaskAction_t fsmTaskAction, fsmTaskNextAction;
-	FsmTaskActionReturn_t fsmTaskReturn_t;
-	FsmTaskActionReturn_t fsmTaskNotif_t[4];
+  FsmTaskAction_t fsmTaskAction, fsmTaskNextAction;
+  FsmTaskActionReturn_t fsmTaskReturn_t;
+  FsmTaskActionReturn_t fsmTaskNotif_t[4];
 
-	StimErr_t stimErr_c;
-	StimErr_t *pStimErr_c;
+  StimErr_t stimErr_c;
+  StimErr_t *pStimErr_c;
 
-	typedef enum
-	{
-		gTaskStimRqstConfig_c = 0,
-		gTaskStimRqstStart_c,
-		gTaskStimRqstSetLevel_c,
-		gTaskStimRqstStop_c,
-		gTaskStimRqstResume_c,
-		gTaskStimRqstPause_c,
+  typedef enum
+  {
+    gTaskStimRqstConfig_c = 0,
+    gTaskStimRqstStart_c,
+    gTaskStimRqstSetLevel_c,
+    gTaskStimRqstStop_c,
+    gTaskStimRqstResume_c,
+    gTaskStimRqstPause_c,
 #ifdef V016
-		gTaskStimRqstSetFrequency_c = 7,
-		gTaskStimRqstSetPulseWidth_c = 8,
+    gTaskStimRqstSetFrequency_c = 7,
+    gTaskStimRqstSetPulseWidth_c = 8,
 #endif
-		gTaskStimRqstNotif = 9
+    gTaskStimRqstNotif = 9
 
-	} TaskStimRequest_t;
+  } TaskStimRequest_t;
 
-	TaskStimRequest_t taskStimRequest_c;
+  TaskStimRequest_t taskStimRequest_c;
 
-	fsmTaskReturn_t.fsmState = (uint8_t)*fsmStateId;
+  fsmTaskReturn_t.fsmState = (uint8_t)*fsmStateId;
 
-	if (*bFSMStateChangePending)
-		fsmTaskAction = gFsmTaskGetRequest_c;
-	else
-		fsmTaskAction = gFsmTaskStart_c;
+  if (*bFSMStateChangePending)
+    fsmTaskAction = gFsmTaskGetRequest_c;
+  else
+    fsmTaskAction = gFsmTaskStart_c;
 
-	fsmTaskNextAction = gFsmTaskStart_c;
+  fsmTaskNextAction = gFsmTaskStart_c;
 
-	taskStimRequest_c = gTaskStimRqstStop_c;
-	// Init if necessary
+  taskStimRequest_c = gTaskStimRqstStop_c;
+  // Init if necessary
 
-	for (;;)
-	{
-		switch (fsmTaskAction)
-		{
-		case gFsmTaskStart_c:
+  for (;;)
+  {
+    switch (fsmTaskAction)
+    {
+    case gFsmTaskStart_c:
 
-			// TODO : WatchDog Rearm
+      // TODO : WatchDog Rearm
 
-			// Wait for a frame start (FSM_STATE_ID)
-			if (!FsmGetExternCommData(fsmTaskFrame, FSM_ID_SIZE))
-				fsmTaskAction = gFsmTaskExecMainTask_c; // Remain in this action and Wait for more data
-			else
-			{
-				if (*fsmStateId != (FsmState_t)(*(uint8_t *)fsmTaskFrame)) // See if Received data is the good one
-				{
-					*fsmStateId = (FsmState_t)(*(uint8_t *)fsmTaskFrame);
-					fsmTaskAction = gFsmTaskStop_c;
-				}
-				else
-				{
-					fsmTaskAction = gFsmTaskGetRequest_c;
-					nRetry = 0;
-				}
-			}
-			break;
+      // Wait for a frame start (FSM_STATE_ID)
+      if (!FsmGetExternCommData(fsmTaskFrame, FSM_ID_SIZE))
+        fsmTaskAction = gFsmTaskExecMainTask_c; // Remain in this action and Wait for more data
+      else
+      {
+        if (*fsmStateId != (FsmState_t)(*(uint8_t *)fsmTaskFrame)) // See if Received data is the good one
+        {
+          *fsmStateId = (FsmState_t)(*(uint8_t *)fsmTaskFrame);
+          fsmTaskAction = gFsmTaskStop_c;
+        }
+        else
+        {
+          fsmTaskAction = gFsmTaskGetRequest_c;
+          nRetry = 0;
+        }
+      }
+      break;
 
-		case gFsmTaskGetRequest_c:
+    case gFsmTaskGetRequest_c:
 
-			if (FsmGetExternCommData(fsmTaskFrame, REQUEST_ID_SIZE))
-			{
-				taskStimRequest_c = (TaskStimRequest_t)(*(uint8_t *)fsmTaskFrame);
-				fsmTaskAction = gFsmTaskExecRequest_c;
-				nRetry = 0;
-			}
-			else
-			{
-				nRetry++;
-				if (nRetry < N_REQUEST_GET_MAX)
-					fsmTaskNextAction = gFsmTaskGetRequest_c;
-				else
-				{
-					fsmTaskNextAction = gFsmTaskStart_c;
-					SrlCommManagmntFlushBuffRx();
-					// TODO : SIGNAL error
-				}
+      if (FsmGetExternCommData(fsmTaskFrame, REQUEST_ID_SIZE))
+      {
+        taskStimRequest_c = (TaskStimRequest_t)(*(uint8_t *)fsmTaskFrame);
+        fsmTaskAction = gFsmTaskExecRequest_c;
+        nRetry = 0;
+      }
+      else
+      {
+        nRetry++;
+        if (nRetry < N_REQUEST_GET_MAX)
+          fsmTaskNextAction = gFsmTaskGetRequest_c;
+        else
+        {
+          fsmTaskNextAction = gFsmTaskStart_c;
+          SrlCommManagmntFlushBuffRx();
+          // TODO : SIGNAL error
+        }
 
-				fsmTaskAction = gFsmTaskExecMainTask_c;
-			}
-			break;
+        fsmTaskAction = gFsmTaskExecMainTask_c;
+      }
+      break;
 
-		case gFsmTaskExecRequest_c:
+    case gFsmTaskExecRequest_c:
 
-			switch (taskStimRequest_c)
-			{
-			case gTaskStimRqstNotif:
-				if (hasNotifElectToSend == TRUE)
-				{
-					SrlCommManagmntWriteData((uint8_t *)&fsmTaskNotif_t[2], 5);
-					hasNotifElectToSend = FALSE;
-					break;
-				}
-				if (hasNotifDelayToSend == TRUE)
-				{
-					SrlCommManagmntWriteData((uint8_t *)&fsmTaskNotif_t[3], 5);
-					hasNotifElectToSend = FALSE;
-					break;
-				}
-				if (hasNotifToSendV1 == TRUE)
-				{
-					SrlCommManagmntWriteData((uint8_t *)&fsmTaskNotif_t[0], 5);
-					hasNotifToSendV1 = FALSE;
-					break;
-				}
-				if (hasNotifToSendV2 == TRUE)
-				{
-					SrlCommManagmntWriteData((uint8_t *)&fsmTaskNotif_t[1], 5);
-					hasNotifToSendV2 = FALSE;
-					break;
-				}
-				break;
-			case gTaskStimRqstConfig_c:
+      switch (taskStimRequest_c)
+      {
+      case gTaskStimRqstNotif:
+        if (hasNotifElectToSend == TRUE)
+        {
+          SrlCommManagmntWriteData((uint8_t *)&fsmTaskNotif_t[2], 5);
+          hasNotifElectToSend = FALSE;
+          break;
+        }
+        if (hasNotifDelayToSend == TRUE)
+        {
+          SrlCommManagmntWriteData((uint8_t *)&fsmTaskNotif_t[3], 5);
+          hasNotifElectToSend = FALSE;
+          break;
+        }
+        if (hasNotifToSendV1 == TRUE)
+        {
+          SrlCommManagmntWriteData((uint8_t *)&fsmTaskNotif_t[0], 5);
+          hasNotifToSendV1 = FALSE;
+          break;
+        }
+        if (hasNotifToSendV2 == TRUE)
+        {
+          SrlCommManagmntWriteData((uint8_t *)&fsmTaskNotif_t[1], 5);
+          hasNotifToSendV2 = FALSE;
+          break;
+        }
+        break;
+      case gTaskStimRqstConfig_c:
 
-				if (FsmGetExternCommData(fsmTaskFrame, sizeof(StimConfigData_t)))
-				{
-					pStimConfigData_t = (StimConfigData_t *)fsmTaskFrame;
-					ENDIAN_UINT16(pStimConfigData_t->patternFrequencyA);
-					ENDIAN_UINT16(pStimConfigData_t->pulseWidthA);
-					ENDIAN_UINT16(pStimConfigData_t->patternFrequencyB);
-					ENDIAN_UINT16(pStimConfigData_t->pulseWidthB);
-					ENDIAN_UINT16(pStimConfigData_t->patternFrequencyC);
-					ENDIAN_UINT16(pStimConfigData_t->pulseWidthC);
-					ENDIAN_UINT16(pStimConfigData_t->curAmplitude);
-					ENDIAN_UINT16(pStimConfigData_t->maxAmplitude);
+        if (FsmGetExternCommData(fsmTaskFrame, sizeof(StimConfigData_t)))
+        {
+          pStimConfigData_t = (StimConfigData_t *)fsmTaskFrame;
+          ENDIAN_UINT16(pStimConfigData_t->patternFrequencyA);
+          ENDIAN_UINT16(pStimConfigData_t->pulseWidthA);
+          ENDIAN_UINT16(pStimConfigData_t->patternFrequencyB);
+          ENDIAN_UINT16(pStimConfigData_t->pulseWidthB);
+          ENDIAN_UINT16(pStimConfigData_t->patternFrequencyC);
+          ENDIAN_UINT16(pStimConfigData_t->pulseWidthC);
+          ENDIAN_UINT16(pStimConfigData_t->curAmplitude);
+          ENDIAN_UINT16(pStimConfigData_t->maxAmplitude);
 
-					stimErr_c = StimulationConfig(pStimConfigData_t);
+          stimErr_c = StimulationConfig(pStimConfigData_t);
 
-					if (stimErr_c == gStimErrNoError_c)
-					{
-						fsmTaskReturn_t.bReturn = FALSE;
-						fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
-					}
-					else
-					{
-						fsmTaskReturn_t.bReturn = TRUE;
-						pStimErr_c = (StimErr_t *)fsmTaskReturn_t.data;
-						*pStimErr_c = stimErr_c;
-						ENDIAN_UINT16(*pStimErr_c);
-					}
+          if (stimErr_c == gStimErrNoError_c)
+          {
+            fsmTaskReturn_t.bReturn = FALSE;
+            fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
+          }
+          else
+          {
+            fsmTaskReturn_t.bReturn = TRUE;
+            pStimErr_c = (StimErr_t *)fsmTaskReturn_t.data;
+            *pStimErr_c = stimErr_c;
+            ENDIAN_UINT16(*pStimErr_c);
+          }
 
-					fsmTaskReturn_t.bDataReturn = FALSE;
+          fsmTaskReturn_t.bDataReturn = FALSE;
 
-					len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 2;
-					SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
-				}
-				else
-					bRetry = TRUE;
-				break;
+          len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 2;
+          SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+        }
+        else
+          bRetry = TRUE;
+        break;
 
-			case gTaskStimRqstStart_c:
+      case gTaskStimRqstStart_c:
 
-				StimulationStart();
+        StimulationStart();
 
-				ActivityFlag = TRUE;
+        ActivityFlag = TRUE;
 
-				fsmTaskReturn_t.bDataReturn = FALSE;
-				fsmTaskReturn_t.bReturn = FALSE;
-				fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
-				len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1
-				SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+        fsmTaskReturn_t.bDataReturn = FALSE;
+        fsmTaskReturn_t.bReturn = FALSE;
+        fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
+        len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1
+        SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
 
         ///////////////////MODIF LIO ///////////////
+        if (On110V != true)
+        {
+          //DISABLE_IRQ;
+          GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+          On110V = true;
+          //ENABLE_IRQ;
+        }
+        ////////////////////////////////////////
+        break;
 
-           GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-           sl_sleeptimer_delay_millisecond(1);
-           GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-           sl_sleeptimer_delay_millisecond(1);
+      case gTaskStimRqstSetLevel_c:
 
-            ////////////////////////////////////////
-				break;
+        if (FsmGetExternCommData(fsmTaskFrame, sizeof(StimSetLevelData_t)))
+        {
+          pStimSetLevelData_t = (StimSetLevelData_t *)fsmTaskFrame;
+          if (pStimSetLevelData_t->level)
+            stimErr_c = StimulationSetLevel(pStimSetLevelData_t->stimOutId, TRUE);
+          else
+          {
+            stimErr_c = StimulationSetLevel(pStimSetLevelData_t->stimOutId, FALSE);
+          }
 
-			case gTaskStimRqstSetLevel_c:
+          if (stimErr_c == gStimErrNoError_c)
+            fsmTaskReturn_t.bReturn = FALSE;
+          else
+          {
+            fsmTaskReturn_t.bReturn = TRUE;
+            pStimErr_c = (StimErr_t *)fsmTaskReturn_t.data;
+            *pStimErr_c = stimErr_c;
+            ENDIAN_UINT16(*pStimErr_c);
+          }
 
-				if (FsmGetExternCommData(fsmTaskFrame, sizeof(StimSetLevelData_t)))
-				{
-					pStimSetLevelData_t = (StimSetLevelData_t *)fsmTaskFrame;
-					if (pStimSetLevelData_t->level)
-						stimErr_c = StimulationSetLevel(pStimSetLevelData_t->stimOutId, TRUE);
-					else
-					{
-						stimErr_c = StimulationSetLevel(pStimSetLevelData_t->stimOutId, FALSE);
-					}
+          fsmTaskReturn_t.bDataReturn = FALSE;
 
-					if (stimErr_c == gStimErrNoError_c)
-						fsmTaskReturn_t.bReturn = FALSE;
-					else
-					{
-						fsmTaskReturn_t.bReturn = TRUE;
-						pStimErr_c = (StimErr_t *)fsmTaskReturn_t.data;
-						*pStimErr_c = stimErr_c;
-						ENDIAN_UINT16(*pStimErr_c);
-					}
-
-					fsmTaskReturn_t.bDataReturn = FALSE;
-
-					len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX;
-					SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
-				}
-				else
-					bRetry = TRUE;
-				break;
+          len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX;
+          SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+        }
+        else
+          bRetry = TRUE;
+        break;
 #ifdef V016
-			case gTaskStimRqstSetFrequency_c:
+      case gTaskStimRqstSetFrequency_c:
 
-				if (FsmGetExternCommData(fsmTaskFrame, sizeof(StimSetFrequencyData_t)))
-				{
-					pStimSetFrequencyData_t = (StimSetFrequencyData_t *)fsmTaskFrame;
-					stimErr_c = StimulationSetFrequency(pStimSetFrequencyData_t->stimOutId,
-														pStimSetFrequencyData_t->frequencyA,
-														pStimSetFrequencyData_t->frequencyB,
-														pStimSetFrequencyData_t->frequencyC);
+        if (FsmGetExternCommData(fsmTaskFrame, sizeof(StimSetFrequencyData_t)))
+        {
+          pStimSetFrequencyData_t = (StimSetFrequencyData_t *)fsmTaskFrame;
+          stimErr_c = StimulationSetFrequency(pStimSetFrequencyData_t->stimOutId,
+                                              pStimSetFrequencyData_t->frequencyA,
+                                              pStimSetFrequencyData_t->frequencyB,
+                                              pStimSetFrequencyData_t->frequencyC);
 
-					if (stimErr_c == gStimErrNoError_c)
-						fsmTaskReturn_t.bReturn = FALSE;
-					else
-					{
-						fsmTaskReturn_t.bReturn = TRUE;
-						pStimErr_c = (StimErr_t *)fsmTaskReturn_t.data;
-						*pStimErr_c = stimErr_c;
-						ENDIAN_UINT16(*pStimErr_c);
-					}
+          if (stimErr_c == gStimErrNoError_c)
+            fsmTaskReturn_t.bReturn = FALSE;
+          else
+          {
+            fsmTaskReturn_t.bReturn = TRUE;
+            pStimErr_c = (StimErr_t *)fsmTaskReturn_t.data;
+            *pStimErr_c = stimErr_c;
+            ENDIAN_UINT16(*pStimErr_c);
+          }
 
-					fsmTaskReturn_t.bDataReturn = FALSE;
+          fsmTaskReturn_t.bDataReturn = FALSE;
 
-					len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX;
-					SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
-				}
-				else
-					bRetry = TRUE;
+          len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX;
+          SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+        }
+        else
+          bRetry = TRUE;
 
-				break;
+        break;
 
-			case gTaskStimRqstSetPulseWidth_c:
+      case gTaskStimRqstSetPulseWidth_c:
 
-				if (FsmGetExternCommData(fsmTaskFrame, sizeof(StimSetPulseWidthData_t)))
-				{
-					pStimSetPulseWidthData_t = (StimSetPulseWidthData_t *)fsmTaskFrame;
-					stimErr_c = StimulationSetPulseWidth(pStimSetPulseWidthData_t->stimOutId,
-														 pStimSetPulseWidthData_t->pulseWidthA,
-														 pStimSetPulseWidthData_t->pulseWidthB,
-														 pStimSetPulseWidthData_t->pulseWidthC);
+        if (FsmGetExternCommData(fsmTaskFrame, sizeof(StimSetPulseWidthData_t)))
+        {
+          pStimSetPulseWidthData_t = (StimSetPulseWidthData_t *)fsmTaskFrame;
+          stimErr_c = StimulationSetPulseWidth(pStimSetPulseWidthData_t->stimOutId,
+                                               pStimSetPulseWidthData_t->pulseWidthA,
+                                               pStimSetPulseWidthData_t->pulseWidthB,
+                                               pStimSetPulseWidthData_t->pulseWidthC);
 
-					if (stimErr_c == gStimErrNoError_c)
-						fsmTaskReturn_t.bReturn = FALSE;
-					else
-					{
-						fsmTaskReturn_t.bReturn = TRUE;
-						pStimErr_c = (StimErr_t *)fsmTaskReturn_t.data;
-						*pStimErr_c = stimErr_c;
-						ENDIAN_UINT16(*pStimErr_c);
-					}
+          if (stimErr_c == gStimErrNoError_c)
+            fsmTaskReturn_t.bReturn = FALSE;
+          else
+          {
+            fsmTaskReturn_t.bReturn = TRUE;
+            pStimErr_c = (StimErr_t *)fsmTaskReturn_t.data;
+            *pStimErr_c = stimErr_c;
+            ENDIAN_UINT16(*pStimErr_c);
+          }
 
-					fsmTaskReturn_t.bDataReturn = FALSE;
+          fsmTaskReturn_t.bDataReturn = FALSE;
 
-					len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX;
-					SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
-				}
-				else
-					bRetry = TRUE;
-				break;
+          len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX;
+          SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+        }
+        else
+          bRetry = TRUE;
+        break;
 #endif
-			case gTaskStimRqstStop_c:
+      case gTaskStimRqstStop_c:
 
+        StimulationStop();
 
-				StimulationStop();
+        ActivityFlag = FALSE;
 
-				ActivityFlag = FALSE;
+        fsmTaskReturn_t.bDataReturn = FALSE;
+        fsmTaskReturn_t.bReturn = FALSE;
+        fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
+        len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1;
+        SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+        ///////////////////MODIF LIO ///////////////
+        if (On110V != false)
+        {
+          //DISABLE_IRQ;
+          GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+          On110V = false;
+          //ENABLE_IRQ;
+        }
+        ////////////////////////////////////////
+        break;
 
-				fsmTaskReturn_t.bDataReturn = FALSE;
-				fsmTaskReturn_t.bReturn = FALSE;
-				fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
-				len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1;
-				SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
-				///////////////////MODIF LIO ///////////////
+      case gTaskStimRqstResume_c:
 
-				           GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-				           sl_sleeptimer_delay_millisecond(1);
-				           GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-				           sl_sleeptimer_delay_millisecond(1);
+        StimulationResume();
 
-				            ////////////////////////////////////////
-				break;
+        fsmTaskReturn_t.bDataReturn = FALSE;
+        fsmTaskReturn_t.bReturn = FALSE;
+        fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
+        len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1;
+        SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+        break;
 
-			case gTaskStimRqstResume_c:
+      case gTaskStimRqstPause_c:
 
-				StimulationResume();
+        StimulationPause();
 
-				fsmTaskReturn_t.bDataReturn = FALSE;
-				fsmTaskReturn_t.bReturn = FALSE;
-				fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
-				len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1;
-				SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
-				break;
+        fsmTaskReturn_t.bDataReturn = FALSE;
+        fsmTaskReturn_t.bReturn = FALSE;
+        fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
+        len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1;
+        SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
+        break;
 
-			case gTaskStimRqstPause_c:
+      default:
 
-				StimulationPause();
+        SrlCommManagmntFlushBuffRx();
+        ErrorManagement((uint16_t)srlCommErr);
 
-				fsmTaskReturn_t.bDataReturn = FALSE;
-				fsmTaskReturn_t.bReturn = FALSE;
-				fsmTaskReturn_t.data[0] = (uint8_t)taskStimRequest_c;
-				len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX; // MODIF XSU len = sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX + 1;
-				SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, len);
-				break;
+        break;
+      }
 
-			default:
+      if (bRetry)
+      {
+        bRetry = FALSE;
+        nRetry++;
+        if (nRetry < N_REQUEST_GET_MAX)
+          fsmTaskNextAction = gFsmTaskExecRequest_c;
+        else
+        {
+          fsmTaskNextAction = gFsmTaskStart_c;
+          SrlCommManagmntFlushBuffRx();
+          // TODO : SIGNAL error
+        }
 
-				SrlCommManagmntFlushBuffRx();
-				ErrorManagement((uint16_t)srlCommErr);
+        fsmTaskAction = gFsmTaskExecMainTask_c;
+      }
+      else
+      {
+        fsmTaskNextAction = gFsmTaskStart_c;    // Remain in this action and Wait for more data
+        fsmTaskAction = gFsmTaskExecMainTask_c; // Remain in this action and Wait for more data
+      }
 
-				break;
-			}
+      break;
 
-			if (bRetry)
-			{
-				bRetry = FALSE;
-				nRetry++;
-				if (nRetry < N_REQUEST_GET_MAX)
-					fsmTaskNextAction = gFsmTaskExecRequest_c;
-				else
-				{
-					fsmTaskNextAction = gFsmTaskStart_c;
-					SrlCommManagmntFlushBuffRx();
-					// TODO : SIGNAL error
-				}
+      /** Go To Next Action. azerty */
 
-				fsmTaskAction = gFsmTaskExecMainTask_c;
-			}
-			else
-			{
-				fsmTaskNextAction = gFsmTaskStart_c;	// Remain in this action and Wait for more data
-				fsmTaskAction = gFsmTaskExecMainTask_c; // Remain in this action and Wait for more data
-			}
+    case gFsmTaskExecMainTask_c:
 
-			break;
-
-			/** Go To Next Action. azerty */
-
-		case gFsmTaskExecMainTask_c:
-
-			/** Execute Main Task. */
-			if (StimulationExecute(fsmTaskNotif_t))
-			{
-			}
+      /** Execute Main Task. */
+      if (StimulationExecute(fsmTaskNotif_t))
+      {
+      }
 #ifndef TEST_MODE
-//			if (!ActivityFlag)
-//			{
-//				// A remplacer par I2C -- Debut
-//				SPI_TRANSMIT_DATA(0x00);
-//				SPI_TRANSMIT_DATA(0x00);
-//				Gpio_ClrAop();
-//				// A remplacer par I2C -- Fin
-//			}
-#endif
-			/** if error go to stop. */
-			if (0)
+			if (!ActivityFlag)
 			{
-				*fsmStateId = FSM_STATE_DEFAULT;
-				fsmTaskAction = gFsmTaskStop_c;
-				break;
+				SPI_TRANSMIT_DATA(0x00);
+				SPI_TRANSMIT_DATA(0x00);
+				Gpio_ClrAop();
 			}
+#endif
+      /** if error go to stop. */
+      if (0)
+      {
+        *fsmStateId = FSM_STATE_DEFAULT;
+        fsmTaskAction = gFsmTaskStop_c;
+        break;
+      }
 
-			fsmTaskAction = fsmTaskNextAction;
-			break;
+      fsmTaskAction = fsmTaskNextAction;
+      break;
 
-		case gFsmTaskStop_c:
+    case gFsmTaskStop_c:
 
-			*bFSMStateChangePending = TRUE;
-			StimulationStop();
+      *bFSMStateChangePending = TRUE;
+      StimulationStop();
 
-			return; // Exit FSM State
+      return; // Exit FSM State
 
-		default:
-			ErrorManagement((uint16_t)gSrlCommErrNoError_c);
-		}
-	}
+    default:
+      ErrorManagement((uint16_t)gSrlCommErrNoError_c);
+    }
+  }
 }
 /**********************************************************************************
 End of function
@@ -1028,7 +1028,7 @@ void FsmTaskBiofeedback(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
         {
           ENDIAN_UINT16(pBioReturnData_t->bioVoltage[i]);
         }
-        memcpy(fsmTaskReturn_t.data + 1,pBioReturnData_t->bioVoltage,2*pBioReturnData_t->nValue);
+        memcpy(fsmTaskReturn_t.data + 1, pBioReturnData_t->bioVoltage, 2 * pBioReturnData_t->nValue);
         fsmTaskReturn_t.bDataReturn = TRUE;
         fsmTaskReturn_t.bReturn = TRUE;
 
@@ -1192,35 +1192,33 @@ void FsmTaskManagement(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
       case gTaskMngtRqstId: // Send how many tools are present and their action (Stim, Bio, Stim/Bio).
         fsmTaskReturn_t.bDataReturn = TRUE;
 
-                //      if(ChannelTest())
-                //      {
-                for (i = 0; i < Number_Channel; i++)
-                {
-                  if (ElectrodeAdhesionDetection(i) == TRUE)
-                  {
-                    fsmTaskReturn_t.bReturn = FALSE;          /** Electrodes adhesion is ok. */
-                    fsmTaskReturn_t.data[0] = (PodType_t) gPodType_StimBio;     /** POD Type */
-                    fsmTaskReturn_t.data[1] = Number_Channel;     /** Number of channels. */
-                    fsmTaskReturn_t.data[i + 2] = (ChannelType_t) gChannelType_StimBio; /** Tool type of channel 1. */
-                  }
-                  else
-                  {
-                    fsmTaskReturn_t.bReturn = FALSE;      /** Electrodes are disconnected. */
-                    fsmTaskReturn_t.data[0] = (PodType_t) gPodType_StimBio; /** Error code for electrodes adhesion. */
-                    fsmTaskReturn_t.data[1] = Number_Channel; /** Channel i is disconnected. */
-                    fsmTaskReturn_t.data[i + 2] = (ChannelType_t) gChannelType_NoTool;
-                  }
-                }
+        for (i = 0; i < Number_Channel; i++)
+        {
+          if (ElectrodeAdhesionDetection(i) == TRUE)
+          {
+            fsmTaskReturn_t.bReturn = FALSE;                                   /** Electrodes adhesion is ok. */
+            fsmTaskReturn_t.data[0] = (PodType_t)gPodType_StimBio;             /** POD Type */
+            fsmTaskReturn_t.data[1] = Number_Channel;                          /** Number of channels. */
+            fsmTaskReturn_t.data[i + 2] = (ChannelType_t)gChannelType_StimBio; /** Tool type of channel 1. */
+          }
+          else
+          {
+            fsmTaskReturn_t.bReturn = FALSE;                       /** Electrodes are disconnected. */
+            fsmTaskReturn_t.data[0] = (PodType_t)gPodType_StimBio; /** Error code for electrodes adhesion. */
+            fsmTaskReturn_t.data[1] = Number_Channel;              /** Channel i is disconnected. */
+            fsmTaskReturn_t.data[i + 2] = (ChannelType_t)gChannelType_NoTool;
+          }
+        }
         // Send frame via UART.
         SrlCommManagmntWriteData((uint8_t *)&fsmTaskReturn_t, 7); // sizeof(FsmTaskActionReturn_t) - SRL_COMM_DATA_SIZE_MAX);
         break;
 
       case gTaskMngtVersionWrite:
-    	 flash_init();
-    	 flash_read_user_data(&stFlashData);
-    	 memcpy(stFlashData.versionId_t,versionId_t,sizeof(versionId_t));
-    	 flash_write_data(stFlashData);
-    	 break;
+        flash_init();
+        flash_read_user_data(&stFlashData);
+        memcpy(stFlashData.versionId_t, versionId_t, sizeof(versionId_t));
+        flash_write_data(stFlashData);
+        break;
 
       case gTaskMngtVersionRead:
 #ifdef TEST_MODE_1_MANAGEMENT

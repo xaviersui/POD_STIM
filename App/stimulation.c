@@ -31,11 +31,11 @@ User Includes
 * Private memory declarations
 *************************************************************************************
 ************************************************************************************/
-Stimulation_t gStim_t;	  /**< */
+Stimulation_t gStim_t;	 /**< */
 volatile bool gStimTick; /**< */
 uint8_t nElectrodDetachmentCpt[2] = {0};
 bool_t bElecTest[2] = {0}, bReprise = FALSE, bInstVesic = FALSE;
-extern uint16_t        gDigAmplMeas[gStimOutMax_c];
+extern uint16_t gDigAmplMeas[gStimOutMax_c];
 /************************************************************************************
 *************************************************************************************
 * Private prototypes
@@ -54,7 +54,7 @@ extern bool_t hasNotifDelayToSend;
 uint8_t nbVoie = 0;
 bool_t voie1Active = FALSE;
 extern void (*pStimGenCallback[gStimPatternMax_c])(void);
-extern uint8_t  gNPulse_c[gStimPatternMax_c];
+extern uint8_t gNPulse_c[gStimPatternMax_c];
 /************************************************************************************
 *************************************************************************************
 * Public functions
@@ -89,14 +89,6 @@ End of function
 StimErr_t StimulationStart(void)
 {
 	uint8_t i = 0;
-	//GPIO_PinOutSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN);
-//	   DISABLE_IRQ;
-//	     GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-//	     CMU_ClockEnable(cmuClock_EUSART0, FALSE);
-//	     GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-//	     CMU_ClockEnable(cmuClock_EUSART0, TRUE);
-//	   ENABLE_IRQ;
-
 
 	gStim_t.startEn = TRUE;
 	gStim_t.pauseEn = FALSE;
@@ -108,24 +100,18 @@ StimErr_t StimulationStart(void)
 				bElecTest[i] = TRUE;
 		}
 
-		// A Modif
 		if (gStim_t.tConfig.patternId == 0x11)
 			gflag[0] = TRUE;
 
 		STIM_SUPERVIS_START;
 		STIM_GEN_START;
-		  //DISABLE_IRQ;
-
-		    //PETIT_DELAI_NOP;
-		    //ENABLE_IRQ;
 	}
-	//
+
 	return gStimErrNoError_c;
 }
 
 /************************************************************************************
- * Name :	StimulationStop	*/
-/**
+ * Name :	StimulationStop
  * @brief	Stops the stimulation generation and control.
  * @param
  * @return	The error of operation.
@@ -134,48 +120,39 @@ StimErr_t StimulationStop(void)
 {
 	uint8_t i = 0;
 
-
-
 	STIM_SUPERVIS_STOP;
 	STIM_SUPERVIS_RESET_COUNT;
 
 	STIM_GEN_STOP;
 	STIM_GEN_RESET_COUNT;
 
-
-
 	if ((gStim_t.tConfig.patternId == 0x09) || (gStim_t.tConfig.patternId == 0x02))
 	{
-		// A Modif
 		STIM_OUT_SEL_NONE;
 		CMD_GALV_SEL_NONE;
 	}
 
-	//I2C_LeaderWrite(I2C_DAC_ADDR << 1, ui8WRITE_DAC_AND_INPUT_REGISTER_COMMAND_BYTE, courant, 2);
 	SPI_TRANSMIT_DATA(0);
 	SPI_TRANSMIT_DATA(0);
 
 	// Application AOP -> OFF
 	Gpio_ClrAop();
 
-  //////(void)Ad5691r_SetIntensiteStimulation(0); //exprimer en uV
-
 	for (i = 0; i < gStimOutMax_c; i++)
 	{
-		// A Modif
 		StimManagementSetDigitalAmplitude(0, i);
 
 		gStim_t.tConfig.tPattern[i].width = 0;
-		// A Modif
+
 		StimManagementConfigPulse(&gStim_t.tConfig);
 		bElecTest[i] = FALSE;
 	}
 
 	gStim_t.tConfig.nStim = 0;
 	if (gStim_t.tConfig.patternId != 0x09)
-	  {
+	{
 		StimManagementHacheurInit();
-	  }
+	}
 
 	if (gStim_t.tConfig.patternId == 0x11)
 		gflag[0] = FALSE;
@@ -259,7 +236,6 @@ StimErr_t StimulationSetFrequency(uint8_t pulseId, uint16_t FreqA, uint16_t Freq
 	{
 		gStim_t.tConfig.frequency = DEF_TIME_NBR_100nS_PER_SEC / gStim_t.tControl[pulseId].tEnvelope.patternFrequencyA;
 		gStim_t.tConfig.tPattern[pulseId].width = gStim_t.tControl[pulseId].tEnvelope.pulseWidthA;
-		// A Modif
 		StimManagementConfigPulse(&gStim_t.tConfig);
 	}
 
@@ -286,10 +262,6 @@ StimErr_t StimulationSetPulseWidth(uint8_t pulseId, uint16_t PWA, uint16_t PWB, 
 		pulseId = 0;
 	}
 
-	/// NOT USED in V2 BECAUSE STIM_GEN_TRM_PERIOD_MAX is TIMER cnt on 32-bits (V1 was 16-bits
-	/*if (PWA >= STIM_GEN_TRM_PERIOD_MAX || PWB >= STIM_GEN_TRM_PERIOD_MAX || PWC >= STIM_GEN_TRM_PERIOD_MAX)
-		return gStimErrConfigStimPulseWidthMax_c;*/
-
 	gStim_t.tControl[pulseId].tEnvelope.pulseWidthA = PWA;
 	gStim_t.tControl[pulseId].tEnvelope.pulseWidthB = PWB;
 	gStim_t.tControl[pulseId].tEnvelope.pulseWidthC = PWC;
@@ -298,7 +270,7 @@ StimErr_t StimulationSetPulseWidth(uint8_t pulseId, uint16_t PWA, uint16_t PWB, 
 	{
 		gStim_t.tConfig.frequency = DEF_TIME_NBR_100nS_PER_SEC / gStim_t.tControl[pulseId].tEnvelope.patternFrequencyA;
 		gStim_t.tConfig.tPattern[pulseId].width = gStim_t.tControl[pulseId].tEnvelope.pulseWidthA;
-		// A Modif
+
 		StimManagementConfigPulse(&gStim_t.tConfig);
 	}
 
@@ -347,7 +319,7 @@ bool_t StimulationExecute(FsmTaskActionReturn_t fsmTaskNotif_t[])
 	int32_t var = 0;
 	int32_t temp[2] = {0, 0};
 	bool_t bEnveloppeEnd = FALSE, StepEnd[2] = {0};
-	volatile uint32_t amplitude = 0 ,AmpMeas[2];
+	volatile uint32_t amplitude = 0, AmpMeas[2];
 	int16_t halfperiod = 0, nCurTemp = 0;
 	StimStep_c StepReturn[2];
 
@@ -542,7 +514,7 @@ bool_t StimulationExecute(FsmTaskActionReturn_t fsmTaskNotif_t[])
 							gStim_t.tConfig.frequency = (DEF_TIME_NBR_100nS_PER_SEC / gStim_t.tControl[i].tEnvelope.patternFrequencyC);
 							gStim_t.tConfig.tPattern[i].width = gStim_t.tControl[i].tEnvelope.pulseWidthC;
 						}
-						//A modif
+						// A modif
 						StimManagementConfigPulse(&gStim_t.tConfig);
 					}
 
@@ -564,7 +536,6 @@ bool_t StimulationExecute(FsmTaskActionReturn_t fsmTaskNotif_t[])
 				default:
 					break;
 				}
-				// A Modif
 				StimManagementSetDigitalAmplitude(amplitude, i);
 
 				if ((gStim_t.tConfig.patternId != 0x09) && (gStim_t.tConfig.patternId != 0x11))
@@ -572,25 +543,24 @@ bool_t StimulationExecute(FsmTaskActionReturn_t fsmTaskNotif_t[])
 					/* Electrode detachment test */
 					if (gStim_t.tControl[i].tEnvelope.tModulation[j].id == gModulMaxAmp_c) // Test available only when amplitud is max.
 					{
-						//A modif
-						 if (gflag[i] == TRUE) // Is there a new value available ?
-						 {
-						 	AmpMeas[i] = ((uint32_t)gDigAmplMeas[i] * 1000);
-						 	AmpMeas[i] = AmpMeas[i] / 1023;
-						 	if ((amplitude > 100) && ((AmpMeas[i]) < ((amplitude * 70) / 100))) // Electrods are considered detached if measured amplitud is <70% of the command and commanded amplitud is above 10mA.
-						 	{
-						 		if (gStim_t.tControl[i].electrodeAdhesionDetect == 1) // Electrod adhesion detection is available ?
-						 		{
-						 			if (bElecTest[i] == TRUE)
-						 			{
-						 				nElectrodDetachmentCpt[i]++;
-						 				gflag[i] = FALSE;
-						 			}
-						 		}
-						 	}
-						 	else
-						 		nElectrodDetachmentCpt[i] = 0;
-						 }
+						if (gflag[i] == TRUE) // Is there a new value available ?
+						{
+							AmpMeas[i] = ((uint32_t)gDigAmplMeas[i] * 1000);
+							AmpMeas[i] = AmpMeas[i] / 1023;
+							if ((amplitude > 100) && ((AmpMeas[i]) < ((amplitude * 70) / 100))) // Electrods are considered detached if measured amplitud is <70% of the command and commanded amplitud is above 10mA.
+							{
+								if (gStim_t.tControl[i].electrodeAdhesionDetect == 1) // Electrod adhesion detection is available ?
+								{
+									if (bElecTest[i] == TRUE)
+									{
+										nElectrodDetachmentCpt[i]++;
+										gflag[i] = FALSE;
+									}
+								}
+							}
+							else
+								nElectrodDetachmentCpt[i] = 0;
+						}
 					}
 
 					if (nElectrodDetachmentCpt[i] > 4) // Electrode detached ?
@@ -715,7 +685,7 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 	/** - Specific to neuroperipheric current */
 	if (gStim_t.tConfig.patternId == 0x09)
 	{
-// A Modif
+		// A Modif
 		// Init Stim Supervisor Timer
 		STIM_SUPERVIS_FORCE_COUNT_STOP;
 		// trbcr = 0x00;  // Timer RB : count stop, count forcible stop bit
@@ -835,10 +805,6 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 			gStim_t.tControl[nStim].tEnvelope.patternFrequencyB = pConfigData->patternFrequencyB;
 			gStim_t.tControl[nStim].tEnvelope.patternFrequencyC = pConfigData->patternFrequencyC;
 
-			///NOT USED in V2 BECAUSE STIM_GEN_TRM_PERIOD_MAX is TIMER cnt on 32-bits (V1 was 16-bits
-			/*if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
-				return gStimErrConfigStimPulseWidthMax_c;*/
-
 			gStim_t.tControl[nStim].tEnvelope.pulseWidthA = pConfigData->pulseWidthA;
 			gStim_t.tControl[nStim].tEnvelope.pulseWidthB = pConfigData->pulseWidthB;
 			gStim_t.tControl[nStim].tEnvelope.pulseWidthC = pConfigData->pulseWidthC;
@@ -905,9 +871,6 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyB = pConfigData->patternFrequencyB;
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyC = pConfigData->patternFrequencyC;
 
-				///NOT USED in V2 BECAUSE STIM_GEN_TRM_PERIOD_MAX is TIMER cnt on 32-bits (V1 was 16-bits
-				/*if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
-					return gStimErrConfigStimPulseWidthMax_c;*/
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthA = pConfigData->pulseWidthA;
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthB = pConfigData->pulseWidthB;
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthC = pConfigData->pulseWidthC;
@@ -1008,10 +971,6 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyB = pConfigData->patternFrequencyB;
 				gStim_t.tControl[nStim].tEnvelope.patternFrequencyC = pConfigData->patternFrequencyC;
 
-				///NOT USED in V2 BECAUSE STIM_GEN_TRM_PERIOD_MAX is TIMER cnt on 32-bits (V1 was 16-bits)
-				/*if (pConfigData->pulseWidthA >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthB >= STIM_GEN_TRM_PERIOD_MAX || pConfigData->pulseWidthC >= STIM_GEN_TRM_PERIOD_MAX)
-					return gStimErrConfigStimPulseWidthMax_c;*/
-
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthA = pConfigData->pulseWidthA;
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthB = pConfigData->pulseWidthB;
 				gStim_t.tControl[nStim].tEnvelope.pulseWidthC = pConfigData->pulseWidthC;
@@ -1103,7 +1062,7 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 		/* Sets Pulse Generation */
 
 		if (((gStim_t.tControl[0].tEnvelope.patternFrequencyC == 150) && (gStim_t.tControl[0].tEnvelope.pulseWidthC == 50)) ||
-		    ((gStim_t.tControl[1].tEnvelope.patternFrequencyC == 150) && (gStim_t.tControl[1].tEnvelope.pulseWidthC == 50)))
+			((gStim_t.tControl[1].tEnvelope.patternFrequencyC == 150) && (gStim_t.tControl[1].tEnvelope.pulseWidthC == 50)))
 		{
 			gStim_t.tControl[0].tEnvelope.patternFrequencyC = 149;
 		}
@@ -1127,7 +1086,7 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 		gStim_t.tConfig.frequency = DEF_TIME_NBR_100nS_PER_SEC / gStim_t.tControl[0].tEnvelope.patternFrequencyB;
 		gStim_t.tConfig.tPattern[nStim].width = gStim_t.tControl[nStim].tEnvelope.pulseWidthB;
 		// A Modif
-	 stimGenErr_t = StimManagementConfigPulse(&gStim_t.tConfig);
+		stimGenErr_t = StimManagementConfigPulse(&gStim_t.tConfig);
 
 		if (stimGenErr_t != gStimGenErrNoError_c)
 		{
@@ -1136,13 +1095,13 @@ StimErr_t StimulationConfig(StimConfigData_t *pConfigData)
 		}
 
 		if (((gStim_t.tControl[0].tEnvelope.patternFrequencyA == 150) && (gStim_t.tControl[0].tEnvelope.pulseWidthA == 50)) ||
-		    ((gStim_t.tControl[1].tEnvelope.patternFrequencyB == 150) && (gStim_t.tControl[1].tEnvelope.pulseWidthB == 50)))
+			((gStim_t.tControl[1].tEnvelope.patternFrequencyB == 150) && (gStim_t.tControl[1].tEnvelope.pulseWidthB == 50)))
 		{
 			gStim_t.tControl[0].tEnvelope.patternFrequencyA = 149;
 		}
 		gStim_t.tConfig.frequency = DEF_TIME_NBR_100nS_PER_SEC / gStim_t.tControl[0].tEnvelope.patternFrequencyA;
 		gStim_t.tConfig.tPattern[nStim].width = gStim_t.tControl[nStim].tEnvelope.pulseWidthA;
-		//A modif
+		// A modif
 		stimGenErr_t = StimManagementConfigPulse(&gStim_t.tConfig);
 
 		if (stimGenErr_t != gStimGenErrNoError_c)
@@ -1168,16 +1127,11 @@ Description:
 Parameters: 	none
 Return value: 	none
 ***********************************************************************************/
-//#pragma INTERRUPT StimSupervisISR
-//void StimSupervisISR(void)
-//{
-//	gStimTick = TRUE;
-//}
 
 void TIMER1_IRQHandler(void)
 {
-  gStimTick = TRUE;
-  TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
+	gStimTick = TRUE;
+	TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
 }
 /**********************************************************************************
 End of function

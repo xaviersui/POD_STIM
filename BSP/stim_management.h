@@ -158,11 +158,11 @@ User Includes
 #define STIM_OUT_1            0x40
 #define STIM_OUT_SEL(cmd)     {\
   if(cmd == STIM_OUT_0){\
-      STIM_OUT_SEL_NONE;\
+      GPIO_PinOutClear(CS_VOIE2_PORT,CS_VOIE2_PIN);\
       GPIO_PinOutSet(CS_VOIE1_PORT,CS_VOIE1_PIN);\
   }\
   else{\
-      STIM_OUT_SEL_NONE;\
+      GPIO_PinOutClear(CS_VOIE1_PORT,CS_VOIE1_PIN);\
       GPIO_PinOutSet(CS_VOIE2_PORT,CS_VOIE2_PIN);\
   }\
 }\

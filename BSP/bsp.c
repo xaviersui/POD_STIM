@@ -116,7 +116,7 @@ void BoardInit(void)
   //  GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
     GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
 
-    On110V = true;
+    On110V = false;
 
     /// Driver Init
     // Spi is initialised in function "sl_driver_init" locate in s"l_event_handler.h"

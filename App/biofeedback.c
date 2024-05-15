@@ -27,7 +27,6 @@ User Includes
 #include "em_cmu.h"
 
 // #include "Flash.h"
-extern bool On110V;
 /************************************************************************************
 *************************************************************************************
 * Private macros
@@ -256,25 +255,6 @@ BioErr_t BiofeedbackStart(uint8_t *pNBio)
   uint16_t k = 0;
   int16_t curVoltage[gBioInMax_c] = {0};
 
-//  while(1)
-//  {
-//	  GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-//	  sl_sleeptimer_delay_millisecond(200);
-//	  GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-//	  sl_sleeptimer_delay_millisecond(200);
-//  }
-//  if(On110V == true)
-//  {
-//	  DISABLE_IRQ;
-//	  GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-//	   CMU_ClockEnable(cmuClock_EUSART0, FALSE);
-//	   GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-//	  //  sl_udelay_wait(200);
-//	    CMU_ClockEnable(cmuClock_EUSART0, TRUE);
-//	    ENABLE_IRQ;
-//	    On110V = false;
-//  }
-
   /** Tests if biofeedback is configured */
   if (gBiofeedback_t.nBio)
   {
@@ -313,17 +293,7 @@ BioErr_t BiofeedbackStop(void)
 {
   gBiofeedback_t.bioState_c = gBioStop_c;
   gBiofeedback_t.nBio = 0;
-// if(On110V == false)
-//  {
-//	  DISABLE_IRQ;
-//	  GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-//	  CMU_ClockEnable(cmuClock_EUSART0, FALSE);
-//	  GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-//	  CMU_ClockEnable(cmuClock_EUSART0, TRUE);
-//	  ENABLE_IRQ;
-//	  On110V = true;
-//  }
- BIO_SAMPLING_STOP;
+  BIO_SAMPLING_STOP;
   BioManagementDisableAllInput();
   BioManagementInit();
 
@@ -359,11 +329,11 @@ BioErr_t BiofeedbackSelectGain(const BioSelGainData_t *pBioSelGainData)
     break;
 
   case gBioGain2_c:
-    BIO_CMD_SET_G1;
+    BIO_CMD_SET_G2;
     break;
 
   case gBioGain3_c:
-    BIO_CMD_SET_G1;
+    BIO_CMD_SET_G3;
     break;
 
   default:
