@@ -79,9 +79,13 @@ void set_timer1_time(uint32_t time)
   }
   ENABLE_IRQ;
 }
-
+void dumm(){}
 void TIMER0_IRQHandler(void)
 {
+	if(gStim_t.tConfig.patternId != gStimPatternBiphasic_c)
+	{
+		dumm();
+	}
 	(void)pStimGenCallback[gStim_t.tConfig.patternId]();
 	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
 
