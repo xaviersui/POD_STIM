@@ -99,7 +99,7 @@ void StimManagementHacheurInit(void)
   pStimGenCallback[gStimPatternSinus_c] = Sinus;
   /** - Number of alternance per signal. */
   gNPulse_c[gStimPatternBiphasic_c] = 2;
-  gNPulse_c[gStimPatternMonophasic_c] = 2;
+  gNPulse_c[gStimPatternMonophasic_c] = 1;
   gNPulse_c[gStimPatternBiphasicAltern_c] = 2;
   gNPulse_c[gStimPatternVeineuxBiphasic_c] = 52;
   gNPulse_c[gStimPatternBiphasicNegative_c] = 2;
@@ -184,12 +184,7 @@ StimGenErr_t StimManagementConfigPulse(StimulationConfiguration_t *pStimConfig_t
   {
     gStimGen_t.tPulse[i].outId = pStimConfig_t->tPattern[i].outId;
     gStimGen_t.tPulse[i].cntWidth = (pStimConfig_t->tPattern[i].width * STIM_GEN_TRM_CLK_SOURCE_MHz) /* - 1*/;
-    //	gStimGen_t.tPulse[i].digitalAmplitude = /*(2048*(i+1))-1*/pStimConfig_t->tPattern[i].amplitude;		// test!!!!
   }
-
-  //	gStimGen_t.tPulse[gStimGen_t.nPulse].digitalAmplitude = pStimConfig_t->tPattern[gStimGen_t.nPulse].amplitude;
-
-  // gStimGen_t.nPulse++;
 
   gStimGen_t.stimGenPatternId = pStimConfig_t->patternId;
 
@@ -1114,137 +1109,153 @@ void ImpulsBiphasNeg(void)
 End of function
 ***********************************************************************************/
 
-/************************************************************************************
- * Name :	ImpulsMonophas 	*/
-/**
- * @brief	Monophas Impuls
- * @param	.
- * @return	.
- ************************************************************************************/
+///************************************************************************************
+//* Name :  ImpulsMonophas  *//**
+//* @brief  Monophas Impuls
+//* @param  .
+//* @return .
+//************************************************************************************/
 void ImpulsMonophas(void)
 {
   static uint16_t i = 0, Nloop = 0;
   uint16_t tmp = 0;
-  uint8_t lsb, msb;
-  uint8_t buf[2] = {0};
+
   /** Monophasic pulse states */
   static enum {
-    gMonophasStatePos_c = 0, /**< Positive Pulse */
+    gMonoPhasInit1_c = 0,
+    gMonoPhasInit2_c,
+    gMonophasStatePos_c, /**< Positive Pulse */
+    gMonophasStatePos_c1,
+    gMonophasStatePalier_c,
+    gMonophasStatePalier1_c,
     gMonophasStateNeg_c,
-    gMonophasStateInter_c, /**< Inter Pulse */
-    gMonophasStateNull_c,  /**< Null Pulse */
+    gMonophasStateInter_c,  /**< Inter Pulse */
+    gMonophasStateInter1_c, /**< Inter Pulse */
+    gMonophasStateNull_c,   /**< Null Pulse */
     gMonophasStateNullLoop_c,
     gMonophasStateMax_c
-  } tMonophasState = gMonophasStatePos_c;
+  } tMonophasState = gMonoPhasInit1_c;
 
   switch (tMonophasState)
   {
-  /** Positive Pulse */
-  case gMonophasStatePos_c:
+  case gMonoPhasInit1_c:
 
-    CMD_M_DISCONNECT; /**< Desactive CMD */
-    CMD_M_SET_NO_PULSE;
-    /** Sets Level */
-    tmp = NORMAL_MODE | ((gStimGen_t.tPulse[i].digitalAmplitude & 0x0FFF) << 2);
+    // Configuration du timming prochaine étape
+    STIM_GEN_RELOAD_NEXT_COUNT(iSS_TIMMING_COURT * 20);
+    /**< Desactive CMD */
+    CMD_M_DISCONNECT;
+    tMonophasState = gMonoPhasInit2_c;
+    break;
 
-    SPI_TRANSMIT_DATA(MSB(tmp));
-    SPI_TRANSMIT_DATA(LSB(tmp));
-
-    /** Sets Commands */
+  case gMonoPhasInit2_c:
+    // Configuration du timming prochaine étape
 
     STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]); /**< Active Pulse Output */
-    PETIT_DELAI_NOP;
+
+    CMD_M_SET_NO_PULSE;
+
+    tmp = NORMAL_MODE;
+    SPI_TRANSMIT_DATA(MSB(tmp));
+    SPI_TRANSMIT_DATA(LSB(tmp));
+    Gpio_SetAop();
+    tmp = NORMAL_MODE | ((gStimGen_t.tPulse[i].digitalAmplitude & 0x0FFF) << 2);
+    SPI_TRANSMIT_DATA(MSB(tmp));
+    SPI_TRANSMIT_DATA(LSB(tmp));
+    STIM_GEN_RELOAD_NEXT_COUNT(1 * 20);
+    tMonophasState = gMonophasStatePos_c;
+    break;
+
+  case gMonophasStatePos_c1:
+    /**< Desactive CMD */
+    //  CMD_M_DISCONNECT;
+
+    // Petit d�lai par des cycles horloge
+
     CMD_M_SET_POSITIVE_PULSE; /**< Enables Positive pulse CMD */
 
     /** Sets Next Step Time */
-    STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
+    STIM_GEN_RELOAD_NEXT_COUNT(1 * 20);
 
-    tMonophasState = gMonophasStateNeg_c;
-
+    tMonophasState = gMonophasStatePos_c;
     break;
 
-  /** Negative Pulse */
-  case gMonophasStateNeg_c:
+  case gMonophasStatePos_c:
+    CMD_M_SET_POSITIVE_PULSE; /**< Enables Positive pulse CMD */
+    /** Sets Next Step Time */
+    STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth); /// DUREE DE L'IMPULSION
 
-    /** Current Measurement */
     gStimGen_t.tPulse[i].digitalMeasAmplitude = IADC_Read_Current();
     gDigAmplMeas[i] = gStimGen_t.tPulse[i].digitalMeasAmplitude;
+
+    tMonophasState = gMonophasStateNeg_c;
+    break;
+
+  case gMonophasStateNeg_c:
+    STIM_OUT_SEL_NONE;
+    Gpio_SetElectrostimulation(eETAPE4); // Reset H1-L2
+    CMD_M_SET_NO_PULSE;
+    Gpio_ClrAop();
+
     gflag[i] = TRUE;
 
-    CMD_M_DISCONNECT; /**< Disables pulse CMD */
-
+    /** Sets Next Step Time */
     if (++i < gStimGen_t.nPulse) /**< Next Pulse */
     {
-      STIM_GEN_RELOAD_NEXT_COUNT(/*gStimGen_t.tPulse[i].cntWidth*/ 2172); //!!!!! //2172
-      tMonophasState = /*gBiphasStatePos_c*/ gMonophasStateInter_c;
+      STIM_GEN_RELOAD_NEXT_COUNT(2172); //!!!!! 108.6 µs
+      tMonophasState = gMonoPhasInit2_c;
     }
     else /**< No Pulse */
     {
-      STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
+      if (gStimGen_t.nPulse == 2)
+        STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr - 2172 - 170 * 20);
+      else
+        STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr - 170 * 20);
       i = 0;
-      tMonophasState = gMonophasStateNull_c;
+      tMonophasState = gMonoPhasInit2_c;
     }
-
     break;
 
-  /** Inter Pulse */
+    /** Inter Pulse */
   case gMonophasStateInter_c:
-
-    /** Sets Commands */
-    CMD_M_DISCONNECT;   /**< Disables pulse CMD */
-    STIM_OUT_SEL_NONE;  /**< Disables Pulse Output */
-                        //  Application AOP -> OFF
-    CMD_M_SET_NO_PULSE; /** Sets pause cmd */
-    /** Sets Level */
-    //    tmp = NORMAL_MODE;
-    //    SPI_TRANSMIT_DATA(MSB(tmp));
-    //    SPI_TRANSMIT_DATA(LSB(tmp));
-    //    buf[0] = MSB(tmp);
-    //    buf[1] = LSB(tmp);
-    //    SPIDRV_MTransmit(sl_spidrv_eusart_GEN_SPI_handle, buf, 2, NULL);
-
-    /** Sets Next Step Time */
-    STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
-    Gpio_ClrAop();
-    tMonophasState = gMonophasStatePos_c;
-
-    break;
-
-  /** Null Pulse */
-  case gMonophasStateNull_c:
-
-    /** Sets Commands */
+    // SWITCH_STOP;              /**< Disables switching */
     CMD_M_DISCONNECT;  /**< Disables pulse CMD */
     STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
-                       //  Application AOP -> OFF
+    /** Sets Level 0 */
+    tmp = NORMAL_MODE;
+    SPI_TRANSMIT_DATA(MSB(tmp));
+    SPI_TRANSMIT_DATA(LSB(tmp));
+    Gpio_ClrAop();
+    // Petit d�lai par des cycles horloge
+    //    PETIT_DELAI_NOP;
+
     /** Sets pause cmd */
     CMD_M_SET_NO_PULSE;
+    /** Sets Next Step Time */
+    STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
+    tMonophasState = gMonoPhasInit2_c;
+    break;
 
-    /** Sets Level */
-    //    tmp = NORMAL_MODE;
-    //    SPI_TRANSMIT_DATA(MSB(tmp));
-    //    SPI_TRANSMIT_DATA(LSB(tmp));
-    //    buf[0] = MSB(tmp);
-    //    buf[1] = LSB(tmp);
-    //    SPIDRV_MTransmit(sl_spidrv_eusart_GEN_SPI_handle, buf, 2, NULL);
+  case gMonophasStateNull_c:
+    // WITCH_STOP;             /**< Disables switching */
+    CMD_M_DISCONNECT;  /**< Disables pulse CMD */
+    STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
+    /** Sets Level 0 */
 
+    Gpio_ClrAop();
+    /** Sets pause cmd */
+    CMD_M_SET_NO_PULSE;
     /** Sets Next Step Time */
     if (gStimGen_t.nTimerLoop > 0) /**< Next Loop */
     {
       Nloop = gStimGen_t.nTimerLoop;
       STIM_GEN_RELOAD_NEXT_COUNT(STIM_GEN_COUNT_MAX);
-      Gpio_ClrAop();
-      STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
       tMonophasState = gMonophasStateNullLoop_c;
     }
     else /**< First Pulse */
     {
       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
-      Gpio_ClrAop();
-
-      tMonophasState = gMonophasStatePos_c;
+      tMonophasState = gMonoPhasInit2_c;
     }
-
     break;
 
   case gMonophasStateNullLoop_c:
@@ -1255,7 +1266,7 @@ void ImpulsMonophas(void)
     else /**< First Pulse */
     {
       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
-      tMonophasState = gMonophasStatePos_c;
+      tMonophasState = gMonoPhasInit2_c; // gMonophasStatePos_c;
     }
 
     break;
@@ -1264,10 +1275,7 @@ void ImpulsMonophas(void)
     /** TODO !!!!! */
     break;
   }
-}
-/**********************************************************************************
-End of function
-***********************************************************************************/
+} //-----------------------------------------------------------------------------
 
 /************************************************************************************
  * Name :	Galvanic 	*/
@@ -1398,17 +1406,17 @@ void ImpulsBiphasAltern(void)
   /** Positive Pulse */
   case gBiphasStatePos_c:
 
-	  STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]); /**< Active Pulse Output */
+    STIM_OUT_SEL(gStimOutCmd_c[gStimGen_t.tPulse[i].outId]); /**< Active Pulse Output */
 
-	      CMD_M_SET_NO_PULSE;
+    CMD_M_SET_NO_PULSE;
 
-	      tmp = NORMAL_MODE;
-	      SPI_TRANSMIT_DATA(MSB(tmp));
-	      SPI_TRANSMIT_DATA(LSB(tmp));
-	      Gpio_SetAop();
-	      tmp = NORMAL_MODE | ((gStimGen_t.tPulse[i].digitalAmplitude & 0x0FFF) << 2);
-	      SPI_TRANSMIT_DATA(MSB(tmp));
-	      SPI_TRANSMIT_DATA(LSB(tmp));
+    tmp = NORMAL_MODE;
+    SPI_TRANSMIT_DATA(MSB(tmp));
+    SPI_TRANSMIT_DATA(LSB(tmp));
+    Gpio_SetAop();
+    tmp = NORMAL_MODE | ((gStimGen_t.tPulse[i].digitalAmplitude & 0x0FFF) << 2);
+    SPI_TRANSMIT_DATA(MSB(tmp));
+    SPI_TRANSMIT_DATA(LSB(tmp));
 
     if (flag == FALSE)
       CMD_M_SET_POSITIVE_PULSE; /**< Enables Positive pulse CMD */
@@ -1631,7 +1639,7 @@ void VeineuxBiphas(void)
   static uint8_t u8PulseStepIdx = 0;
   static uint16_t i = 0, Nloop = 0;
   uint16_t DigAmp = 0;
-  uint16_t tmp = 0;
+  volatile uint16_t tmp = 0;
   uint8_t lsb = 0, msb = 0;
   uint8_t buf[2] = {0};
 
@@ -1678,9 +1686,10 @@ void VeineuxBiphas(void)
     tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c;
     break;
   }
+
   /** Positive Pulse, rising edge */
   case gVeineuxBiphasStatePosRise_c:
-
+  {
     /** Sets Commands */
     if (gflag[0] == TRUE)
     {
@@ -1704,7 +1713,7 @@ void VeineuxBiphas(void)
 
     u8PulseStepIdx++;
 
-    if (u8PulseStepIdx > (gNbExponentialValue_c))
+    if (u8PulseStepIdx == (gNbExponentialValue_c))
     {
       tVeineuxBiphasState = gVeineuxBiphasStatePosFall_c; // gVeineuxBiphasStatePosFall_c;
       u8PulseStepIdx = 0;
@@ -1712,48 +1721,83 @@ void VeineuxBiphas(void)
     /** Sets Next Step Time */
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
     break;
+  }
 
   /** Positive Pulse, falling edge */
   case gVeineuxBiphasStatePosFall_c:
-
+  {
     /** Sets Level */
-
-    tmp = gStimGen_t.tPulse[i].digitalAmplitude - TablePuissanceCalculee[i][u8PulseStepIdx];
     if (gStimGen_t.tPulse[i].digitalAmplitude < TablePuissanceCalculee[i][u8PulseStepIdx])
+    {
       tmp = 0;
+    }
+    else
+    {
+      tmp = gStimGen_t.tPulse[i].digitalAmplitude - TablePuissanceCalculee[i][u8PulseStepIdx];
+    }
+
     DigAmp = NORMAL_MODE | ((tmp & 0x0FFF) << 2);
     SPI_TRANSMIT_DATA(MSB(DigAmp));
     SPI_TRANSMIT_DATA(LSB(DigAmp));
+
     /** Sets Commands */
     u8PulseStepIdx++;
 
-    if (u8PulseStepIdx > (gNbExponentialValue_c))
+    if (u8PulseStepIdx == (gNbExponentialValue_c))
     {
-      u8PulseStepIdx = 0;
 
       tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c2;
+      u8PulseStepIdx = 0;
     }
     /** Sets Next Step Time */
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
     break;
+  }
 
   case gVeineuxBiphasStatePosRise_c2:
+  {
     /** Sets Next Step Time */
     if (++i < gStimGen_t.nPulse) /**< Next Pulse */
     {
-      STIM_GEN_RELOAD_NEXT_COUNT(2000);
-      tVeineuxBiphasState = gVeineuxBiphasStateInter_c; // gVeineuxBiphasStateInter_c;
+       STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
+        Gpio_SetElectrostimulation(eETAPE4);
+        // CMD_M_DISCONNECT;   /**< Disables pulse CMD */
+        CMD_M_SET_NO_PULSE; /**< Disables pulse CMD */
+        gflag[0] = TRUE;
+      STIM_GEN_RELOAD_NEXT_COUNT(6000);
+      tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c; // gVeineuxBiphasStateInter_c;
     }
     else /**< No Pulse */
     {
+      if (cpt > 0)
+      {
+        STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
+        Gpio_SetElectrostimulation(eETAPE4);
+        // CMD_M_DISCONNECT;   /**< Disables pulse CMD */
+        CMD_M_SET_NO_PULSE; /**< Disables pulse CMD */
+        gflag[0] = TRUE;
+        tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c;
+        cpt--;
+      }
+      else
+      {
+        STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
+        Gpio_SetElectrostimulation(eETAPE4);
+        // CMD_M_DISCONNECT;   /**< Disables pulse CMD */
+        CMD_M_SET_NO_PULSE; /**< Disables pulse CMD */
+        gflag[0] = TRUE;
+        tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c;
+        cpt = 7;
+      }
       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
       i = 0;
-      tVeineuxBiphasState = gVeineuxBiphasStateNull_c; // gVeineuxBiphasStateNull_c
     }
     break;
+  }
+
   /** Inter Pulse */
   case gVeineuxBiphasStateInter_c:
-
+  {
     /** Sets Commands */
     // SWITCH_STOP;       /**< Disables switching */
     CMD_M_DISCONNECT;  /**< Disables pulse CMD */
@@ -1767,19 +1811,19 @@ void VeineuxBiphas(void)
 
     /** Sets pause cmd */
     CMD_M_SET_NO_PULSE;
-    Gpio_ClrAop();
+    // Gpio_ClrAop();
     /** Sets Next Step Time */
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
     tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c1;
 
     break;
+  }
 
   /** Null Pulse */
   case gVeineuxBiphasStateNull_c:
-
-    /** Sets Commands */
-    Gpio_SetElectrostimulation(eETAPE4);
-    // STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
+  {
+    CMD_M_DISCONNECT;  /**< Disables pulse CMD */
+    STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
     gflag[0] = TRUE;
 
     /** Sets Level */
@@ -1789,7 +1833,7 @@ void VeineuxBiphas(void)
 
     /** Sets pause cmd */
     CMD_M_SET_NO_PULSE;
-    Gpio_ClrAop();
+    // Gpio_ClrAop();
     /** Sets Next Step Time */
     if (gStimGen_t.nTimerLoop > 0) /**< Next Loop */
     {
@@ -1801,21 +1845,22 @@ void VeineuxBiphas(void)
     {
       if (cpt > 0)
       {
-        tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c1;
+        tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c;
         cpt--;
       }
       else
       {
-        tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c1;
+        tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c;
         cpt = 7;
       }
       STIM_GEN_RELOAD_NEXT_COUNT(10 * 20);
     }
 
     break;
+  }
 
   case gVeineuxBiphasStateNullLoop_c:
-
+  {
     Nloop--;
     if (Nloop > 0) /**< Next Loop */
       STIM_GEN_RELOAD_NEXT_COUNT(STIM_GEN_COUNT_MAX);
@@ -1835,11 +1880,11 @@ void VeineuxBiphas(void)
     }
 
     break;
+  }
 
   /** Negative Pulse, falling edge */
   case gVeineuxBiphasStateNegFall_c:
-    /** Sets Level */
-
+  {
     /** Sets Commands */
     if (gflag[0] == TRUE)
     {
@@ -1863,7 +1908,7 @@ void VeineuxBiphas(void)
 
     u8PulseStepIdx++;
 
-    if (u8PulseStepIdx > (gNbExponentialValue_c))
+    if (u8PulseStepIdx == (gNbExponentialValue_c))
     {
       tVeineuxBiphasState = gVeineuxBiphasStateNegRise_c;
       u8PulseStepIdx = 0;
@@ -1871,20 +1916,28 @@ void VeineuxBiphas(void)
     /** Sets Next Step Time */
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
     break;
+  }
 
   /** Negative Pulse, Rising edge */
   case gVeineuxBiphasStateNegRise_c:
+  {
     /** Sets Level */
-    tmp = gStimGen_t.tPulse[i].digitalAmplitude - TablePuissanceCalculee[i][u8PulseStepIdx];
     if (gStimGen_t.tPulse[i].digitalAmplitude < TablePuissanceCalculee[i][u8PulseStepIdx])
+    {
       tmp = 0;
+    }
+    else
+    {
+      tmp = gStimGen_t.tPulse[i].digitalAmplitude - TablePuissanceCalculee[i][u8PulseStepIdx];
+    }
+
     DigAmp = NORMAL_MODE | ((tmp & 0x0FFF) << 2);
     SPI_TRANSMIT_DATA(MSB(DigAmp));
     SPI_TRANSMIT_DATA(LSB(DigAmp));
 
     u8PulseStepIdx++;
 
-    if (u8PulseStepIdx > (gNbExponentialValue_c))
+    if (u8PulseStepIdx == (gNbExponentialValue_c))
     {
       u8PulseStepIdx = 0;
       tVeineuxBiphasState = gVeineuxBiphasStateNegRise_c1;
@@ -1893,24 +1946,53 @@ void VeineuxBiphas(void)
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
 
     break;
+  }
 
   case gVeineuxBiphasStateNegRise_c1:
+  {
     /** Sets Next Step Time */
     if (++i < gStimGen_t.nPulse) /**< Next Pulse */
     {
-      STIM_GEN_RELOAD_NEXT_COUNT(2000);
-      tVeineuxBiphasState = gVeineuxBiphasStateInterNeg_c;
+      STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
+        Gpio_SetElectrostimulation(eETAPE9);
+        // CMD_M_DISCONNECT;   /**< Disables pulse CMD */
+        CMD_M_SET_NO_PULSE; /**< Disables pulse CMD */
+        gflag[0] = TRUE;
+      STIM_GEN_RELOAD_NEXT_COUNT(6000);
+      tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c;
     }
     else /**< No Pulse */
     {
+      if (cpt > 0)
+      {
+        STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
+        Gpio_SetElectrostimulation(eETAPE9);
+        // CMD_M_DISCONNECT;   /**< Disables pulse CMD */
+        CMD_M_SET_NO_PULSE; /**< Disables pulse CMD */
+        gflag[0] = TRUE;
+        tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c;
+        cpt--;
+      }
+      else
+      {
+        STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
+        Gpio_SetElectrostimulation(eETAPE9);
+        // CMD_M_DISCONNECT;   /**< Disables pulse CMD */
+        CMD_M_SET_NO_PULSE; /**< Disables pulse CMD */
+        gflag[0] = TRUE;
+        tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c;
+        cpt = 7;
+      }
       STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.cntTr);
       i = 0;
-      tVeineuxBiphasState = gVeineuxBiphasStateNullNeg_c;
+     
     }
     break;
+  }
+
   /** Inter Pulse */
   case gVeineuxBiphasStateInterNeg_c:
-
+  {
     /** Sets Commands */
     CMD_M_DISCONNECT;  /**< Disables pulse CMD */
     STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
@@ -1922,18 +2004,19 @@ void VeineuxBiphas(void)
     SPI_TRANSMIT_DATA(LSB(tmp));
     /** Sets pause cmd */
     CMD_M_SET_NO_PULSE;
-    Gpio_ClrAop();
+    // Gpio_ClrAop();
     /** Sets Next Step Time */
     STIM_GEN_RELOAD_NEXT_COUNT(gStimGen_t.tPulse[i].cntWidth);
     tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c;
 
     break;
+  }
 
   /** Null Pulse */
   case gVeineuxBiphasStateNullNeg_c:
-
-    /** Sets Commands */
-    Gpio_SetElectrostimulation(eETAPE9);
+  {
+    CMD_M_DISCONNECT;  /**< Disables pulse CMD */
+    STIM_OUT_SEL_NONE; /**< Disables Pulse Output */
     gflag[0] = TRUE;
 
     /** Sets Level */
@@ -1943,7 +2026,7 @@ void VeineuxBiphas(void)
 
     /** Sets pause cmd */
     CMD_M_SET_NO_PULSE;
-    Gpio_ClrAop();
+    // Gpio_ClrAop();
     /** Sets Next Step Time */
     if (gStimGen_t.nTimerLoop > 0) /**< Next Loop */
     {
@@ -1955,21 +2038,22 @@ void VeineuxBiphas(void)
     {
       if (cpt > 0)
       {
-        tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c1;
+        tVeineuxBiphasState = gVeineuxBiphasStateNegFall_c;
         cpt--;
       }
       else
       {
-        tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c1;
+        tVeineuxBiphasState = gVeineuxBiphasStatePosRise_c;
         cpt = 7;
       }
       STIM_GEN_RELOAD_NEXT_COUNT(10 * 20);
     }
 
     break;
+  }
 
   case gVeineuxBiphasStateNullLoopNeg_c:
-
+  {
     Nloop--;
     if (Nloop > 0) /**< Next Loop */
       STIM_GEN_RELOAD_NEXT_COUNT(STIM_GEN_COUNT_MAX);
@@ -1989,10 +2073,13 @@ void VeineuxBiphas(void)
     }
 
     break;
+  }
 
   default:
+  {
     /** TODO !!!!! */
     break;
+  }
   }
 }
 /**********************************************************************************
@@ -2268,7 +2355,7 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
           Gpio_SetAop();
 
           /** Sets Level */
-          tmp = NORMAL_MODE | (((courant * 100 * 4096 / 10900) & 0x0FFF) << 2);
+          tmp = NORMAL_MODE | (((courant * 10 * 4096 / 10900) & 0x0FFF) << 2);
           SPI_TRANSMIT_DATA(MSB(tmp));
           SPI_TRANSMIT_DATA(LSB(tmp));
 
@@ -2302,7 +2389,7 @@ bool_t ElectrodeAdhesionDetection(StimOutId_t OutId)
 
           //  Application AOP -> OFF
           Gpio_ClrAop();
-          sl_udelay_wait(200);
+          sl_udelay_wait(500);
           pulseDone = true;
           tBiphasState = gBiphasStatePos_c;
           break;
