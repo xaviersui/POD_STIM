@@ -202,7 +202,7 @@ typedef enum
   gStimPatternMonophasic_c = 1,
   gStimPatternGalvanic_c = 2,
   gStimPatternSemiSinusMonophasic_c,
-  gStimPatternSemiSinusDiphas_c,
+  gStimPatternSemiSinusBiphasic_c,
   gStimPatternSinus_c,
   gStimPatternNeuro_c = 0x9,
   gStimPatternBiphasic_c = 0xB,
