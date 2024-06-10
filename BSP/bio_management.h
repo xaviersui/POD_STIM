@@ -80,9 +80,9 @@ User Includes
 /* Bio Sampling Management */
 #define BIO_SAMPLING_START        {TIMER_CounterSet(BIO_TIMER,0);TIMER_Enable(BIO_TIMER,true);}
 #define BIO_SAMPLING_STOP         {TIMER_Enable(BIO_TIMER,false);TIMER_CounterSet(BIO_TIMER,0);}
-#define BIO_SAMPLING_FREQUENCY      5000        /**< in Hz */ //2500
-#define BIO_SAMPLING_FREQUENCY_100HZ 50          /**< in 100Hz */ //25
-#define BIO_SAMPLING_FREQUENCY_kHZ    5     /**< in kHz */ //2.5
+#define BIO_SAMPLING_FREQUENCY      2500        /**< in Hz */ //2500
+#define BIO_SAMPLING_FREQUENCY_100HZ 25          /**< in 100Hz */ //25
+#define BIO_SAMPLING_FREQUENCY_kHZ    2.5      /**< in kHz */ //2.5
 #define BIO_TIMER 				    TIMER2
 #define BIO_TIMER_CLK		        cmuClock_TIMER2
 #define BIO_TIMER_FREQ				1000000 // TIMER freq cnt is 1 MHz

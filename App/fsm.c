@@ -519,10 +519,10 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
         ///////////////////MODIF LIO ///////////////
         if (On110V != true)
         {
-          DISABLE_IRQ;
+          //DISABLE_IRQ;
           GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
           On110V = true;
-          ENABLE_IRQ;
+          //ENABLE_IRQ;
         }
         ////////////////////////////////////////
         break;
@@ -631,10 +631,10 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
         ///////////////////MODIF LIO ///////////////
         if (On110V != false)
         {
-          DISABLE_IRQ;
+          //DISABLE_IRQ;
           GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
           On110V = false;
-          ENABLE_IRQ;
+          //ENABLE_IRQ;
         }
         ////////////////////////////////////////
         break;

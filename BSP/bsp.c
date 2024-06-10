@@ -113,10 +113,8 @@ void BoardInit(void)
     GPIO_PinOutClear(CMD_GV_P_PORT, CMD_GV_P_PIN);
     GPIO_PinOutClear(CMD_GV_N_PORT, CMD_GV_N_PIN);
     GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
-    //CMD_M_SET_NO_PULSE;
-    //GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
+  //  GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
     GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-
 
     On110V = false;
 
@@ -125,14 +123,7 @@ void BoardInit(void)
     initIADC();
     initTIMER();
 
-//    while(1)
-//    {
-//    	GPIO_PinOutSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-//    	sl_sleeptimer_delay_millisecond(500);
-//    	GPIO_PinOutClear(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN);
-//    	sl_sleeptimer_delay_millisecond(500);
-//    }
-    //while(EFM32_STOP_IS_EN);
+    while(EFM32_STOP_IS_EN);
 
     SrlCommManagmntInit();
     StimManagementHacheurInit();

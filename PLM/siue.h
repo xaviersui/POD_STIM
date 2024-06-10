@@ -185,8 +185,6 @@ void ImpulsBiphas(void);
 void ImpulsBiphaseSynchro(void);
 void ImpulsBiphasNeg(void);
 void Sinus(void);
-void SinusMono(void);
-void SinusBiphase(void);
 void ImpulsBiphasAltern(void);
 void Galvanic(void);
 void Gpio_SetAop();
