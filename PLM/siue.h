@@ -182,9 +182,11 @@ typedef enum
 void Gpio_SetElectrostimulation(eCdeElectrostimulation_Type eCdeElectrostimulation);
 void ImpulsMonophas(void);
 void ImpulsBiphas(void);
-void ImpulsBiphaseSynchro(void);
+void ImpulsBiphasSynchro(void);
 void ImpulsBiphasNeg(void);
 void Sinus(void);
+void SinusMono(void);
+void SinusDiphase(void);
 void ImpulsBiphasAltern(void);
 void Galvanic(void);
 void Gpio_SetAop();
@@ -192,6 +194,7 @@ void Gpio_ClrAop();
 void Timer_SetMft1Timming(uint32_t ui16Time);
 
 void VeineuxBiphas(void);
+void VeineuxBiphase2(void);
 void ImportTrameDAL(void);
 
 #endif /* APP_SIUE_H_ */

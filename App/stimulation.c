@@ -136,7 +136,7 @@ StimErr_t StimulationStop(void)
 	SPI_TRANSMIT_DATA(0);
 
 	// Application AOP -> OFF
-	Gpio_ClrAop();
+	////Gpio_ClrAop()();
 
 	for (i = 0; i < gStimOutMax_c; i++)
 	{

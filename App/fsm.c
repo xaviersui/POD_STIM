@@ -705,7 +705,7 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 			{
 				SPI_TRANSMIT_DATA(0x00);
 				SPI_TRANSMIT_DATA(0x00);
-				Gpio_ClrAop();
+				////Gpio_ClrAop()();
 			}
 #endif
       /** if error go to stop. */

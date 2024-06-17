@@ -88,18 +88,18 @@ void BoardInit(void)
 	///////////////////// Configure en GPIO en sortie //////////////////////
 	/// Pin used for stimulation
     CMU_ClockEnable(cmuClock_GPIO, true);
-    GPIO_PinModeSet(SW_DETECT_PORT, SW_DETECT_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_AOP_PORT,CMD_AOP_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_GV_P_PORT, CMD_GV_P_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_GV_N_PORT, CMD_GV_N_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_L2_PORT, CMD_L2_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_L1_PORT, CMD_L1_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_H2_PORT, CMD_H2_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CMD_H1_PORT, CMD_H1_PIN, gpioModeWiredOrPullDown, 0);
-    GPIO_PinModeSet(CS_VOIE1_PORT,CS_VOIE1_PIN,gpioModeWiredOrPullDown,0);
-    GPIO_PinModeSet(CS_VOIE2_PORT,CS_VOIE2_PIN,gpioModeWiredOrPullDown,0);
-    GPIO_PinModeSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN,gpioModeWiredOrPullDown,0);
+    GPIO_PinModeSet(SW_DETECT_PORT, SW_DETECT_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CMD_AOP_PORT,CMD_AOP_PIN, gpioModePushPull , 0);
+    GPIO_PinModeSet(CMD_110V_ON_OFF_PORT, CMD_110V_ON_OFF_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CMD_GV_P_PORT, CMD_GV_P_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CMD_GV_N_PORT, CMD_GV_N_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CMD_L2_PORT, CMD_L2_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CMD_L1_PORT, CMD_L1_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CMD_H2_PORT, CMD_H2_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CMD_H1_PORT, CMD_H1_PIN, gpioModePushPull, 0);
+    GPIO_PinModeSet(CS_VOIE1_PORT,CS_VOIE1_PIN,gpioModePushPull,0);
+    GPIO_PinModeSet(CS_VOIE2_PORT,CS_VOIE2_PIN,gpioModePushPull,0);
+    GPIO_PinModeSet(ON_OFF_BOOSTER_PORT, ON_OFF_BOOSTER_PIN,gpioModePushPull,0);
     GPIO_PinModeSet(MESURE_COURANT_PORT,MESURE_COURANT_PIN,gpioModeInput,0);
 
     /// Pin used for biofeedback

@@ -201,17 +201,18 @@ typedef enum
 {
   gStimPatternMonophasic_c = 1,
   gStimPatternGalvanic_c = 2,
-//  gStimPatternSemiSinusMonophasic_c,
-//  gStimPatternSemiSinusDiphas_c,
-  gStimPatternSinus_c,
+  gStimPatternSemiSinusMonophasic_c = 0x03,
+  gStimPatternSemiSinusDiphas_c = 0x04,
+  gStimPatternSinus_c = 0x06,
   gStimPatternNeuro_c = 0x9,
   gStimPatternBiphasic_c = 0xB,
+  gStimPatternBiphasicSynchro_c = 0x0C,
 //  gStimPatternVeineux_c = 0x10,
   gStimPatternVeineuxBiphasic_c = 0x11,
 //  gStimPatternMonophasicSingle_c = 0x12,
   gStimPatternBiphasicAltern_c = 0x13,
   gStimPatternBiphasicNegative_c = 0x14,
-  gStimPatternBiphasicSynchro_c = 0x15,
+
 
   gStimPatternMax_c,
 } StimPatternId_t;
