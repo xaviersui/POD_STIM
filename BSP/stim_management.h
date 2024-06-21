@@ -199,8 +199,8 @@ typedef enum
 /** Stim Pattern Id */
 typedef enum
 {
-  gStimPatternMonophasic_c = 1,
-  gStimPatternGalvanic_c = 2,
+  gStimPatternMonophasic_c = 0x01,
+  gStimPatternGalvanic_c = 0x02,
   gStimPatternSemiSinusMonophasic_c = 0x03,
   gStimPatternSemiSinusDiphas_c = 0x04,
   gStimPatternSinus_c = 0x06,
