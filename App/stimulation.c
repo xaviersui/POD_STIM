@@ -104,6 +104,7 @@ StimErr_t StimulationStart(void)
 			gflag[0] = TRUE;
 
 		STIM_SUPERVIS_START;
+		//STIM_GEN_RESET_COUNT;
 		STIM_GEN_START;
 	}
 

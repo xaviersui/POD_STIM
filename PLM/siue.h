@@ -174,11 +174,6 @@ typedef enum
 \brief Nombre de purge de l'ADC r�alis�es � l'arr�t du SS */
 #define iNB_PURGE_ADC_ON_STOP_SS                                                10
 
-
-//#define STIM_GEN_TRM_PERIOD_MAX   32768     // in �s*10^(-1)  //( ((uint32_t)(TMR_RC_COUNTER_MAX + 1)*DEF_TIME_NBR_uS_PER_SEC)/STIM_GEN_TRM_CLK_SOURCE )
-
-
-//int32_t Ad5691r_SetIntensiteStimulation(uint32_t v/*uint32_t ui32Intensite*/);
 void Gpio_SetElectrostimulation(eCdeElectrostimulation_Type eCdeElectrostimulation);
 void ImpulsMonophas(void);
 void ImpulsBiphas(void);
@@ -186,15 +181,18 @@ void ImpulsBiphasSynchro(void);
 void ImpulsBiphasNeg(void);
 void Sinus(void);
 void SinusMono(void);
+void Sinus2(void);
 void SinusDiphase(void);
 void ImpulsBiphasAltern(void);
 void Galvanic(void);
+void ImpulsBiphasCompens(void);
 void Gpio_SetAop();
 void Gpio_ClrAop();
 void Timer_SetMft1Timming(uint32_t ui16Time);
 
 void VeineuxBiphas(void);
-void VeineuxBiphase2(void);
+
+void NeuroMonophas(void);
 void ImportTrameDAL(void);
 
 #endif /* APP_SIUE_H_ */

@@ -114,7 +114,7 @@ User Includes
 
 
 #define CMD_M_SET_POSITIVE_PULSE  Gpio_SetElectrostimulation(eETAPE3) // Set Haut L2-H1  CLR L1 /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
-#define CMD_M_SET_NEGATIVE_PULSE  Gpio_SetElectrostimulation(eETAPE8)//set Bas H2-L1  CLR L2 /*CMD_M_PORT = NEGATIVE_PULSE_CMD*/
+#define CMD_M_SET_NEGATIVE_PULSE  Gpio_SetElectrostimulation(eETAPE8)//set haut H2-L1  CLR L2 /*CMD_M_PORT = NEGATIVE_PULSE_CMD*/
 #define CMD_M_SET_NO_PULSE     Gpio_SetElectrostimulation(eETAPE2) //Set L1-L2     /*CMD_M_PORT = NO_PULSE_CMD*/
 #define CMD_M_DISCONNECT     Gpio_SetElectrostimulation(eETAPE1)   //CLR L1-L2-H1-H2     /*CMD_M_PORT = POSITIVE_PULSE_CMD*/
 
@@ -125,9 +125,11 @@ User Includes
 #define NEG_PULSE GPIO->P_SET[CMD_H1_PORT].DOUT = ((1 << CMD_H2_PIN) | (1 << CMD_L1_PIN))
 #define CMD_GALV_SEL_NONE {GPIO->P_CLR[CMD_GV_P_PORT].DOUT = ((1 << CMD_GV_P_PIN) | (1 << CMD_GV_N_PIN));\
 						   CLR_BRIDGE;}
-#define CMD_GALV_SEL_NEG GPIO->P_SET[CMD_GV_N_PORT].DOUT = (1 << CMD_GV_N_PIN)
+#define CMD_GALV_SEL_NEG {GPIO->P_SET[CMD_GV_N_PORT].DOUT = (1 << CMD_GV_N_PIN);\
+				          GPIO->P_SET[CMD_L1_PORT].DOUT = (1 << CMD_L1_PIN);}
+
 #define CMD_GALV_SEL_POS {GPIO->P_SET[CMD_GV_P_PORT].DOUT = (1 << CMD_GV_P_PIN);\
-						  GPIO->P_SET[CMD_L1_PORT].DOUT = (1 << CMD_L1_PIN);}
+						  GPIO->P_SET[CMD_L2_PORT].DOUT = (1 << CMD_L2_PIN);}
 
 /* Switching Management */
 #define SWITCH_FORCE_COUNT_STOP   TMR_RA_FORCE_COUNT_STOP
@@ -135,7 +137,7 @@ User Includes
 #define SWITCH_STOP        {TIMER_Enable(TIMER_GEN_COURANT,false);/*TIMER_CounterSet(TIMER0,0);*/}
 
 #define STIM_GEN_RELOAD_NEXT_COUNT(val)   Timer_SetMft1Timming(val)
-#define STIM_GEN_RESET_COUNT         TIMER_CounterSet(TIMER_GEN_COURANT,0xffffffff)   // Timer RB counter
+#define STIM_GEN_RESET_COUNT         {TIMER_TopSet(TIMER_GEN_COURANT,0xFFFF);/*;TIMER_CounterSet(TIMER_GEN_COURANT,0);*/}
 
 
 #define DAC_VALUE_MAX       4095
@@ -199,15 +201,15 @@ typedef enum
 /** Stim Pattern Id */
 typedef enum
 {
-  gStimPatternMonophasic_c = 0x01,
-  gStimPatternGalvanic_c = 0x02,
+  gStimPatternMonophasic_c = 1,
+  gStimPatternGalvanic_c = 2,
   gStimPatternSemiSinusMonophasic_c = 0x03,
   gStimPatternSemiSinusDiphas_c = 0x04,
   gStimPatternSinus_c = 0x06,
   gStimPatternNeuro_c = 0x9,
   gStimPatternBiphasic_c = 0xB,
   gStimPatternBiphasicSynchro_c = 0x0C,
-//  gStimPatternVeineux_c = 0x10,
+  gStimPatternBiphasicCompense_c = 0x0E,
   gStimPatternVeineuxBiphasic_c = 0x11,
 //  gStimPatternMonophasicSingle_c = 0x12,
   gStimPatternBiphasicAltern_c = 0x13,

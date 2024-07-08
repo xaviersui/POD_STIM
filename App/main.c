@@ -68,9 +68,10 @@ User Includes
 #include "includes.h"
 
 #include "bsp.h"
-//#include "stim_management.h"
+#include "stim_management.h"
+#include "stimulation.h"
 #include "bio_management.h"
-
+#include "CarteStimBio_WdgI.h"
 /************************************************************************************
 *************************************************************************************
 * Private macros
@@ -294,6 +295,8 @@ Return value:   none
 ***********************************************************************************/
 void ApplicationInit(void)
 {
+
+
   StimulationInit();
   BiofeedbackInit();
 }

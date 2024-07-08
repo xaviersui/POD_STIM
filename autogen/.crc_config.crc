@@ -5,6 +5,7 @@ sl_device_init_dcdc_config.h=-1580606003
 sl_device_init_emu_config.h=622680131
 sl_device_init_hfxo_config.h=1255225254
 sl_hfxo_manager_config.h=1606678224
+sl_legacy_hal_wdog_config.h=743238094
 sl_memory_config.h=687128566
 sl_sleeptimer_config.h=1360009810
 sl_spidrv_eusart_GEN_SPI_config.h=1151805875

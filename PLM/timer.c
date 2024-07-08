@@ -24,7 +24,6 @@ extern Stimulation_t gStim_t;    /**< */
  *****************************************************************************/
 void initTIMER(void)
 {
-
   CMU_ClockEnable(TIMER_GEN_COURANT_CLK, true);
   CMU_ClockEnable(TIMER_ENV_CLK, true);
 
@@ -32,11 +31,11 @@ void initTIMER(void)
   // Do not start counter upon initialization
   GentimerInit.enable = false;
   // Run in one-shot mode and toggle the pin on each compare match
-  GentimerInit.oneShot = true;
+  GentimerInit.oneShot = false;
   GentimerInit.prescale = _TIMER_CFG_PRESC_DIV2/*(CMU_ClockFreqGet(TIMER_GEN_COURANT_CLK)/TIMER_GEN_COURANT_FRQ) - 1*/;
 
   TIMER_Init(TIMER_GEN_COURANT, &GentimerInit);
-  TIMER_IntEnable(TIMER_GEN_COURANT,TIMER_IF_OF);
+  TIMER_IntEnable(TIMER_GEN_COURANT,TIMER_IEN_OF);
 
   /////// Init TIMER_ENV
   SupervistimerInit.enable = false;
@@ -56,32 +55,37 @@ void initTIMER(void)
 
 void set_timer0_time(uint32_t time)
 {
-	DISABLE_IRQ;
     TIMER_Enable(TIMER_GEN_COURANT, false);
 	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
 	TIMER_CounterSet(TIMER_GEN_COURANT,0);
 	uint32_t cnt = time - 1;
+
 	if(TIMER_TopGet(TIMER_GEN_COURANT) != cnt)
 	{
 		TIMER_TopSet(TIMER_GEN_COURANT, cnt);
 	}
   TIMER_Enable(TIMER_GEN_COURANT, true);
-  ENABLE_IRQ;
+
 }
 
 void set_timer1_time(uint32_t time)
 {
-	DISABLE_IRQ;
+	//DISABLE_IRQ;
   uint32_t cnt = time - 1;
   if(TIMER_TopGet(TIMER_ENV) != cnt)
   {
     TIMER_TopSet(TIMER_ENV, cnt);
   }
-  ENABLE_IRQ;
+  //ENABLE_IRQ;
 }
 
 void TIMER0_IRQHandler(void)
 {
+//	if(gStim_t.tConfig.patternId == gStimPatternGalvanic_c)
+//	{
+//		CMD_GALV_SEL_NONE;
+//		CMD_GALV_SEL_NEG;
+//	}
 	(void)pStimGenCallback[gStim_t.tConfig.patternId]();
 	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
 

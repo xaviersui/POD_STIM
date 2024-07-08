@@ -19,7 +19,7 @@ source:
 - {path: app.c}
 - {path: main.c}
 include:
-- path: ''
+- path: .
   file_list:
   - {path: app.h}
 sdk: {id: gecko_sdk, version: 4.4.1}
@@ -29,6 +29,7 @@ component:
 - {id: device_init}
 - {id: device_init_hfxo}
 - {id: emlib_iadc}
+- {id: emlib_wdog}
 - {id: hfxo_manager}
 - {id: math}
 - {id: sl_system}

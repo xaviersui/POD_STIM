@@ -27,6 +27,8 @@ User Includes
 #include "flash.h"
 #include "spi.h"
 #include <string.h>
+#include "em_wdog.h"
+#include <CarteStimBio_WdgI.h>
 /************************************************************************************
 *************************************************************************************
 * Private macros
@@ -139,6 +141,7 @@ void FsmRun(void)
   // It only exits if the FSM_STOP state is required.
   for (;;)
   {
+
     switch (fsmState)
     {
     case gFsmStateInitialization_c:
@@ -214,6 +217,7 @@ void FsmTaskInitialization(FsmState_t *fsmStateId, bool_t *bFSMStateChangePendin
   // Init if necessary
   for (;;)
   {
+    CarteRf_WdgI_Rearme();
     // p0_1 = !p0_1;
     switch (fsmTaskAction)
     {
@@ -388,6 +392,7 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 
   for (;;)
   {
+    CarteRf_WdgI_Rearme();
     switch (fsmTaskAction)
     {
     case gFsmTaskStart_c:
@@ -519,11 +524,12 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
         ///////////////////MODIF LIO ///////////////
         if (On110V != true)
         {
-          //DISABLE_IRQ;
+          GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
+
           GPIO->P_SET[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
-          Gpio_SetAop();
+          GPIO->P_CLR[ON_OFF_BOOSTER_PORT].DOUT = (1 << ON_OFF_BOOSTER_PIN);
           On110V = true;
-          //ENABLE_IRQ;
+          Gpio_SetAop();
         }
         ////////////////////////////////////////
         break;
@@ -632,11 +638,14 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
         ///////////////////MODIF LIO ///////////////
         if (On110V != false)
         {
-          //DISABLE_IRQ;
-        	Gpio_ClrAop();
+
+          GPIO->P_CLR[CMD_H1_PORT].DOUT = (1 << CMD_L1_PIN) | (1 << CMD_L2_PIN) | (1 << CMD_H1_PIN) | (1 << CMD_H2_PIN);
+
+          Gpio_ClrAop();
           GPIO->P_CLR[CMD_110V_ON_OFF_PORT].DOUT = (1 << CMD_110V_ON_OFF_PIN);
+          GPIO->P_SET[ON_OFF_BOOSTER_PORT].DOUT = (1 << ON_OFF_BOOSTER_PIN);
+
           On110V = false;
-          //ENABLE_IRQ;
         }
         ////////////////////////////////////////
         break;
@@ -703,12 +712,12 @@ void FsmTaskStimulation(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
       {
       }
 #ifndef TEST_MODE
-			if (!ActivityFlag)
-			{
-				SPI_TRANSMIT_DATA(0x00);
-				SPI_TRANSMIT_DATA(0x00);
-				////Gpio_ClrAop()();
-			}
+      if (!ActivityFlag)
+      {
+        SPI_TRANSMIT_DATA(0x00);
+        SPI_TRANSMIT_DATA(0x00);
+        ////Gpio_ClrAop()();
+      }
 #endif
       /** if error go to stop. */
       if (0)
@@ -803,6 +812,7 @@ void FsmTaskBiofeedback(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 
   for (;;)
   {
+    CarteRf_WdgI_Rearme();
     switch (fsmTaskAction)
     {
     case gFsmTaskStart_c:
@@ -1146,6 +1156,7 @@ void FsmTaskManagement(FsmState_t *fsmStateId, bool_t *bFSMStateChangePending)
 
   for (;;)
   {
+    CarteRf_WdgI_Rearme();
     switch (fsmTaskAction)
     {
     case gFsmTaskStart_c:
