@@ -70,22 +70,20 @@ void set_timer0_time(uint32_t time)
 
 void set_timer1_time(uint32_t time)
 {
-	//DISABLE_IRQ;
-  uint32_t cnt = time - 1;
-  if(TIMER_TopGet(TIMER_ENV) != cnt)
-  {
-    TIMER_TopSet(TIMER_ENV, cnt);
-  }
-  //ENABLE_IRQ;
+	TIMER_Enable(TIMER_ENV, false);
+		TIMER_IntClear(TIMER_ENV, TIMER_IF_OF);
+		TIMER_CounterSet(TIMER_ENV,0);
+		uint32_t cnt = time - 1;
+
+		if(TIMER_TopGet(TIMER_ENV) != cnt)
+		{
+			TIMER_TopSet(TIMER_ENV, cnt);
+		}
+	  TIMER_Enable(TIMER_ENV, true);
 }
 
 void TIMER0_IRQHandler(void)
 {
-//	if(gStim_t.tConfig.patternId == gStimPatternGalvanic_c)
-//	{
-//		CMD_GALV_SEL_NONE;
-//		CMD_GALV_SEL_NEG;
-//	}
 	(void)pStimGenCallback[gStim_t.tConfig.patternId]();
 	TIMER_IntClear(TIMER_GEN_COURANT, TIMER_IF_OF);
 

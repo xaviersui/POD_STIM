@@ -1,18 +1,17 @@
 /**
-* @file   fsm.h
-* @ingroup  GrpAppl
-* @brief  Finite State Machine header file.
-*
-* Copyright : 2009 Vivaltis.\n
-*         All Rights Reserved
-*/
+ * @file   fsm.h
+ * @ingroup  GrpAppl
+ * @brief  Finite State Machine header file.
+ *
+ * Copyright : 2009 Vivaltis.\n
+ *         All Rights Reserved
+ */
 
 /***********************************************************************************
 Revision History
 DD.MM.YYYY OSO-UID Description
 07.07.2006 RSO-PIS First Release
 ***********************************************************************************/
-
 
 #ifndef FINITE_STATE_MACHINE_H_INCLUDED
 #define FINITE_STATE_MACHINE_H_INCLUDED
@@ -29,14 +28,11 @@ User Includes
 /* RSKR8C27def.h provides common defines for widely used items. */
 #include "rskR8C27def.h"
 
-
 /************************************************************************************
 *************************************************************************************
 * Public macros
 *************************************************************************************
 ************************************************************************************/
-
-
 
 /************************************************************************************
 *************************************************************************************
@@ -60,8 +56,6 @@ typedef enum
   gFsmStateErrInvalidFsmStateId_c
 } FsmStateErr_t;
 
-
-
 /************************************************************************************
 *************************************************************************************
 * Public memory declarations
@@ -75,5 +69,4 @@ typedef enum
 ************************************************************************************/
 extern void FsmRun(void);
 
-
-#endif    /*  FINITE_STATE_MACHINE_H_INCLUDED */
+#endif /*  FINITE_STATE_MACHINE_H_INCLUDED */

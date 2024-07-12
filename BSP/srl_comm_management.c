@@ -29,19 +29,16 @@ User Includes
 * Private macros
 *************************************************************************************
 ************************************************************************************/
-#define SRL_COMM_BUFF_SIZE_MAX      50
+#define SRL_COMM_BUFF_SIZE_MAX 50
 
-
-#define SRL_COMM_GET_RESOURCE       DISABLE_IRQ
-#define SRL_COMM_RELEASE_RESOURCE   ENABLE_IRQ
-
+#define SRL_COMM_GET_RESOURCE DISABLE_IRQ
+#define SRL_COMM_RELEASE_RESOURCE ENABLE_IRQ
 
 /************************************************************************************
 *************************************************************************************
 * Private prototypes
 *************************************************************************************
 ************************************************************************************/
-
 
 /************************************************************************************
 *************************************************************************************
@@ -59,19 +56,17 @@ typedef struct
 
 } gSrlCommBuff_t;
 
-
 /************************************************************************************
 *************************************************************************************
 * Private memory declarations
 *************************************************************************************
 ************************************************************************************/
-gSrlCommBuff_t  gSrlCommBuffRx = {0,0,0,0,0,{0}};
+gSrlCommBuff_t gSrlCommBuffRx = {0, 0, 0, 0, 0, {0}};
 static bool_t gDataAvailable = FALSE;
 
 #ifdef TEST_MODE_1_SRL0
-uint16_t nRx=0;
+uint16_t nRx = 0;
 #endif
-
 
 /************************************************************************************
 *************************************************************************************
@@ -97,7 +92,6 @@ void SrlCommManagmntInit(void)
   SrlCommManagmntFlushBuffRx();
 
   UartInitialize();
-
 }
 /**********************************************************************************
 End of function
@@ -109,7 +103,7 @@ Description:
 Parameters:   none
 Return value:   none
 ***********************************************************************************/
-void SrlCommManagmntFlushBuffRx( void )
+void SrlCommManagmntFlushBuffRx(void)
 {
   SRL_COMM_GET_RESOURCE;
 
@@ -121,7 +115,6 @@ void SrlCommManagmntFlushBuffRx( void )
   gSrlCommBuffRx.nAvailableBytes = 0;
 
   SRL_COMM_RELEASE_RESOURCE;
-
 }
 /***********************************************************************************
 End of function SrlCommManagmntFlushBuffRx
@@ -138,7 +131,6 @@ SrlCommErr_t SrlCommManagmntWriteData(uint8_t *pBuff, uint8_t bufferSize)
   uint32_t u32loop;
   UartErr_t uartErr;
 
-
   if (pBuff == NULL)
     return gSrlCommErrNullPointer_c;
 
@@ -149,14 +141,15 @@ SrlCommErr_t SrlCommManagmntWriteData(uint8_t *pBuff, uint8_t bufferSize)
   if (bufferSize == 0)
     return gSrlCommErrNoError_c;
 
-  //sl_udelay_wait(200);
-  // OK to send.
-  uartErr = UartWriteData (pBuff, bufferSize);
+  // sl_udelay_wait(200);
+  //  OK to send.
+  uartErr = UartWriteData(pBuff, bufferSize);
 
   /* add a tempo to avoid sending 2 successive uart messages */
-  for(u32loop=0;u32loop<0x05FF;u32loop++);
+  for (u32loop = 0; u32loop < 0x05FF; u32loop++)
+    ;
 
-  if(uartErr != gUartErrNoError_c)
+  if (uartErr != gUartErrNoError_c)
     return gSrlCommErrWriteError_c;
 
   return gSrlCommErrNoError_c;
@@ -182,8 +175,8 @@ SrlCommErr_t SrlCommManagmntReadData(uint8_t *pBuff, uint8_t bufferSize, uint8_t
     return gSrlCommErrInvalidSize_c;
 
   // Disable serial interrupt to avoid memory access sharing problem.
-  //SRL_COMM_GET_RESOURCE;
-  if(!gDataAvailable)
+  // SRL_COMM_GET_RESOURCE;
+  if (!gDataAvailable)
   {
     *nDataRcvd = 0;
     return gSrlCommErrNoError_c;
@@ -196,7 +189,7 @@ SrlCommErr_t SrlCommManagmntReadData(uint8_t *pBuff, uint8_t bufferSize, uint8_t
     // There is no enough data.
     *nDataRcvd = gSrlCommBuffRx.nAvailableBytes;
     // Enable serial interrupt
-    //SRL_COMM_RELEASE_RESOURCE;
+    // SRL_COMM_RELEASE_RESOURCE;
 
     return gSrlCommErrNoError_c;
   }
@@ -206,23 +199,22 @@ SrlCommErr_t SrlCommManagmntReadData(uint8_t *pBuff, uint8_t bufferSize, uint8_t
 
     // Refresh Global Rx Buffer
     gSrlCommBuffRx.nAvailableBytes -= bufferSize;
-    if(!gSrlCommBuffRx.nAvailableBytes)
+    if (!gSrlCommBuffRx.nAvailableBytes)
       gDataAvailable = FALSE;
 
     // Copy Rx Buffer to pBuffer Data
-    for(i=0;i<bufferSize;i++)
+    for (i = 0; i < bufferSize; i++)
     {
       // Copy one byte
-      pBuff[i] = gSrlCommBuffRx.data[ gSrlCommBuffRx.readIdx ];
+      pBuff[i] = gSrlCommBuffRx.data[gSrlCommBuffRx.readIdx];
 
       // Increment the data index and roll over if necessary
       gSrlCommBuffRx.readIdx = (gSrlCommBuffRx.readIdx + 1) % SRL_COMM_BUFF_SIZE_MAX;
-
     };
   };
 
   // Enable serial interrupt
-  //SRL_COMM_RELEASE_RESOURCE;
+  // SRL_COMM_RELEASE_RESOURCE;
 
   return gSrlCommErrNoError_c;
 }
@@ -240,32 +232,31 @@ Description: Interrupt routine for UART receive
 void EUSART0_RX_IRQHandler(void)
 {
   uint16_t u16RxData;
-  if(!gSrlCommBuffRx.getlen)
+  if (!gSrlCommBuffRx.getlen)
   {
 #ifdef TEST_MODE_1_SRL0
     nRx++;
 #endif
-    SRL_COMM_RECEIVE_DATA( u16RxData );
-    //u16RxData = EUSART0->RXDATA;
+    SRL_COMM_RECEIVE_DATA(u16RxData);
+    // u16RxData = EUSART0->RXDATA;
     gSrlCommBuffRx.len = u16RxData & 0x00FF;
 
-    if( u16RxData & 0xF000 )
+    if (u16RxData & 0xF000)
     {
       u16RxData &= 0x00FF;
     }
 
-    if(gSrlCommBuffRx.len)
+    if (gSrlCommBuffRx.len)
     {
       gSrlCommBuffRx.nAvailableBytes = gSrlCommBuffRx.len;
       gSrlCommBuffRx.getlen = TRUE;
     }
-
   }
   else
   {
-	  SRL_COMM_RECEIVE_DATA( u16RxData );
+    SRL_COMM_RECEIVE_DATA(u16RxData);
     gSrlCommBuffRx.data[gSrlCommBuffRx.writeIdx] = u16RxData & 0x00FF;
-    if( u16RxData & 0xF000 )
+    if (u16RxData & 0xF000)
     {
       u16RxData &= 0x00FF;
     }
@@ -273,15 +264,14 @@ void EUSART0_RX_IRQHandler(void)
     gSrlCommBuffRx.writeIdx = (gSrlCommBuffRx.writeIdx + 1) % SRL_COMM_BUFF_SIZE_MAX;
 
     gSrlCommBuffRx.len--;
-    if(!gSrlCommBuffRx.len)
+    if (!gSrlCommBuffRx.len)
     {
       gSrlCommBuffRx.getlen = FALSE;
       gDataAvailable = TRUE;
     }
   }
-  EUSART_IntClear(EUSART0,EUSART_IF_RXFL);
+  EUSART_IntClear(EUSART0, EUSART_IF_RXFL);
 }
 /***********************************************************************************
 End of ISR function U1rec_ISR
 ***********************************************************************************/
-

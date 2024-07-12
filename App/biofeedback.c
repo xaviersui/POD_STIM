@@ -297,8 +297,6 @@ BioErr_t BiofeedbackStop(void)
   BioManagementDisableAllInput();
   BioManagementInit();
 
-
-
   return gBioErrNoError_c;
 }
 /**********************************************************************************
